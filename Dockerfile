@@ -32,4 +32,6 @@ ADD resources/themes /redmine/setup/themes
 ADD resources/start /redmine/start
 RUN chmod 755 /redmine/start /redmine/setup/install && /redmine/setup/install
 
+EXPOSE 80
+
 CMD ["/redmine/start"]
