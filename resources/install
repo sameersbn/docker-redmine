@@ -48,7 +48,7 @@ production:
   database: {{DB_NAME}}
   host: {{DB_HOST}}
   username: {{DB_USER}}
-  password: {{DB_PASSWD}}
+  password: {{DB_PASS}}
 EOF
 
 # install themes
