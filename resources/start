@@ -28,8 +28,8 @@ supervisorctl update
 sleep 3
 fi
 
-chmod -R 755 /redmine/files
-chown -R www-data:www-data /redmine/files
+chmod 755 /redmine/files
+chown www-data:www-data /redmine/files
 
 cd /redmine
 sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
