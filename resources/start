@@ -5,6 +5,9 @@ DB_NAME=${DB_NAME:-redmine}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
 
+# start supervisord
+/usr/bin/supervisord
+
 if [ "${DB_HOST}" == "localhost" ]; then
 	mysql_install_db --user=mysql
 	/usr/bin/mysqld_safe &

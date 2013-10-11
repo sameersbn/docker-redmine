@@ -25,6 +25,8 @@ RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p448.tar.gz -O - | tar 
     cd /tmp/ruby-1.9.3-p448/ext/zlib && ruby extconf.rb && make && make install && cd /tmp \
     rm -rf /tmp/ruby-1.9.3-p448 && gem install --no-ri --no-rdoc bundler mysql2
 
+RUN apt-get install -y supervisor && apt-get clean
+
 ADD resources/redmine-2.3.3.tar.gz /redmine/setup/redmine-2.3.3.tar.gz
 ADD resources/install /redmine/setup/install
 ADD resources/plugins /redmine/setup/plugins
