@@ -4,6 +4,7 @@ DB_HOST=${DB_HOST:-localhost}
 DB_NAME=${DB_NAME:-redmine}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
+DB_POOL=${DB_POOL:-5}
 DB_INIT=${DB_INIT:-no}
 
 # start supervisord
@@ -35,6 +36,7 @@ sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
 sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
 sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
 sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
+sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
 
 if [ "${DB_INIT}" == "yes" ]; then
 	# isolate the plugins
