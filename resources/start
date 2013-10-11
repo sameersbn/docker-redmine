@@ -33,5 +33,4 @@ su www-data -m -c 'RAILS_ENV=production rake db:migrate'
 mv plugins-1 plugins
 su www-data -m -c 'RAILS_ENV=production rake redmine:plugins:migrate'
 
-/usr/sbin/apache2
 tail -F /var/log/apache2/other_vhosts_access.log
