@@ -32,22 +32,22 @@ chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
 cd /redmine
-sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
-sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
-sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
-sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
-sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
 
 if [ "${DB_INIT}" == "yes" ]; then
 	# isolate the plugins
-	mv plugins plugins-1
-	RAILS_ENV=production rake db:create
-	RAILS_ENV=production rake db:migrate
-	mv plugins-1 plugins
-	RAILS_ENV=production rake redmine:plugins:migrate
+	sudo -u www-data -H mv plugins plugins-1
+	sudo -u www-data -H RAILS_ENV=production rake db:create
+	sudo -u www-data -H RAILS_ENV=production rake db:migrate
+	sudo -u www-data -H mv plugins-1 plugins
+	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
 fi
 
-rake generate_secret_token
-touch tmp/restart.txt
+sudo -u www-data -H rake generate_secret_token
+sudo -u www-data -H touch tmp/restart.txt
 
 tail -F /var/log/apache2/other_vhosts_access.log

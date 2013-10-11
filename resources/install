@@ -42,7 +42,7 @@ wget "http://www.redmine.org/releases/redmine-2.3.3.tar.gz" -O - | tar -zvxf - -
 bundle install --without postgresql
 
 # add database.yml template
-cat > config/database.yml <<EOF
+sudo -u www-data -H cat > config/database.yml <<EOF
 production:
   adapter: mysql2
   database: {{DB_NAME}}
