@@ -62,3 +62,14 @@ mkdir -p tmp tmp/pdf public/plugin_assets
 chmod -R 755 files log public/plugin_assets
 chmod -R 1777 tmp
 chown -R www-data:www-data /redmine
+
+cat > /etc/supervisor/conf.d/apache2.conf <<EOF
+[program:apache2]
+directory=/
+command=/usr/sbin/apache2 -DFOREGROUND
+user=root
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s_error.log
+EOF
