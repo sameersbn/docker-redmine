@@ -4,11 +4,13 @@ DB_HOST=${DB_HOST:-localhost}
 DB_NAME=${DB_NAME:-redmine}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
+DB_INIT=${DB_INIT:-no}
 
 # start supervisord
 /usr/bin/supervisord
 
 if [ "${DB_HOST}" == "localhost" ]; then
+DB_INIT="yes"
 mysql_install_db --user=mysql
 cat > /etc/supervisor/conf.d/mysqld.conf <<EOF
 [program:mysqld]
@@ -34,14 +36,16 @@ sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
 sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
 sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
 
-# isolate the plugins
-mv plugins plugins-1
+if [ "${DB_INIT}" == "yes" ]; then
+	# isolate the plugins
+	mv plugins plugins-1
+	RAILS_ENV=production rake db:create
+	RAILS_ENV=production rake db:migrate
+	mv plugins-1 plugins
+	RAILS_ENV=production rake redmine:plugins:migrate
+fi
 
-su www-data -m -c 'rake generate_secret_token'
-su www-data -m -c 'RAILS_ENV=production rake db:create'
-su www-data -m -c 'RAILS_ENV=production rake db:migrate'
-
-mv plugins-1 plugins
-su www-data -m -c 'RAILS_ENV=production rake redmine:plugins:migrate'
+rake generate_secret_token
+touch tmp/restart.txt
 
 tail -F /var/log/apache2/other_vhosts_access.log
