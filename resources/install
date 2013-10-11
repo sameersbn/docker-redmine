@@ -14,7 +14,7 @@ else
   echo "ERROR: could not configure passenger module"
 fi
 
-tee >> /etc/apache2/apache2.conf <<EOF
+cat >> /etc/apache2/apache2.conf <<EOF
 
 PassengerRoot /usr/lib/ruby/gems/1.9.1/gems/passenger-3.0.21
 PassengerRuby /usr/bin/ruby
@@ -22,7 +22,7 @@ PassengerDefaultUser www-data
 PassengerMaxRequests 5000
 EOF
 
-tee /etc/apache2/conf.d/redmine.conf <<EOF
+cat > /etc/apache2/conf.d/redmine.conf <<EOF
 <VirtualHost *:80>
   RailsEnv production
   DocumentRoot /redmine/public
@@ -42,7 +42,7 @@ wget "http://www.redmine.org/releases/redmine-2.3.3.tar.gz" -O - | tar -zvxf - -
 bundle install --without postgresql
 
 # add database.yml template
-tee config/database.yml <<EOF
+cat > config/database.yml <<EOF
 production:
   adapter: mysql2
   database: {{DB_NAME}}
