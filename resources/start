@@ -26,7 +26,7 @@ EOF
 if [ "${DB_HOST}" == "localhost" ]; then
 DB_INIT="yes"
 mysql_install_db --user=mysql
-cat > /etc/supervisor/conf.d/mysqld.conf <<EOF
+	cat > /etc/supervisor/conf.d/mysqld.conf <<EOF
 [program:mysqld]
 priority=20
 directory=/tmp
@@ -37,8 +37,19 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
-supervisorctl update
-sleep 3
+	supervisorctl update
+
+	# wait for mysql server to start (max 120 seconds)
+	timeout=120
+	while ! mysqladmin -uroot ${DB_PASS:+-p$DB_PASS} status >/dev/null 2>&1
+	do
+		timeout=$(expr $timeout - 1)
+		if [ $timeout -eq 0 ]; then
+			echo "Failed to start mysql server"
+			exit 1
+		fi
+		sleep 1
+	done
 fi
 
 chmod 755 /redmine/files
