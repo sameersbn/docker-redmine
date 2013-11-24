@@ -27,10 +27,7 @@ RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p448.tar.gz -O - | tar 
 
 RUN apt-get install -y sudo supervisor && apt-get clean
 
-ADD resources/install /redmine/setup/install
-ADD resources/plugins /redmine/setup/plugins
-ADD resources/themes /redmine/setup/themes
-ADD resources/redmine /redmine/redmine
+ADD resources/ /redmine/
 RUN chmod 755 /redmine/redmine /redmine/setup/install && /redmine/setup/install
 
 EXPOSE 80
