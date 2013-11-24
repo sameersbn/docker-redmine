@@ -4,10 +4,18 @@ Dockerfile to build a Redmine container image (with some additional themes and p
 
 ## Installation
 
+Pull the docker image from the docker index. This is the recommended method of installation as it is easier to update image in the future. These builds are performed by the Trusted Build service.
+
+```bash
+docker pull sameersbn/redmine
+```
+
+Alternately you can build the image yourself.
+
 ```bash
 git clone https://github.com/sameersbn/docker-redmine.git
 cd docker-redmine
-sudo docker build -t="redmine" .
+sudo docker build -t="$USER/redmine" .
 ```
 
 ## Quick Start
@@ -44,7 +52,7 @@ Volumes can be mounted in docker by specifying the **'-v'** option in the docker
 
 ```bash
 mkdir -pv /opt/redmine/files
-docker run -d -v /opt/redmine/files:/redmine/files redmine
+docker run -d -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
 
 ### Configuring MySQL database connection
@@ -57,7 +65,7 @@ This docker image is configured to use a MySQL database backend. The database co
 mkdir /opt/redmine/mysql
 docker run -d \
   -v /opt/redmine/files:/redmine/files \
-  -v /opt/redmine/mysql:/var/lib/mysql redmine
+  -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine
 ```
 
 This will make sure that the data stored in the database is not lost when the image is stopped and started again.
@@ -84,7 +92,7 @@ To make sure the database is initialized start the container with DB_INIT=yes en
 docker run -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" -e "DB_INIT=yes" \
-  -v /opt/redmine/files:/redmine/files redmine
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
 
 This will initialize the redmine database. Now that the database is initialized, omit the **-e "DB_INIT=yes"** option from the docker command.
@@ -93,7 +101,7 @@ This will initialize the redmine database. Now that the database is initialized,
 docker run -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files redminee
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
 
 ### Other options
@@ -145,7 +153,7 @@ Below is the complete list of parameters that can be set using environment varia
 docker run -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql \
-  redmine
+  sameersbn/redmine
 ```
 
 If you are using an external mysql database
@@ -154,7 +162,7 @@ If you are using an external mysql database
 docker run -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  redmine
+  sameersbn/redmine
 ```
 
 ## References
