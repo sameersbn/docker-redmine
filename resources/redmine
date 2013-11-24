@@ -75,6 +75,12 @@ db_initialize () {
 	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
 }
 
+db_migrate () {
+	db_initialize
+	rake tmp:cache:clear
+	rake tmp:sessions:clear
+}
+
 redmine_start () {
 	if [ "${DB_INIT}" == "yes" ]; then
 		db_initialize
@@ -90,6 +96,7 @@ redmine_help () {
 	echo "Available options:"
 	echo " start       - Starts the redmine server (default)"
 	echo " initialize  - Initialize the database."
+	echo " migrate     - Migrate the database."
 	echo " help        - Displays the help"
 }
 
@@ -99,6 +106,9 @@ case "$1" in
 		;;
 	initialize)
 		db_initialize
+		;;
+	migrate)
+		db_migrate
 		;;
 	help|*)
 		redmine_help
