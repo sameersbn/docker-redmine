@@ -4,6 +4,8 @@ Current Version: 2.4.1
 
 Dockerfile to build a Redmine container image (with some additional themes and plugins).
 
+***Please refer to upgrading section if coming from previous version***
+
 ## Installation
 
 Pull the docker image from the docker index. This is the recommended method of installation as it is easier to update image in the future. These builds are performed by the Trusted Build service.
@@ -105,6 +107,39 @@ docker run -d \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
+
+## Upgrading
+
+If you upgrading from previous version, please make sure you run the container with **migrate** command.
+
+**Step 1: Stop the currently running image**
+
+```bash
+docker stop <container-id>
+```
+
+**Step 2: Backup the database in case something goes wrong.**
+
+```bash
+mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
+```
+
+**Step 3: Update the docker image.**
+
+```bash
+docker pull sameersbn/redmine
+```
+
+**Step 4: Migrate the database.**
+
+```bash
+docker run -i -t [OPTIONS] sameersbn/redmine migrate
+```
+
+**Step 5: Start the image**
+
+```bash
+docker run -i -d [OPTIONS] sameersbn/redmine
 
 ### Other options
 Below is the complete list of parameters that can be set using environment variables.
