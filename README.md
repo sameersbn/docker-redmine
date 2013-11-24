@@ -1,5 +1,7 @@
 # Docker Redmine
 
+Current Version: 2.4.1
+
 Dockerfile to build a Redmine container image (with some additional themes and plugins).
 
 ## Installation
