@@ -15,4 +15,4 @@ rm -rf /tmp/redminecrm-0_0_1.zip
 
 # https://github.com/makotokw/redmine-theme-gitmike
 mkdir -p /redmine/public/themes/gitmike
-wget https://github.com/makotokw/redmine-theme-gitmike/archive/r5_japanese_font.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/public/themes/gitmike
+wget https://github.com/makotokw/redmine-theme-gitmike/archive/r5_japanese_font.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/public/themes/gitmike

@@ -1,30 +1,30 @@
 # redmine tweaks plugin
 mkdir -p /redmine/plugins/redmine_tweaks
-wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_tweaks
+wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tweaks
 
 # line numbers plugin
 mkdir -p /redmine/plugins/line_numbers
-wget https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/line_numbers
+wget https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/line_numbers
 
 # did you mean? plugin
 mkdir -p /redmine/plugins/redmine_didyoumean
-wget https://github.com/abahgat/redmine_didyoumean/archive/1.2.0.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_didyoumean
+wget https://github.com/abahgat/redmine_didyoumean/archive/1.2.0.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_didyoumean
 
 # redmine embed video plugin
 mkdir -p /redmine/plugins/redmine_embedded_video
-wget https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_embedded_video
+wget https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_embedded_video
 
 # redmine gist plugin
 mkdir -p /redmine/plugins/redmine_gist
-wget https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_gist
+wget https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_gist
 
 # redmine tags plugin
 mkdir -p /redmine/plugins/redmine_tags
-wget https://github.com/ixti/redmine_tags/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_tags
+wget https://github.com/ixti/redmine_tags/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tags
 
 # issuefy plugin
 mkdir -p /redmine/plugins/issuefy
-wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/issuefy
+wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/issuefy
 echo 'gem "spreadsheet", "0.8.5"' >> Gemfile
 
 # issue checklist plugin
@@ -44,20 +44,20 @@ rm -rf /tmp/redmine_code_review-0.6.3.zip
 
 # open flash charts plugin
 mkdir -p /redmine/plugins/open_flash_chart
-wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/open_flash_chart
+wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/open_flash_chart
 cp -r /redmine/plugins/open_flash_chart/assets /redmine/public/plugin_assets/open_flash_chart
 
 # redmine charts2 plugin
 mkdir -p /redmine/plugins/redmine_charts2
-wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_charts2
+wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_charts2
 
 # redmine announcements plugin
 mkdir -p /redmine/plugins/redmine_announcements
-wget https://github.com/buoyant/redmine_announcements/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_announcements
+wget https://github.com/buoyant/redmine_announcements/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_announcements
 
 # redmine attach by url
 # mkdir -p /redmine/plugins/redmine_attach_by_url
-# wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O - | tar -zxf - --strip=1 -C /redmine/plugins/redmine_attach_by_url
+# wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_attach_by_url
 # bundle exec rake jobs:work RAILS_ENV=production &
 
 bundle install --without development tests
