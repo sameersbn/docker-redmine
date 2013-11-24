@@ -97,6 +97,7 @@ redmine_help () {
 	echo " start       - Starts the redmine server (default)"
 	echo " initialize  - Initialize the database."
 	echo " migrate     - Migrate the database."
+	echo " bash        - Start interactive bash shell."
 	echo " help        - Displays the help"
 }
 
@@ -109,6 +110,9 @@ case "$1" in
 		;;
 	migrate)
 		db_migrate
+		;;
+	bash)
+		/bin/bash -i
 		;;
 	help|*)
 		redmine_help
