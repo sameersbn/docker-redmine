@@ -31,9 +31,9 @@ ADD resources/redmine-2.3.3.tar.gz /redmine/setup/redmine-2.3.3.tar.gz
 ADD resources/install /redmine/setup/install
 ADD resources/plugins /redmine/setup/plugins
 ADD resources/themes /redmine/setup/themes
-ADD resources/start /redmine/start
-RUN chmod 755 /redmine/start /redmine/setup/install && /redmine/setup/install
+ADD resources/redmine /redmine/redmine
+RUN chmod 755 /redmine/redmine /redmine/setup/install && /redmine/setup/install
 
 EXPOSE 80
 
-CMD ["/redmine/start"]
+CMD ["/redmine/redmine"]
