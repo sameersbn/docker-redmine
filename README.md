@@ -84,7 +84,7 @@ CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` 
 GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'%.%.%.%';
 ```
 
-To make sure the database is initialized start the container with DB_INIT=yes environment variable set.
+To make sure the database is initialized start the container with **initialize** option.
 
 **NOTE: This should be done only for the first run**.
 
@@ -93,11 +93,11 @@ To make sure the database is initialized start the container with DB_INIT=yes en
 ```bash
 docker run -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
-  -e "DB_USER=redmine" -e "DB_PASS=password" -e "DB_INIT=yes" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine initialize
 ```
 
-This will initialize the redmine database. Now that the database is initialized, omit the **-e "DB_INIT=yes"** option from the docker command.
+This will initialize the redmine database. Now that the database is initialized, start the container without the initialize command.
 
 ```bash
 docker run -d \
