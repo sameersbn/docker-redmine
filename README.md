@@ -140,6 +140,7 @@ docker run -i -t [OPTIONS] sameersbn/redmine migrate
 
 ```bash
 docker run -i -d [OPTIONS] sameersbn/redmine
+```
 
 ### Other options
 Below is the complete list of parameters that can be set using environment variables.
