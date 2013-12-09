@@ -204,8 +204,6 @@ docker run -d -h redmine.local.host \
 ```
 
 ## References
-  http://www.redmine.org/
-
-  http://www.redmine.org/projects/redmine/wiki/Guide
-
-  http://www.redmine.org/projects/redmine/wiki/RedmineInstall
+  * http://www.redmine.org/
+  * http://www.redmine.org/projects/redmine/wiki/Guide
+  * http://www.redmine.org/projects/redmine/wiki/RedmineInstall
