@@ -19,11 +19,11 @@ RUN apt-get install -y gcc make libcurl4-openssl-dev libssl-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && apt-get clean
 
-RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p448.tar.gz -O - | tar -zxf - -C /tmp/ && \
-    cd /tmp/ruby-1.9.3-p448/ && ./configure --enable-pthread --prefix=/usr && make && make install && \
-    cd /tmp/ruby-1.9.3-p448/ext/openssl/ && ruby extconf.rb && make && make install && \
-    cd /tmp/ruby-1.9.3-p448/ext/zlib && ruby extconf.rb && make && make install && cd /tmp \
-    rm -rf /tmp/ruby-1.9.3-p448 && gem install --no-ri --no-rdoc bundler mysql2
+RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p484.tar.gz -O - | tar -zxf - -C /tmp/ && \
+    cd /tmp/ruby-1.9.3-p484/ && ./configure --enable-pthread --prefix=/usr && make && make install && \
+    cd /tmp/ruby-1.9.3-p484/ext/openssl/ && ruby extconf.rb && make && make install && \
+    cd /tmp/ruby-1.9.3-p484/ext/zlib && ruby extconf.rb && make && make install && cd /tmp \
+    rm -rf /tmp/ruby-1.9.3-p484 && gem install --no-ri --no-rdoc bundler mysql2
 
 RUN apt-get install -y sudo supervisor logrotate && apt-get clean
 
