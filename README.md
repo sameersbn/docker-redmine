@@ -108,6 +108,28 @@ docker run -d \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
 
+### Configuring Mail
+The mail configuration should be specified using environment variables while starting the redmine image. The configuration defaults to using gmail to send emails and requires the specification of a valid username and password to login to the gmail servers.
+
+The following environment variables need to be specified to get mail support to work.
+
+* SMTP_HOST (defaults to smtp.gmail.com)
+* SMTP_PORT (defaults to 587)
+* SMTP_USER
+* SMTP_PASS
+
+```bash
+docker run -d \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine
+```
+
+If you are not using google mail, then please configure the  SMTP host and port using the SMTP_HOST and SMTP_PORT configuration parameters.
+
+__NOTE:__
+
+I have only tested standard gmail and google apps login. I expect that the currently provided configuration parameters should be sufficient for most users. If this is not the case, then please let me know.
+
 ## Upgrading
 
 If you upgrading from previous version, please make sure you run the container with **migrate** command.
@@ -207,6 +229,7 @@ Below is the complete list of parameters that can be set using environment varia
 docker run -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   sameersbn/redmine
 ```
 
@@ -216,6 +239,7 @@ If you are using an external mysql database
 docker run -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   sameersbn/redmine
 ```
 
