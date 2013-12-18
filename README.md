@@ -164,6 +164,26 @@ docker run -i -t [OPTIONS] sameersbn/redmine migrate
 docker run -i -d [OPTIONS] sameersbn/redmine
 ```
 
+### Putting it all together
+
+```bash
+docker run -d -h redmine.local.host \
+  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/mysql:/var/lib/mysql \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  sameersbn/redmine
+```
+
+If you are using an external mysql database
+
+```bash
+docker run -d -h redmine.local.host \
+  -v /opt/redmine/files:/redmine/files \
+  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  sameersbn/redmine
+```
+
 ### Other options
 Below is the complete list of parameters that can be set using environment variables.
 
@@ -222,26 +242,6 @@ Below is the complete list of parameters that can be set using environment varia
 * PASSENGER_POOL_IDLE_TIME
 
         PassengerPoolIdleTime (default: 300)
-
-### Putting it all together
-
-```bash
-docker run -d -h redmine.local.host \
-  -v /opt/redmine/files:/redmine/files \
-  -v /opt/redmine/mysql:/var/lib/mysql \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  sameersbn/redmine
-```
-
-If you are using an external mysql database
-
-```bash
-docker run -d -h redmine.local.host \
-  -v /opt/redmine/files:/redmine/files \
-  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  sameersbn/redmine
-```
 
 ## References
   * http://www.redmine.org/
