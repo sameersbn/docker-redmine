@@ -33,4 +33,4 @@ RUN chmod 755 /redmine/redmine /redmine/setup/install && /redmine/setup/install
 EXPOSE 80
 
 ENTRYPOINT ["/redmine/redmine"]
-CMD ["start"]
+CMD ["app:start"]

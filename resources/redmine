@@ -47,7 +47,7 @@ EOF
 		mysql_install_db --user=mysql
 	fi
 
-	# make sure /var/lib/mysql/ has the right permissions in case it is mounted as a volume.
+	# fix permissions and ownership of /var/lib/mysql
 	chown -R mysql:mysql /var/lib/mysql
 	chmod 700 /var/lib/mysql
 
@@ -127,28 +127,38 @@ redmine_start () {
 
 redmine_help () {
 	echo "Available options:"
-	echo " start       - Starts the redmine server (default)"
-	echo " initialize  - Initialize the database."
-	echo " migrate     - Migrate the database."
-	echo " bash        - Start interactive bash shell."
-	echo " help        - Displays the help"
+	echo " app:start          - Starts the redmine server (default)"
+	echo " app:db:initialize  - Initialize the database."
+	echo " app:db:migrate     - Migrate the database."
+	echo " app:help           - Displays the help"
+	echo " [command]          - Execute the specified linux command eg. bash."
 }
 
 case "$1" in
-	start)
+	app:start)
 		redmine_start
 		;;
-	initialize)
+	app:db:initialize)
 		db_initialize
 		;;
-	migrate)
+	app:db:migrate)
 		db_migrate
 		;;
-	bash)
-		/bin/bash -i
-		;;
-	help|*)
+	app:help)
 		redmine_help
+		;;
+	*)
+		if [ -x $1 ]; then
+			$1
+		else
+			prog=$(which $1)
+			if [ -n "${prog}" ] ; then
+				shift 1
+				$prog $@
+			else
+				redmine_help
+			fi
+		fi
 		;;
 esac
 
