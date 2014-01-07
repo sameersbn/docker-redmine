@@ -1,7 +1,7 @@
 # http://redminecrm.com/pages/a1-theme
-wget http://redminecrm.com/license_manager/5340/a1-1_1_1.zip -P /tmp/
-unzip /tmp/a1-1_1_1.zip -d /redmine/public/themes/
-rm -rf /tmp/a1-1_1_1.zip
+wget http://redminecrm.com/license_manager/7644/a1-1_1_2.zip -P /tmp/
+unzip /tmp/a1-1_1_2.zip -d /redmine/public/themes/
+rm -rf /tmp/a1-1_1_2.zip
 
 # http://www.redminecrm.com/pages/coffee-theme
 wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_3.zip -P /tmp/
