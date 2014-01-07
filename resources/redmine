@@ -131,7 +131,7 @@ redmine_help () {
 	echo " app:db:initialize  - Initialize the database."
 	echo " app:db:migrate     - Migrate the database."
 	echo " bash        - Start interactive bash shell."
-	echo " help        - Displays the help"
+	echo " app:help           - Displays the help"
 }
 
 case "$1" in
@@ -147,7 +147,7 @@ case "$1" in
 	bash)
 		/bin/bash -i
 		;;
-	help|*)
+	app:help|*)
 		redmine_help
 		;;
 esac
