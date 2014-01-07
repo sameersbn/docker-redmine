@@ -1,18 +1,23 @@
 # http://redminecrm.com/pages/a1-theme
-wget http://redminecrm.com/license_manager/5340/a1-1_1_1.zip -P /tmp/
-unzip /tmp/a1-1_1_1.zip -d /redmine/public/themes/
-rm -rf /tmp/a1-1_1_1.zip
+wget http://redminecrm.com/license_manager/7644/a1-1_1_2.zip -P /tmp/
+unzip /tmp/a1-1_1_2.zip -d /redmine/public/themes/
+rm -rf /tmp/a1-1_1_2.zip
 
 # http://www.redminecrm.com/pages/coffee-theme
-wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_3.zip -P /tmp/
-unzip /tmp/coffee-0_0_3.zip -d /redmine/public/themes/
-rm -rf /tmp/coffee-0_0_3.zip
+wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_4.zip -P /tmp/
+unzip /tmp/coffee-0_0_4.zip -d /redmine/public/themes/
+rm -rf /tmp/coffee-0_0_4.zip
 
 # http://www.redminecrm.com/pages/redminecrm-theme
-wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_1.zip -P /tmp/
-unzip /tmp/redminecrm-0_0_1.zip -d /redmine/public/themes/
-rm -rf /tmp/redminecrm-0_0_1.zip
+wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_2.zip -P /tmp/
+unzip /tmp/redminecrm-0_0_2.zip -d /redmine/public/themes/
+rm -rf /tmp/redminecrm-0_0_2.zip
+
+# http://redminecrm.com/pages/highrise-theme
+wget http://redminecrm.com/license_manager/7646/highrise-1_1_2.zip -P /tmp/
+unzip /tmp/highrise-1_1_2.zip -d /redmine/public/themes/
+rm -rf /tmp/highrise-1_1_2.zip
 
 # https://github.com/makotokw/redmine-theme-gitmike
 mkdir -p /redmine/public/themes/gitmike
-wget https://github.com/makotokw/redmine-theme-gitmike/archive/r5_japanese_font.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/public/themes/gitmike
+wget https://github.com/makotokw/redmine-theme-gitmike/archive/r6.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/public/themes/gitmike
