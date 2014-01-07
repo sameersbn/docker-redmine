@@ -4,9 +4,9 @@ unzip /tmp/a1-1_1_2.zip -d /redmine/public/themes/
 rm -rf /tmp/a1-1_1_2.zip
 
 # http://www.redminecrm.com/pages/coffee-theme
-wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_3.zip -P /tmp/
-unzip /tmp/coffee-0_0_3.zip -d /redmine/public/themes/
-rm -rf /tmp/coffee-0_0_3.zip
+wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_4.zip -P /tmp/
+unzip /tmp/coffee-0_0_4.zip -d /redmine/public/themes/
+rm -rf /tmp/coffee-0_0_4.zip
 
 # http://www.redminecrm.com/pages/redminecrm-theme
 wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_1.zip -P /tmp/
