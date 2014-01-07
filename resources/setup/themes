@@ -9,9 +9,9 @@ unzip /tmp/coffee-0_0_4.zip -d /redmine/public/themes/
 rm -rf /tmp/coffee-0_0_4.zip
 
 # http://www.redminecrm.com/pages/redminecrm-theme
-wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_1.zip -P /tmp/
-unzip /tmp/redminecrm-0_0_1.zip -d /redmine/public/themes/
-rm -rf /tmp/redminecrm-0_0_1.zip
+wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_2.zip -P /tmp/
+unzip /tmp/redminecrm-0_0_2.zip -d /redmine/public/themes/
+rm -rf /tmp/redminecrm-0_0_2.zip
 
 # https://github.com/makotokw/redmine-theme-gitmike
 mkdir -p /redmine/public/themes/gitmike
