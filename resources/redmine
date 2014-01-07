@@ -127,7 +127,7 @@ redmine_start () {
 
 redmine_help () {
 	echo "Available options:"
-	echo " start       - Starts the redmine server (default)"
+	echo " app:start          - Starts the redmine server (default)"
 	echo " initialize  - Initialize the database."
 	echo " migrate     - Migrate the database."
 	echo " bash        - Start interactive bash shell."
@@ -135,7 +135,7 @@ redmine_help () {
 }
 
 case "$1" in
-	start)
+	app:start)
 		redmine_start
 		;;
 	initialize)
