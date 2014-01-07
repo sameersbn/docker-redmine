@@ -35,7 +35,7 @@ EOF
 # install redmine
 mkdir -p /redmine
 cd /redmine
-tar xvf /redmine/setup/redmine-2.4.1.tar.gz --strip=1 -C /redmine
+tar xvf /redmine/setup/redmine-2.4.2.tar.gz --strip=1 -C /redmine
 
 # install gems
 bundle install --without postgresql
