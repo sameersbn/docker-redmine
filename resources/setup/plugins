@@ -45,6 +45,7 @@ rm -rf /tmp/redmine_code_review-0.6.3.zip
 # open flash charts plugin
 mkdir -p /redmine/plugins/open_flash_chart
 wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/open_flash_chart
+mkdir -p /redmine/public/plugin_assets/open_flash_chart
 cp -r /redmine/plugins/open_flash_chart/assets /redmine/public/plugin_assets/open_flash_chart
 
 # redmine charts2 plugin
