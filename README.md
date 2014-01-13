@@ -26,7 +26,7 @@ sudo docker build -t="$USER/redmine" .
 Run the redmine image
 
 ```bash
-REDMINE=$(sudo docker run -d redmine)
+REDMINE=$(sudo docker run -d sameersbn/redmine)
 REDMINE_IP=$(sudo docker inspect $REDMINE | grep IPAddres | awk -F'"' '{print $4}')
 ```
 
