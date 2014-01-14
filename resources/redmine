@@ -114,6 +114,9 @@ redmine_start () {
 	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
 	sudo -u www-data -H touch tmp/restart.txt
 
+	# kickstart the rails application
+	wget "http://localhost" -O /dev/null
+
 	tail -F /var/log/apache2/other_vhosts_access.log
 }
 
