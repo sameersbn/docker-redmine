@@ -196,10 +196,6 @@ Below is the complete list of parameters that can be set using environment varia
 
         The mysql database connection pool count. Defaults to 5.
 
-* DB_INIT
-
-        Whether to initial the mysql database. Defaults to no
-
 * SMTP_HOST
 
         SMTP server host. Defaults to smtp.gmail.com.
