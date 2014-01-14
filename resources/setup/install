@@ -39,7 +39,7 @@ cd /redmine
 wget "http://www.redmine.org/releases/redmine-2.4.2.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 
 # install gems
-bundle install --without postgresql
+bundle install --without postgresql || exit 1
 
 # add database.yml template
 sudo -u www-data -H cat > config/database.yml <<EOF
