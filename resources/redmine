@@ -99,24 +99,20 @@ EOF
 	chown www-data:www-data config/configuration.yml
 fi
 
-db_initialize () {
+db_migrate () {
 	# isolate the plugins
 	sudo -u www-data -H mv plugins plugins-1
 	sudo -u www-data -H RAILS_ENV=production rake db:create
 	sudo -u www-data -H RAILS_ENV=production rake db:migrate
 	sudo -u www-data -H mv plugins-1 plugins
 	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
-}
-
-db_migrate () {
-	db_initialize
 	sudo -u www-data -H RAILS_ENV=production rake tmp:cache:clear
 	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
 }
 
 redmine_start () {
 	if [ "${DB_INIT}" == "yes" ]; then
-		db_initialize
+		db_migrate
 	fi
 
 	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
