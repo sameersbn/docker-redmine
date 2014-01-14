@@ -12,6 +12,7 @@ if [ -n "${mod_passenger}" ]; then
 	a2enmod passenger
 else
   echo "ERROR: could not configure passenger module"
+  exit 1
 fi
 
 cat >> /etc/apache2/apache2.conf <<EOF
