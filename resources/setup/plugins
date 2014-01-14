@@ -61,4 +61,4 @@ wget https://github.com/buoyant/redmine_announcements/archive/master.tar.gz -O -
 # wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_attach_by_url
 # bundle exec rake jobs:work RAILS_ENV=production &
 
-bundle install --without development tests
+bundle install --without development tests || exit 1
