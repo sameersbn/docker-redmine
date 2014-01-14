@@ -110,8 +110,8 @@ db_initialize () {
 
 db_migrate () {
 	db_initialize
-	rake tmp:cache:clear
-	rake tmp:sessions:clear
+	sudo -u www-data -H RAILS_ENV=production rake tmp:cache:clear
+	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
 }
 
 redmine_start () {
@@ -119,7 +119,7 @@ redmine_start () {
 		db_initialize
 	fi
 
-	sudo -u www-data -H rake generate_secret_token
+	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
 	sudo -u www-data -H touch tmp/restart.txt
 
 	tail -F /var/log/apache2/other_vhosts_access.log
