@@ -110,8 +110,8 @@ db_initialize () {
 
 db_migrate () {
 	db_initialize
-	rake tmp:cache:clear
-	rake tmp:sessions:clear
+	sudo -u www-data -H rake tmp:cache:clear
+	sudo -u www-data -H rake tmp:sessions:clear
 }
 
 redmine_start () {
