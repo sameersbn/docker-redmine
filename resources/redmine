@@ -5,7 +5,6 @@ DB_NAME=${DB_NAME:-redmine_production}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
-DB_INIT=${DB_INIT:-no}
 
 SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
 SMTP_PORT=${SMTP_PORT:-587}
@@ -66,7 +65,6 @@ EOF
 	done
 
 	if ! echo "USE ${DB_NAME}" | mysql -uroot ${DB_PASS:+-p$DB_PASS} >/dev/null 2>&1; then
-		DB_INIT="yes"
 		echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET \`utf8\` COLLATE \`utf8_unicode_ci\`;" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
 		echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON \`${DB_NAME}\`.* TO 'root'@'localhost';" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
 	fi
@@ -99,25 +97,19 @@ EOF
 	chown www-data:www-data config/configuration.yml
 fi
 
-db_initialize () {
+db_migrate () {
 	# isolate the plugins
 	sudo -u www-data -H mv plugins plugins-1
 	sudo -u www-data -H RAILS_ENV=production rake db:create
 	sudo -u www-data -H RAILS_ENV=production rake db:migrate
 	sudo -u www-data -H mv plugins-1 plugins
 	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
-}
-
-db_migrate () {
-	db_initialize
 	sudo -u www-data -H RAILS_ENV=production rake tmp:cache:clear
 	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
 }
 
 redmine_start () {
-	if [ "${DB_INIT}" == "yes" ]; then
-		db_initialize
-	fi
+	db_migrate
 
 	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
 	sudo -u www-data -H touch tmp/restart.txt
@@ -128,7 +120,6 @@ redmine_start () {
 redmine_help () {
 	echo "Available options:"
 	echo " app:start          - Starts the redmine server (default)"
-	echo " app:db:initialize  - Initialize the database."
 	echo " app:db:migrate     - Migrate the database."
 	echo " app:help           - Displays the help"
 	echo " [command]          - Execute the specified linux command eg. bash."
@@ -137,9 +128,6 @@ redmine_help () {
 case "$1" in
 	app:start)
 		redmine_start
-		;;
-	app:db:initialize)
-		db_initialize
 		;;
 	app:db:migrate)
 		db_migrate

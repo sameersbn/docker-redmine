@@ -86,20 +86,7 @@ CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` 
 GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'%.%.%.%';
 ```
 
-To make sure the database is initialized start the container with **initialize** option.
-
-**NOTE: This should be done only for the first run**.
-
 *Assuming that the mysql server host is 192.168.1.100*
-
-```bash
-docker run -d \
-  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
-  -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine initialize
-```
-
-This will initialize the redmine database. Now that the database is initialized, start the container without the initialize command.
 
 ```bash
 docker run -d \
@@ -107,6 +94,8 @@ docker run -d \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
+
+This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
 
 ### Configuring Mail
 The mail configuration should be specified using environment variables while starting the redmine image. The configuration defaults to using gmail to send emails and requires the specification of a valid username and password to login to the gmail servers.
@@ -206,10 +195,6 @@ Below is the complete list of parameters that can be set using environment varia
 * DB_POOL
 
         The mysql database connection pool count. Defaults to 5.
-
-* DB_INIT
-
-        Whether to initial the mysql database. Defaults to no
 
 * SMTP_HOST
 
