@@ -67,10 +67,9 @@ mkdir -p /redmine/plugins/redmine_announcements
 tar -zvxf /redmine/setup/plugins/redmine_announcements.tar.gz --strip=1 -C /redmine/plugins/redmine_announcements || exit 1
 
 # redmine attach by url
-# wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O redmine_attach_by_url.tar.gz
-# mkdir -p /redmine/plugins/redmine_attach_by_url
-# tar -zvxf /redmine/setup/plugins/redmine_attach_by_url.tar.gz --strip=1 -C /redmine/plugins/redmine_attach_by_url || exit 1
-# bundle exec rake jobs:work RAILS_ENV=production &
+wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O redmine_attach_by_url.tar.gz
+mkdir -p /redmine/plugins/redmine_attach_by_url
+tar -zvxf /redmine/setup/plugins/redmine_attach_by_url.tar.gz --strip=1 -C /redmine/plugins/redmine_attach_by_url || exit 1
 
 # remine recurring tasks
 # wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v1.2.9.tar.gz -O recurring_tasks-1.2.9.tar.gz
