@@ -59,7 +59,7 @@ production:
 EOF
 
 # install themes
-. /redmine/setup/themes
+. /redmine/setup/themes/install
 
 # install plugins
 . /redmine/setup/plugins
