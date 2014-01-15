@@ -62,7 +62,7 @@ EOF
 . /redmine/setup/themes/install
 
 # install plugins
-. /redmine/setup/plugins
+. /redmine/setup/plugins/install
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets
