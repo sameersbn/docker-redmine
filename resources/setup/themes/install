@@ -1,23 +1,43 @@
 # http://redminecrm.com/pages/a1-theme
-wget http://redminecrm.com/license_manager/7644/a1-1_1_2.zip -P /tmp/
-unzip /tmp/a1-1_1_2.zip -d /redmine/public/themes/
-rm -rf /tmp/a1-1_1_2.zip
+if [ -f /redmine/setup/themes/a1-1_1_2.zip ]; then
+	unzip /redmine/setup/themes/a1-1_1_2.zip -d /redmine/public/themes/
+else
+	wget http://redminecrm.com/license_manager/7644/a1-1_1_2.zip -P /tmp/
+	unzip /tmp/a1-1_1_2.zip -d /redmine/public/themes/
+	rm -rf /tmp/a1-1_1_2.zip
+fi
 
 # http://www.redminecrm.com/pages/coffee-theme
-wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_4.zip -P /tmp/
-unzip /tmp/coffee-0_0_4.zip -d /redmine/public/themes/
-rm -rf /tmp/coffee-0_0_4.zip
+if [ -f /setup/themes/coffee-0_0_4.zip ]; then
+	unzip /redmine/setup/themes/coffee-0_0_4.zip -d /redmine/public/themes/
+else
+	wget http://www.redminecrm.com/license_manager/4508/coffee-0_0_4.zip -P /tmp/
+	unzip /tmp/coffee-0_0_4.zip -d /redmine/public/themes/
+	rm -rf /tmp/coffee-0_0_4.zip
+fi
 
 # http://www.redminecrm.com/pages/redminecrm-theme
-wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_2.zip -P /tmp/
-unzip /tmp/redminecrm-0_0_2.zip -d /redmine/public/themes/
-rm -rf /tmp/redminecrm-0_0_2.zip
+if [ -f /redmine/setup/themes/redminecrm-0_0_2.zip ]; then
+	unzip /redmine/setup/themes/redminecrm-0_0_2.zip -d /redmine/public/themes/
+else
+	wget http://www.redminecrm.com/license_manager/3834/redminecrm-0_0_2.zip -P /tmp/
+	unzip /tmp/redminecrm-0_0_2.zip -d /redmine/public/themes/
+	rm -rf /tmp/redminecrm-0_0_2.zip
+fi
 
 # http://redminecrm.com/pages/highrise-theme
-wget http://redminecrm.com/license_manager/7646/highrise-1_1_2.zip -P /tmp/
-unzip /tmp/highrise-1_1_2.zip -d /redmine/public/themes/
-rm -rf /tmp/highrise-1_1_2.zip
+if [ -f /redmine/setup/themes/highrise-1_1_2.zip ]; then
+	unzip /redmine/setup/themes/highrise-1_1_2.zip -d /redmine/public/themes/
+else
+	wget http://redminecrm.com/license_manager/7646/highrise-1_1_2.zip -P /tmp/
+	unzip /tmp/highrise-1_1_2.zip -d /redmine/public/themes/
+	rm -rf /tmp/highrise-1_1_2.zip
+fi
 
 # https://github.com/makotokw/redmine-theme-gitmike
 mkdir -p /redmine/public/themes/gitmike
-wget https://github.com/makotokw/redmine-theme-gitmike/archive/r6.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/public/themes/gitmike
+if [ -f /redmine/setup/themes/gitmike-r6.tar.gz ]; then
+	tar -zvxf /redmine/setup/themes/gitmike-r6.tar.gz --strip=1 -C /redmine/public/themes/gitmike
+else
+	wget https://github.com/makotokw/redmine-theme-gitmike/archive/r6.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/public/themes/gitmike
+fi
