@@ -4,8 +4,6 @@
 # export ftp_proxy=http://192.168.1.1:3128
 
 # install passenger
-gem install --no-ri --no-rdoc passenger -v 3.0.21
-passenger-install-apache2-module --auto
 mod_passenger=$(find /usr/lib/ruby/gems/ -name mod_passenger.so)
 if [ -n "${mod_passenger}" ]; then
 	echo "LoadModule passenger_module ${mod_passenger}" > /etc/apache2/mods-available/passenger.load
