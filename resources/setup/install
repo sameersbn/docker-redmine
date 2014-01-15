@@ -4,8 +4,6 @@
 # export ftp_proxy=http://192.168.1.1:3128
 
 # install passenger
-gem install --no-ri --no-rdoc passenger -v 3.0.21
-passenger-install-apache2-module --auto
 mod_passenger=$(find /usr/lib/ruby/gems/ -name mod_passenger.so)
 if [ -n "${mod_passenger}" ]; then
 	echo "LoadModule passenger_module ${mod_passenger}" > /etc/apache2/mods-available/passenger.load
@@ -39,7 +37,15 @@ cd /redmine
 tar xvf /redmine/setup/redmine-2.4.2.tar.gz --strip=1 -C /redmine
 
 # install gems
-bundle install --without postgresql || exit 1
+if [ -d "/redmine/setup/cache" ]; then
+  # offline gem installation
+  mv /redmine/setup/cache vendor/
+  gem install fastercsv -v 1.5.0 --no-ri --no-rdoc || exit 1
+  bundle install --local --without postgresql || exit 1
+else
+  # online gem installation
+ bundle install --without postgresql || exit 1
+fi
 
 # add database.yml template
 sudo -u www-data -H cat > config/database.yml <<EOF
@@ -53,10 +59,10 @@ production:
 EOF
 
 # install themes
-. /redmine/setup/themes
+. /redmine/setup/themes/install
 
 # install plugins
-. /redmine/setup/plugins
+. /redmine/setup/plugins/install
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets
