@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # http://redminecrm.com/pages/a1-theme
 unzip /redmine/setup/themes/a1-1_1_2.zip -d /redmine/public/themes/
 
