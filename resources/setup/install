@@ -119,16 +119,3 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
-
-# configure supervisord to start delayed_job worker of RedmineAttachByUrl plugin
-cat > /etc/supervisor/conf.d/RedmineAttachByUrl.conf <<EOF
-[program:RedmineAttachByUrl]
-priority=20
-directory=/redmine
-command=bundle exec rake jobs:work RAILS_ENV=production
-user=www-data
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
-EOF
