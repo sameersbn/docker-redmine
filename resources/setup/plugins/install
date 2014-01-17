@@ -2,10 +2,6 @@
 
 set -e
 
-#
-## Install tarballs
-#
-
 # redmine tweaks plugin
 # wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O redmine_tweaks.tar.gz
 mkdir -p /redmine/plugins/redmine_tweaks

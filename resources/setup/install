@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# export http_proxy=http://192.168.1.1:3128
-# export ftp_proxy=http://192.168.1.1:3128
+set -e
 
 # install passenger
 mod_passenger=$(find /usr/lib/ruby/gems/ -name mod_passenger.so)
@@ -40,11 +39,11 @@ wget "http://www.redmine.org/releases/redmine-2.4.2.tar.gz" -O - | tar -zvxf - -
 if [ -d "/redmine/setup/cache" ]; then
   # offline gem installation
   mv /redmine/setup/cache vendor/
-  gem install fastercsv -v 1.5.0 --no-ri --no-rdoc || exit 1
-  bundle install --local --without postgresql || exit 1
+  gem install fastercsv -v 1.5.0 --no-ri --no-rdoc
+  bundle install --local --without postgresql
 else
   # online gem installation
- bundle install --without postgresql || exit 1
+ bundle install --without postgresql
 fi
 
 # add database.yml template
