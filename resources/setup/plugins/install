@@ -2,6 +2,10 @@
 
 set -e
 
+#
+## Install tarballs
+#
+
 # redmine tweaks plugin
 # wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O redmine_tweaks.tar.gz
 mkdir -p /redmine/plugins/redmine_tweaks
@@ -38,18 +42,6 @@ mkdir -p /redmine/plugins/issuefy
 tar -zvxf /redmine/setup/plugins/issuefy.tar.gz --strip=1 -C /redmine/plugins/issuefy
 echo 'gem "spreadsheet", "0.8.5"' >> Gemfile
 
-# issue checklist plugin
-# wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-2_0_5.zip -O redmine_issue_checklist-2_0_5.zip
-unzip /redmine/setup/plugins/redmine_issue_checklist-2_0_5.zip -d /redmine/plugins/
-
-# redmine people plugin
-# wget http://redminecrm.com/license_manager/4122/redmine_people-0_1_6.zip -O redmine_people-0_1_6.zip
-unzip /redmine/setup/plugins/redmine_people-0_1_6.zip -d /redmine/plugins/
-
-# redmine code review plugin
-# wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-0.6.3.zip -O redmine_code_review-0.6.3.zip
-unzip /redmine/setup/plugins/redmine_code_review-0.6.3.zip -d /redmine/plugins/
-
 # open flash charts plugin
 # wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O open_flash_chart.tar.gz
 mkdir -p /redmine/plugins/open_flash_chart
@@ -73,4 +65,23 @@ tar -zvxf /redmine/setup/plugins/redmine_announcements.tar.gz --strip=1 -C /redm
 mkdir -p /redmine/plugins/recurring_tasks
 tar -zvxf /redmine/setup/plugins/recurring_tasks-1.2.9.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks
 
+#
+## Install zipped archives
+#
+
+# issue checklist plugin
+# wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-2_0_5.zip -O redmine_issue_checklist-2_0_5.zip
+unzip /redmine/setup/plugins/redmine_issue_checklist-2_0_5.zip -d /redmine/plugins/
+
+# redmine people plugin
+# wget http://redminecrm.com/license_manager/4122/redmine_people-0_1_6.zip -O redmine_people-0_1_6.zip
+unzip /redmine/setup/plugins/redmine_people-0_1_6.zip -d /redmine/plugins/
+
+# redmine code review plugin
+# wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-0.6.3.zip -O redmine_code_review-0.6.3.zip
+unzip /redmine/setup/plugins/redmine_code_review-0.6.3.zip -d /redmine/plugins/
+
+#
+## Satisfy gem dependencies for plugins
+#
 bundle install --without development tests
