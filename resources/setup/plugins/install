@@ -1,39 +1,41 @@
 #!/bin/bash
 
+set -e
+
 # redmine tweaks plugin
 # wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O redmine_tweaks.tar.gz
 mkdir -p /redmine/plugins/redmine_tweaks
-tar -zvxf /redmine/setup/plugins/redmine_tweaks.tar.gz --strip=1 -C /redmine/plugins/redmine_tweaks || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_tweaks.tar.gz --strip=1 -C /redmine/plugins/redmine_tweaks
 
 # line numbers plugin
 # wget https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O line_numbers.tar.gz
 mkdir -p /redmine/plugins/line_numbers
-tar -zvxf /redmine/setup/plugins/line_numbers.tar.gz --strip=1 -C /redmine/plugins/line_numbers || exit 1
+tar -zvxf /redmine/setup/plugins/line_numbers.tar.gz --strip=1 -C /redmine/plugins/line_numbers
 
 # did you mean? plugin
 # wget https://github.com/abahgat/redmine_didyoumean/archive/1.2.0.tar.gz -O redmine_didyoumean-1.2.0.tar.gz
 mkdir -p /redmine/plugins/redmine_didyoumean
-tar -zvxf /redmine/setup/plugins/redmine_didyoumean-1.2.0.tar.gz --strip=1 -C /redmine/plugins/redmine_didyoumean || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_didyoumean-1.2.0.tar.gz --strip=1 -C /redmine/plugins/redmine_didyoumean
 
 # redmine embed video plugin
 # wget https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O redmine_embedded_video.tar.gz
 mkdir -p /redmine/plugins/redmine_embedded_video
-tar -zvxf /redmine/setup/plugins/redmine_embedded_video.tar.gz --strip=1 -C /redmine/plugins/redmine_embedded_video || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_embedded_video.tar.gz --strip=1 -C /redmine/plugins/redmine_embedded_video
 
 # redmine gist plugin
 # wget https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O redmine_gist.tar.gz
 mkdir -p /redmine/plugins/redmine_gist
-tar -zvxf /redmine/setup/plugins/redmine_gist.tar.gz --strip=1 -C /redmine/plugins/redmine_gist || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_gist.tar.gz --strip=1 -C /redmine/plugins/redmine_gist
 
 # redmine tags plugin
 # wget https://github.com/ixti/redmine_tags/archive/master.tar.gz -O redmine_tags.tar.gz
 mkdir -p /redmine/plugins/redmine_tags
-tar -zvxf /redmine/setup/plugins/redmine_tags.tar.gz --strip=1 -C /redmine/plugins/redmine_tags || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_tags.tar.gz --strip=1 -C /redmine/plugins/redmine_tags
 
 # issuefy plugin
 # wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O issuefy.tar.gz
 mkdir -p /redmine/plugins/issuefy
-tar -zvxf /redmine/setup/plugins/issuefy.tar.gz --strip=1 -C /redmine/plugins/issuefy || exit 1
+tar -zvxf /redmine/setup/plugins/issuefy.tar.gz --strip=1 -C /redmine/plugins/issuefy
 echo 'gem "spreadsheet", "0.8.5"' >> Gemfile
 
 # issue checklist plugin
@@ -51,7 +53,7 @@ unzip /redmine/setup/plugins/redmine_code_review-0.6.3.zip -d /redmine/plugins/
 # open flash charts plugin
 # wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O open_flash_chart.tar.gz
 mkdir -p /redmine/plugins/open_flash_chart
-tar -zvxf /redmine/setup/plugins/open_flash_chart.tar.gz --strip=1 -C /redmine/plugins/open_flash_chart || exit 1
+tar -zvxf /redmine/setup/plugins/open_flash_chart.tar.gz --strip=1 -C /redmine/plugins/open_flash_chart
 
 mkdir -p /redmine/public/plugin_assets/open_flash_chart
 cp -r /redmine/plugins/open_flash_chart/assets /redmine/public/plugin_assets/open_flash_chart
@@ -59,12 +61,12 @@ cp -r /redmine/plugins/open_flash_chart/assets /redmine/public/plugin_assets/ope
 # redmine charts2 plugin
 # wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O redmine_charts21.tar.gz
 mkdir -p /redmine/plugins/redmine_charts2
-tar -zvxf /redmine/setup/plugins/redmine_charts21.tar.gz --strip=1 -C /redmine/plugins/redmine_charts2 || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_charts21.tar.gz --strip=1 -C /redmine/plugins/redmine_charts2
 
 # redmine announcements plugin
 # wget https://github.com/buoyant/redmine_announcements/archive/master.tar.gz -O redmine_announcements.tar.gz
 mkdir -p /redmine/plugins/redmine_announcements
-tar -zvxf /redmine/setup/plugins/redmine_announcements.tar.gz --strip=1 -C /redmine/plugins/redmine_announcements || exit 1
+tar -zvxf /redmine/setup/plugins/redmine_announcements.tar.gz --strip=1 -C /redmine/plugins/redmine_announcements
 
 # redmine attach by url
 # wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O redmine_attach_by_url.tar.gz
@@ -75,6 +77,6 @@ tar -zvxf /redmine/setup/plugins/redmine_announcements.tar.gz --strip=1 -C /redm
 # remine recurring tasks
 # wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v1.2.9.tar.gz -O recurring_tasks-1.2.9.tar.gz
 mkdir -p /redmine/plugins/recurring_tasks
-tar -zvxf /redmine/setup/plugins/recurring_tasks-1.2.9.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks || exit 1
+tar -zvxf /redmine/setup/plugins/recurring_tasks-1.2.9.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks
 
-bundle install --without development tests || exit 1
+bundle install --without development tests
