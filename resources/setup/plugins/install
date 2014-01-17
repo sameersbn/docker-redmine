@@ -96,16 +96,6 @@ else
 	wget https://github.com/buoyant/redmine_announcements/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_announcements
 fi
 
-# # redmine attach by url
-# # wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O redmine_attach_by_url.tar.gz
-# mkdir -p /redmine/plugins/redmine_attach_by_url
-# if [ -f /redmine/setup/plugins/redmine_attach_by_url.tar.gz ]; then
-# 	tar -zvxf /redmine/setup/plugins/redmine_attach_by_url.tar.gz --strip=1 -C /redmine/plugins/redmine_attach_by_url || exit 1
-# else
-# 	wget https://github.com/nodecarter/redmine_attach_by_url/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_attach_by_url
-# fi
-# bundle exec rake jobs:work RAILS_ENV=production &
-
 # remine recurring tasks
 # wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.1.3.0.tar.gz -O recurring_tasks-1.3.0.tar.gz
 mkdir -p /redmine/plugins/recurring_tasks
