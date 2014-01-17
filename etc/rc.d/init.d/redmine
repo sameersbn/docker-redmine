@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #       /etc/rc.d/init.d/redmine
 #
@@ -83,11 +83,11 @@ force_reload() {
 }
 
 rh_status() {
-    $exec top redmine | tail
+    $exec inspect redmine
 }
 
 rh_status_q() {
-    $exec top redmine > /dev/null 2>&1
+    $exec inspect redmine > /dev/null 2>&1
 }
 
 case "$1" in
