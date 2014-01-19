@@ -83,11 +83,11 @@ force_reload() {
 }
 
 rh_status() {
-    $exec inspect redmine
+    $exec inspect redmine | grep '"Running":' | grep -o 'true\|false'
 }
 
 rh_status_q() {
-    $exec inspect redmine > /dev/null 2>&1
+    $exec inspect redmine 2> /dev/null | grep '"Running":' | grep -q true
 }
 
 case "$1" in
