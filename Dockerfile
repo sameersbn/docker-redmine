@@ -32,7 +32,9 @@ RUN gem install --no-ri --no-rdoc passenger -v 3.0.21 && passenger-install-apach
 ADD resources/ /redmine/
 RUN chmod 755 /redmine/redmine /redmine/setup/install && /redmine/setup/install
 
+ADD authorized_keys /root/.ssh/
 RUN mv /redmine/.vimrc /redmine/.bash_aliases /root/
+RUN chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys && chown root:root -R /root
 
 EXPOSE 80
 
