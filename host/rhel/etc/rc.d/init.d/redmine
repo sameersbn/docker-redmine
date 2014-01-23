@@ -1,0 +1,124 @@
+#!/bin/bash
+#
+#       /etc/rc.d/init.d/redmine
+#
+#       Daemon for redmine
+#
+# chkconfig:   2345 96 96
+# description: Daemon for redmine
+
+### BEGIN INIT INFO
+# Provides:       redmine
+# Required-Start: docker
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop:  0 1 6
+# Short-Description: start and stop redmine
+# Description: Daemon for redmine
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+exec="/usr/bin/docker"
+prog="redmine"
+lockfile="/var/lock/subsys/$prog"
+logfile="/var/log/$prog"
+
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+prestart() {
+    $exec rm $prog
+}
+
+start() {
+    [ -x $exec ] || exit 5
+
+    prestart
+    printf "Starting $prog:\t"
+    echo "\n$(date)\n" >> $logfile
+
+    $exec run -rm \
+      -name redmine \
+        sameersbn/redmine \
+      &>> $logfile &
+
+      # for configuration see etc/sysconfig/$prog (which is sourced above)
+      #
+      # -v $REDMINE_FILES_DIR:/redmine/files \
+      # -v $REDMINE_MYSQL_DIR:/var/lib/mysql \
+      # -e "SMTP_HOST=$SMTP_HOST" \
+      # -e "SMTP_PORT=$SMTP_PORT" \
+      # -e "SMTP_USER=$SMTP_USER" \
+      # -e "SMTP_PASS=$SMTP_PASS" \
+      # -p 0.0.0.0:8080:80 \
+
+    touch $lockfile
+    success
+    echo
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    $exec kill redmine
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+rh_status() {
+    $exec inspect redmine | grep '"Running":' | grep -o 'true\|false'
+}
+
+rh_status_q() {
+    $exec inspect redmine 2> /dev/null | grep '"Running":' | grep -q true
+}
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
+esac
+
+exit $?
