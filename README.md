@@ -141,7 +141,7 @@ docker run -d -h redmine.local.host \
 
 ## Upgrading
 
-If you upgrading from previous version, please make sure you run the container with **migrate** command.
+If you upgrading from previous version, please make sure you run the container with **app:db:migrate** command.
 
 **Step 1: Stop the currently running image**
 
@@ -164,7 +164,7 @@ docker pull sameersbn/redmine
 **Step 4: Migrate the database.**
 
 ```bash
-docker run -i -t [OPTIONS] sameersbn/redmine migrate
+docker run -i -t [OPTIONS] sameersbn/redmine app:db:migrate
 ```
 
 **Step 5: Start the image**
