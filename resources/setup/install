@@ -52,6 +52,7 @@ production:
   adapter: mysql2
   database: {{DB_NAME}}
   host: {{DB_HOST}}
+  port: {{DB_PORT}}
   username: {{DB_USER}}
   password: {{DB_PASS}}
   pool: {{DB_POOL}}

@@ -180,6 +180,10 @@ Below is the complete list of parameters that can be set using environment varia
 
         The mysql server hostname. Defaults to localhost.
 
+* DB_PORT
+
+        The mysql server port. Defaults to 3306.
+
 * DB_NAME
 
         The mysql database name. Defaults to redmine_production
