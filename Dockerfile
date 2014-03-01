@@ -14,7 +14,7 @@ RUN apt-get install -y gcc make && apt-get clean
 
 # image specific
 RUN apt-get install -y unzip apache2-mpm-prefork imagemagick mysql-server \
-      subversion git cvs bzr && apt-get clean
+      memcached subversion git cvs bzr && apt-get clean
 
 RUN apt-get install -y libcurl4-openssl-dev libssl-dev \
       apache2-prefork-dev libapr1-dev libaprutil1-dev \
