@@ -36,6 +36,7 @@ cd /redmine
 wget "http://www.redmine.org/releases/redmine-2.4.3.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 
 # install gems
+echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
 if [ -d "/redmine/setup/cache" ]; then
   # offline gem installation
   mv /redmine/setup/cache vendor/
