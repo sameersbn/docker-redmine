@@ -17,6 +17,11 @@ cat >> /etc/apache2/apache2.conf <<EOF
 PassengerRoot /usr/lib/ruby/gems/1.9.1/gems/passenger-3.0.21
 PassengerRuby /usr/bin/ruby
 PassengerDefaultUser www-data
+
+PassengerMaxPoolSize {{PASSENGER_MAX_POOL_SIZE}}
+PassengerMinInstances {{PASSENGER_MIN_INSTANCES}}
+PassengerMaxRequests {{PASSENGER_MAX_REQUESTS}}
+PassengerPoolIdleTime {{PASSENGER_POOL_IDLE_TIME}}
 EOF
 
 cat > /etc/apache2/conf.d/redmine.conf <<EOF
