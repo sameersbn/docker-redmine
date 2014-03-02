@@ -26,13 +26,10 @@ export APACHE_PID_FILE="/var/run/apache2.pid"
 export APACHE_LOCK_DIR="/var/run/lock/apache2"
 export APACHE_RUN_DIR="/var/run/apache2"
 
-cat >> /etc/apache2/apache2.conf <<EOF
-
-PassengerMaxPoolSize ${PASSENGER_MAX_POOL_SIZE}
-PassengerMinInstances ${PASSENGER_MIN_INSTANCES}
-PassengerMaxRequests ${PASSENGER_MAX_REQUESTS}
-PassengerPoolIdleTime ${PASSENGER_POOL_IDLE_TIME}
-EOF
+sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'${PASSENGER_MAX_POOL_SIZE}'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_MIN_INSTANCES}}/'${PASSENGER_MIN_INSTANCES}'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_MAX_REQUESTS}}/'${PASSENGER_MAX_REQUESTS}'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_POOL_IDLE_TIME}}/'${PASSENGER_POOL_IDLE_TIME}'/' -i /etc/apache2/apache2.conf
 
 # generate a password for root.
 ROOT_PASSWORD=$(pwgen -c -n -1 12)
