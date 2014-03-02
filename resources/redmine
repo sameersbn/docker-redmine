@@ -75,21 +75,11 @@ fi
 
 # start memcached and install config if ${MEMCACHED_SIZE} is not 0
 if [ "${MEMCACHED_SIZE}" != "0" ]; then
-        cat > /etc/supervisor/conf.d/memcached.conf <<EOF
-[program:memcached]
-priority=20
-directory=/tmp
-command=/usr/bin/memcached -m ${MEMCACHED_SIZE}
-user=www-data
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
-EOF
+	sed 's/{{MEMCACHED_SIZE}}/'${MEMCACHED_SIZE}'/' -i /etc/supervisor/conf.d/memcached.conf
+	supervisorctl update
+	supervisorctl start memcached
 
-        supervisorctl update
-
-        cat > /redmine/config/additional_environment.rb << EOF
+	cat > /redmine/config/additional_environment.rb << EOF
 config.gem 'dalli'
 config.action_controller.perform_caching  = true
 config.cache_classes = true
