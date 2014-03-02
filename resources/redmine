@@ -74,20 +74,6 @@ if [ "${DB_HOST}" == "localhost" ]; then
 	fi
 fi
 
-# start memcached and install config if ${MEMCACHED_SIZE} is not 0
-if [ "${MEMCACHED_SIZE}" != "0" ]; then
-	sed 's/{{MEMCACHED_SIZE}}/'${MEMCACHED_SIZE}'/' -i /etc/supervisor/conf.d/memcached.conf
-	supervisorctl update
-	supervisorctl start memcached
-
-	cat > /redmine/config/additional_environment.rb << EOF
-config.gem 'dalli'
-config.action_controller.perform_caching  = true
-config.cache_classes = true
-config.cache_store = :dalli_store, "127.0.0.1:11211"
-EOF
-fi
-
 chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
@@ -98,6 +84,16 @@ sudo -u www-data -H sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
 sudo -u www-data -H sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
 sudo -u www-data -H sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
 sudo -u www-data -H sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+
+# start memcached and install config if ${MEMCACHED_SIZE} is not 0
+if [ "${MEMCACHED_SIZE}" != "0" ]; then
+	sed 's/{{MEMCACHED_SIZE}}/'${MEMCACHED_SIZE}'/' -i /etc/supervisor/conf.d/memcached.conf
+	supervisorctl update
+	supervisorctl start memcached
+	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
+else
+	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
+fi
 
 # configure mail delivery
 if [ -n "${SMTP_HOST}" -a -n "${SMTP_USER}" -a -n "${SMTP_PASS}" ]; then
