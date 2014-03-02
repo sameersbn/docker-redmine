@@ -1,6 +1,7 @@
 # Changelog
 
 **latest a.k.a HEAD**
+- added memcache support
 - restructured README with TOC
 - added Changelog
 - added DB_PORT configuration option
