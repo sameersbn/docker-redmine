@@ -43,15 +43,15 @@ Alternately you can build the image yourself.
 ```bash
 git clone https://github.com/sameersbn/docker-redmine.git
 cd docker-redmine
-sudo docker build -t="$USER/redmine" .
+docker build -t="$USER/redmine" .
 ```
 
 # Quick Start
 Run the redmine image
 
 ```bash
-REDMINE=$(sudo docker run -d sameersbn/redmine)
-REDMINE_IP=$(sudo docker inspect $REDMINE | grep IPAddres | awk -F'"' '{print $4}')
+REDMINE=$(docker run -d sameersbn/redmine)
+REDMINE_IP=$(docker inspect $REDMINE | grep IPAddres | awk -F'"' '{print $4}')
 ```
 
 Access the Redmine application
