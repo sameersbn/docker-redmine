@@ -47,11 +47,11 @@ docker build -t="$USER/redmine" .
 ```
 
 # Quick Start
-Run the redmine image
+Run the redmine image with the name "redmine".
 
 ```bash
-REDMINE=$(docker run -d sameersbn/redmine)
-REDMINE_IP=$(docker inspect $REDMINE | grep IPAddres | awk -F'"' '{print $4}')
+docker run -name redmine -d sameersbn/redmine
+REDMINE_IP=$(docker inspect redmine | grep IPAddres | awk -F'"' '{print $4}')
 ```
 
 Access the Redmine application
@@ -80,7 +80,8 @@ Volumes can be mounted in docker by specifying the **'-v'** option in the docker
 
 ```bash
 mkdir -pv /opt/redmine/files
-docker run -d -v /opt/redmine/files:/redmine/files sameersbn/redmine
+docker run -name redmine -d \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
 
 ## Database
@@ -92,7 +93,7 @@ This docker image is configured to use a MySQL database backend. The database co
 
 ```bash
 mkdir /opt/redmine/mysql
-docker run -d \
+docker run -name redmine -d \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine
 ```
@@ -114,7 +115,7 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 *Assuming that the mysql server host is 192.168.1.100*
 
 ```bash
-docker run -d \
+docker run -name redmine -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
@@ -133,7 +134,7 @@ The following environment variables need to be specified to get mail support to 
 * SMTP_PASS
 
 ```bash
-docker run -d \
+docker run -name redmine -d \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
 ```
@@ -147,7 +148,7 @@ I have only tested standard gmail and google apps login. I expect that the curre
 ### Putting it all together
 
 ```bash
-docker run -d -h redmine.local.host \
+docker run -name redmine -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
@@ -157,7 +158,7 @@ docker run -d -h redmine.local.host \
 If you are using an external mysql database
 
 ```bash
-docker run -d -h redmine.local.host \
+docker run -name redmine -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
@@ -192,7 +193,7 @@ There are two methods to gain root login to the container, the first method is t
 The second method is use the dynamically generated password. Every time the container is started a random password is generated using the pwgen tool and assigned to the root user. This password can be fetched from the docker logs.
 
 ```bash
-docker logs <container-id> 2>&1 | head -n1
+docker logs redmine 2>&1 | head -n1
 ```
 This password is not persistent and changes every time the image is executed.
 
@@ -203,7 +204,7 @@ To upgrade to newer redmine releases, simply follow this 5 step upgrade procedur
 **Step 1**: Stop the currently running image
 
 ```bash
-docker stop <container-id>
+docker stop redmine
 ```
 
 **Step 2**: Backup the database in case something goes wrong.
@@ -221,13 +222,13 @@ docker pull sameersbn/redmine
 **Step 4**: Migrate the database.
 
 ```bash
-docker run -i -t [OPTIONS] sameersbn/redmine app:db:migrate
+docker run -name redmine -i -t -rm [OPTIONS] sameersbn/redmine app:db:migrate
 ```
 
 **Step 5**: Start the image
 
 ```bash
-docker run -i -d [OPTIONS] sameersbn/redmine
+docker run -name redmine -i -d [OPTIONS] sameersbn/redmine
 ```
 
 ## References
