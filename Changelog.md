@@ -1,6 +1,7 @@
 # Changelog
 
 **latest a.k.a HEAD**
+- do not perform system upgrades (http://crosbymichael.com/dockerfile-best-practices-take-2.html)
 - added memcache support
 - restructured README with TOC
 - added Changelog
