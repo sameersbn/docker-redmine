@@ -1,6 +1,7 @@
 # Changelog
 
 **latest a.k.a head**
+- update redmine_tags plugin
 - update redmine_gist plugin
 
 **v2.4.4**
