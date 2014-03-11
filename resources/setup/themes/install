@@ -14,6 +14,9 @@ unzip /redmine/setup/themes/redminecrm-0_0_2.zip -d /redmine/public/themes/
 # http://redminecrm.com/pages/highrise-theme
 unzip /redmine/setup/themes/highrise-1_1_2.zip -d /redmine/public/themes/
 
+# http://www.redminecrm.com/pages/circle-theme
+unzip /redmine/setup/themes/circle_theme-1_0_1.zip -d /redmine/public/themes/
+
 # https://github.com/makotokw/redmine-theme-gitmike
 mkdir -p /redmine/public/themes/gitmike
 tar -zvxf /redmine/setup/themes/gitmike-r6.tar.gz --strip=1 -C /redmine/public/themes/gitmike
