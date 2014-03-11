@@ -38,6 +38,15 @@ else
 	rm -rf /tmp/highrise-1_1_2.zip
 fi
 
+# http://www.redminecrm.com/pages/circle-theme
+if [ -f /redmine/setup/themes/circle_theme-1_0_1.zip ]; then
+	unzip /redmine/setup/themes/circle_theme-1_0_1.zip -d /redmine/public/themes/
+else
+	wget http://www.redminecrm.com/license_manager/11619/circle_theme-1_0_1.zip -P /tmp/
+	unzip /tmp/circle_theme-1_0_1.zip -d /redmine/public/themes/
+	rm -rf /tmp/circle_theme-1_0_1.zip
+fi
+
 # https://github.com/makotokw/redmine-theme-gitmike
 mkdir -p /redmine/public/themes/gitmike
 if [ -f /redmine/setup/themes/gitmike-r6.tar.gz ]; then
