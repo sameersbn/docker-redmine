@@ -22,7 +22,7 @@
 Dockerfile to build a Redmine container image (with some additional themes and plugins).
 
 ## Version
-Current Version: 2.4.3
+Current Version: 2.4.4
 
 # Installation
 
@@ -35,7 +35,7 @@ docker pull sameersbn/redmine
 Since version 2.4.2, the image builds are being tagged. You can now pull a particular version of redmine by specifying the version number. For example,
 
 ```bash
-docker pull sameersbn/redmine:2.4.2
+docker pull sameersbn/redmine:2.4.4
 ```
 
 Alternately you can build the image yourself.

@@ -38,7 +38,7 @@ EOF
 # install redmine
 mkdir -p /redmine
 cd /redmine
-wget "http://www.redmine.org/releases/redmine-2.4.3.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
+wget "http://www.redmine.org/releases/redmine-2.4.4.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 
 # install gems
 echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
@@ -46,6 +46,7 @@ if [ -d "/redmine/setup/cache" ]; then
   # offline gem installation
   mv /redmine/setup/cache vendor/
   gem install fastercsv -v 1.5.0 --no-ri --no-rdoc
+  gem install yard --no-ri --no-rdoc
   bundle install --local --without postgresql
 else
   # online gem installation
