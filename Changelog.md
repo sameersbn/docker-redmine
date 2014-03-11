@@ -1,6 +1,7 @@
 # Changelog
 
-**latest a.k.a HEAD**
+**v2.4.4**
+- upgrade to redmine-2.4.4
 - do not perform system upgrades (http://crosbymichael.com/dockerfile-best-practices-take-2.html)
 - added memcache support
 - restructured README with TOC
