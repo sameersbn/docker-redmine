@@ -38,7 +38,7 @@ EOF
 # install redmine
 mkdir -p /redmine
 cd /redmine
-wget "http://www.redmine.org/releases/redmine-2.4.4.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
+wget "http://www.redmine.org/releases/redmine-2.5.0.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 
 # install gems
 echo 'gem "dalli", "~> 2.7.0"' >> Gemfile

@@ -1,6 +1,7 @@
 # Changelog
 
-**latest a.k.a head**
+**v.2.5.0**
+- upgrade to redmine-2.5.0
 - added new circle theme
 - update recurring_tasks plugin to v1.3.0
 - update redmine_tags plugin
