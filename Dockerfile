@@ -29,7 +29,7 @@ RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p484.tar.gz -O - | tar 
 
 RUN gem install --no-ri --no-rdoc passenger -v 3.0.21 && passenger-install-apache2-module --auto
 
-ADD resources/ /redmine/
+ADD assets/ /redmine/
 RUN chmod 755 /redmine/redmine /redmine/setup/install && /redmine/setup/install
 
 ADD authorized_keys /root/.ssh/
