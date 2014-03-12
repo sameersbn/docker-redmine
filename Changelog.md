@@ -1,5 +1,8 @@
 # Changelog
 
+**latest a.k.a HEAD**
+- repo reorganization
+
 **v.2.5.0**
 - upgrade to redmine-2.5.0
 - added new circle theme
