@@ -108,7 +108,7 @@ EOF
 	chown www-data:www-data config/configuration.yml
 fi
 
-db_migrate () {
+appDbMigrate () {
 	# isolate the plugins
 	sudo -u www-data -H mv plugins plugins-1
 	sudo -u www-data -H RAILS_ENV=production rake db:create
@@ -119,8 +119,8 @@ db_migrate () {
 	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
 }
 
-redmine_start () {
-	db_migrate
+appStart () {
+	appDbMigrate
 
 	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
 	sudo -u www-data -H touch tmp/restart.txt
@@ -131,7 +131,7 @@ redmine_start () {
 	tail -F /var/log/apache2/other_vhosts_access.log
 }
 
-redmine_help () {
+appHelp () {
 	echo "Available options:"
 	echo " app:start          - Starts the redmine server (default)"
 	echo " app:db:migrate     - Migrate the database."
@@ -141,13 +141,13 @@ redmine_help () {
 
 case "$1" in
 	app:start)
-		redmine_start
+		appStart
 		;;
 	app:db:migrate)
-		db_migrate
+		appDbMigrate
 		;;
 	app:help)
-		redmine_help
+		appHelp
 		;;
 	*)
 		if [ -x $1 ]; then
@@ -158,7 +158,7 @@ case "$1" in
 				shift 1
 				$prog $@
 			else
-				redmine_help
+				appHelp
 			fi
 		fi
 		;;
