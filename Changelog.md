@@ -1,6 +1,7 @@
 # Changelog
 
 **latest a.k.a HEAD**
+- added redmine agile plugin
 - repo reorganization
 
 **v.2.5.0**

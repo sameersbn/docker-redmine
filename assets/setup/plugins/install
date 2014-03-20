@@ -81,7 +81,12 @@ unzip /redmine/setup/plugins/redmine_people-0_1_6.zip -d /redmine/plugins/
 # wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-0.6.3.zip -O redmine_code_review-0.6.3.zip
 unzip /redmine/setup/plugins/redmine_code_review-0.6.3.zip -d /redmine/plugins/
 
+# redmine agile plugin
+# wget http://redminecrm.com/license_manager/11099/redmine_agile-1_0_1-light.zip -O redmine_agile-1_0_1-light.zip
+unzip /redmine/setup/plugins/redmine_agile-1_0_1-light.zip -d /redmine/plugins/
+
 #
 ## Satisfy gem dependencies for plugins
 #
+
 bundle install --without development tests
