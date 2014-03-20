@@ -109,6 +109,16 @@ else
 	wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.1.3.0.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
 fi
 
+# redmine dashboard tasks
+# wget https://github.com/jgraichen/redmine_dashboard/archive/v2.2.1.tar.gz -O redmine_dashboard-2.2.1.tar.gz
+mkdir -p /redmine/plugins/redmine_dashboard
+if [ -f /redmine/setup/plugins/redmine_dashboard-2.2.1.tar.gz ]; then
+	tar -zvxf /redmine/setup/plugins/redmine_dashboard-2.2.1.tar.gz --strip=1 -C /redmine/plugins/redmine_dashboard || exit 1
+else
+	wget https://github.com/jgraichen/redmine_dashboard/archive/v2.2.1.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
+fi
+echo 'gem "guard-rspec"' >> Gemfile
+
 #
 ## Install zipped archives
 #
