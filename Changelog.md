@@ -1,6 +1,7 @@
 # Changelog
 
 **latest a.k.a HEAD**
+- added redmine dashboard plugin
 - added redmine agile plugin
 - repo reorganization
 

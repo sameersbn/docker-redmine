@@ -65,6 +65,12 @@ tar -zvxf /redmine/setup/plugins/redmine_announcements.tar.gz --strip=1 -C /redm
 mkdir -p /redmine/plugins/recurring_tasks
 tar -zvxf /redmine/setup/plugins/recurring_tasks-1.3.0.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks
 
+# redmine dashboard tasks
+# wget https://github.com/jgraichen/redmine_dashboard/archive/v2.2.1.tar.gz -O redmine_dashboard-2.2.1.tar.gz
+mkdir -p /redmine/plugins/redmine_dashboard
+tar -zvxf /redmine/setup/plugins/redmine_dashboard-2.2.1.tar.gz --strip=1 -C /redmine/plugins/redmine_dashboard
+echo 'gem "guard-rspec"' >> Gemfile
+
 #
 ## Install zipped archives
 #
