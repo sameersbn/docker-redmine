@@ -12,12 +12,11 @@ RUN apt-get install -y vim curl wget sudo net-tools pwgen && \
 # build tools
 RUN apt-get install -y gcc make && apt-get clean
 
-# image specific
-RUN apt-get install -y unzip apache2-mpm-prefork imagemagick mysql-server \
+RUN apt-get install -y unzip imagemagick mysql-server \
       memcached subversion git cvs bzr && apt-get clean
 
 RUN apt-get install -y libcurl4-openssl-dev libssl-dev \
-      apache2-prefork-dev libapr1-dev libaprutil1-dev \
+      libapr1-dev libaprutil1-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && apt-get clean
 
@@ -25,18 +24,19 @@ RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p484.tar.gz -O - | tar 
     cd /tmp/ruby-1.9.3-p484/ && ./configure --enable-pthread --prefix=/usr && make && make install && \
     cd /tmp/ruby-1.9.3-p484/ext/openssl/ && ruby extconf.rb && make && make install && \
     cd /tmp/ruby-1.9.3-p484/ext/zlib && ruby extconf.rb && make && make install && cd /tmp \
-    rm -rf /tmp/ruby-1.9.3-p484 && gem install --no-ri --no-rdoc bundler mysql2
-
-RUN gem install --no-ri --no-rdoc passenger -v 3.0.21 && passenger-install-apache2-module --auto
+    rm -rf /tmp/ruby-1.9.3-p484 && gem install --no-ri --no-rdoc bundler mysql2 && \
+    gem install --no-ri --no-rdoc activerecord-postgresql-adapter
 
 ADD assets/ /redmine/
 RUN chmod 755 /redmine/init /redmine/setup/install && /redmine/setup/install
+
+RUN gem install --no-ri --no-rdoc unicorn
 
 ADD authorized_keys /root/.ssh/
 RUN mv /redmine/.vimrc /redmine/.bash_aliases /root/
 RUN chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys && chown root:root -R /root
 
-EXPOSE 80
+EXPOSE 9000
 
 ENTRYPOINT ["/redmine/init"]
 CMD ["app:start"]
