@@ -14,23 +14,6 @@ SMTP_PORT=${SMTP_PORT:-587}
 SMTP_USER=${SMTP_USER:-}
 SMTP_PASS=${SMTP_PASS:-}
 
-PASSENGER_MAX_POOL_SIZE=${PASSENGER_MAX_POOL_SIZE:-6}
-PASSENGER_MIN_INSTANCES=${PASSENGER_MIN_INSTANCES:-1}
-PASSENGER_MAX_REQUESTS=${PASSENGER_MAX_REQUESTS:-0}
-PASSENGER_POOL_IDLE_TIME=${PASSENGER_POOL_IDLE_TIME:-300}
-
-export APACHE_RUN_USER="www-data"
-export APACHE_RUN_GROUP="www-data"
-export APACHE_LOG_DIR="/var/log/apache2"
-export APACHE_PID_FILE="/var/run/apache2.pid"
-export APACHE_LOCK_DIR="/var/run/lock/apache2"
-export APACHE_RUN_DIR="/var/run/apache2"
-
-sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'${PASSENGER_MAX_POOL_SIZE}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MIN_INSTANCES}}/'${PASSENGER_MIN_INSTANCES}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MAX_REQUESTS}}/'${PASSENGER_MAX_REQUESTS}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_POOL_IDLE_TIME}}/'${PASSENGER_POOL_IDLE_TIME}'/' -i /etc/apache2/apache2.conf
-
 # generate a password for root.
 ROOT_PASSWORD=$(pwgen -c -n -1 12)
 echo "root:$ROOT_PASSWORD" | chpasswd
@@ -110,25 +93,23 @@ fi
 
 appDbMigrate () {
 	# isolate the plugins
-	sudo -u www-data -H mv plugins plugins-1
-	sudo -u www-data -H RAILS_ENV=production rake db:create
-	sudo -u www-data -H RAILS_ENV=production rake db:migrate
-	sudo -u www-data -H mv plugins-1 plugins
-	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
-	sudo -u www-data -H RAILS_ENV=production rake tmp:cache:clear
-	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
+	mv plugins plugins-1
+	RAILS_ENV=production rake db:create
+	RAILS_ENV=production rake db:migrate
+	mv plugins-1 plugins
+	RAILS_ENV=production rake redmine:plugins:migrate
+	RAILS_ENV=production rake tmp:cache:clear
+	RAILS_ENV=production rake tmp:sessions:clear
 }
 
 appStart () {
 	appDbMigrate
 
-	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
-	sudo -u www-data -H touch tmp/restart.txt
+	RAILS_ENV=production rake generate_secret_token
 
-	# kickstart the rails application
-	wget "http://localhost" -O /dev/null
+    RAILS_ENV=production unicorn -D -l 0.0.0.0:9000
 
-	tail -F /var/log/apache2/other_vhosts_access.log
+	tail -F /redmine/log/production.log
 }
 
 appHelp () {

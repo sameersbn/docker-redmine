@@ -2,39 +2,6 @@
 
 set -e
 
-# install passenger
-mod_passenger=$(find /usr/lib/ruby/gems/ -name mod_passenger.so)
-if [ -n "${mod_passenger}" ]; then
-	echo "LoadModule passenger_module ${mod_passenger}" > /etc/apache2/mods-available/passenger.load
-	a2enmod passenger
-else
-  echo "ERROR: could not configure passenger module"
-  exit 1
-fi
-
-cat >> /etc/apache2/apache2.conf <<EOF
-
-PassengerRoot /usr/lib/ruby/gems/1.9.1/gems/passenger-3.0.21
-PassengerRuby /usr/bin/ruby
-PassengerDefaultUser www-data
-
-PassengerMaxPoolSize {{PASSENGER_MAX_POOL_SIZE}}
-PassengerMinInstances {{PASSENGER_MIN_INSTANCES}}
-PassengerMaxRequests {{PASSENGER_MAX_REQUESTS}}
-PassengerPoolIdleTime {{PASSENGER_POOL_IDLE_TIME}}
-EOF
-
-cat > /etc/apache2/conf.d/redmine.conf <<EOF
-<VirtualHost *:80>
-  RailsEnv production
-  DocumentRoot /redmine/public
-  <Directory /redmine/public>
-    AllowOverride all
-    Options -MultiViews
-  </Directory>
-</VirtualHost>
-EOF
-
 # install redmine
 mkdir -p /redmine
 cd /redmine
@@ -47,10 +14,10 @@ if [ -d "/redmine/setup/cache" ]; then
   mv /redmine/setup/cache vendor/
   gem install fastercsv -v 1.5.0 --no-ri --no-rdoc
   gem install yard --no-ri --no-rdoc
-  bundle install --local --without postgresql
+  bundle install --local
 else
   # online gem installation
- bundle install --without postgresql
+ bundle install
 fi
 
 sudo -u www-data -H cat > config/additional_environment.rb << EOF
@@ -108,17 +75,6 @@ cat > /etc/logrotate.d/supervisord <<EOF
     notifempty
     copytruncate
 }
-EOF
-
-cat > /etc/supervisor/conf.d/apache2.conf <<EOF
-[program:apache2]
-directory=/
-command=/usr/sbin/apache2 -DFOREGROUND
-user=root
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s_error.log
 EOF
 
 # configure supervisord to start cron
