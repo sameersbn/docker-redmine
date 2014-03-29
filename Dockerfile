@@ -12,7 +12,7 @@ RUN apt-get install -y vim curl wget sudo net-tools pwgen && \
 # build tools
 RUN apt-get install -y gcc make && apt-get clean
 
-RUN apt-get install -y unzip imagemagick mysql-server \
+RUN apt-get install -y unzip imagemagick sqlite3 \
       memcached subversion git cvs bzr && apt-get clean
 
 RUN apt-get install -y libcurl4-openssl-dev libssl-dev \
@@ -25,7 +25,8 @@ RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p484.tar.gz -O - | tar 
     cd /tmp/ruby-1.9.3-p484/ext/openssl/ && ruby extconf.rb && make && make install && \
     cd /tmp/ruby-1.9.3-p484/ext/zlib && ruby extconf.rb && make && make install && cd /tmp \
     rm -rf /tmp/ruby-1.9.3-p484 && gem install --no-ri --no-rdoc bundler mysql2 && \
-    gem install --no-ri --no-rdoc activerecord-postgresql-adapter
+    gem install --no-ri --no-rdoc activerecord-postgresql-adapter && \
+    gem install --no-ri --no-rdoc sqlite3
 
 ADD assets/ /redmine/
 RUN chmod 755 /redmine/init /redmine/setup/install && /redmine/setup/install

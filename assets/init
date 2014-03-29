@@ -2,7 +2,7 @@
 
 DB_HOST=${DB_HOST:-localhost}
 DB_PORT=${DB_PORT:-3306}
-DB_NAME=${DB_NAME:-redmine_production}
+DB_NAME=${DB_NAME:-redmine_production.db}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
@@ -21,37 +21,6 @@ echo User: root Password: $ROOT_PASSWORD
 
 # start supervisord
 /usr/bin/supervisord
-
-# start mysql server if ${DB_HOST} is localhost
-if [ "${DB_HOST}" == "localhost" ]; then
-	# fix permissions and ownership of /var/lib/mysql
-	chown -R mysql:mysql /var/lib/mysql
-	chmod 700 /var/lib/mysql
-
-	# initialize MySQL data directory
-	if [ ! -d /var/lib/mysql/mysql ]; then
-		mysql_install_db --user=mysql
-	fi
-
-	supervisorctl start mysqld
-
-	# wait for mysql server to start (max 120 seconds)
-	timeout=120
-	while ! mysqladmin -uroot ${DB_PASS:+-p$DB_PASS} status >/dev/null 2>&1
-	do
-		timeout=$(expr $timeout - 1)
-		if [ $timeout -eq 0 ]; then
-			echo "Failed to start mysql server"
-			exit 1
-		fi
-		sleep 1
-	done
-
-	if ! echo "USE ${DB_NAME}" | mysql -uroot ${DB_PASS:+-p$DB_PASS} >/dev/null 2>&1; then
-		echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET \`utf8\` COLLATE \`utf8_unicode_ci\`;" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
-		echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON \`${DB_NAME}\`.* TO 'root'@'localhost';" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
-	fi
-fi
 
 chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
