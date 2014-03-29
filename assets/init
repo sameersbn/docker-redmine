@@ -1,11 +1,20 @@
 #!/bin/bash
 
+DB_TYPE=${DB_TYPE:-sqlite3}
 DB_HOST=${DB_HOST:-localhost}
-DB_PORT=${DB_PORT:-3306}
+DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-redmine_production.db}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
+
+# Set the correct port based on the DB_TYPE
+case "${DB_TYPE}" in
+    mysql) DB_PORT=${DB_PORT:-3306} ;;
+    postgres) DB_PORT=${DB_PORT:-5432} ;;
+    sqlite3) DB_PORT=${DB_PORT:-} ;;
+    *) echo "Unsupported database adapter. Available adapters are mysql, postgres and sqlite3." && exit 1 ;;
+esac
 
 MEMCACHED_SIZE=${MEMCACHED_SIZE:-64}
 
@@ -20,27 +29,43 @@ echo "root:$ROOT_PASSWORD" | chpasswd
 echo User: root Password: $ROOT_PASSWORD
 
 # start supervisord
+echo "Starting supervisord"
 /usr/bin/supervisord
 
 chmod 755 /redmine/files
-chown www-data:www-data /redmine/files
 
+echo "Config the database"
 cd /redmine
-sudo -u www-data -H sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PORT}}/'${DB_PORT}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+sudo sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
+sudo sed 's/{{DB_PORT}}/'${DB_PORT}'/' -i config/database.yml
+sudo sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
+sudo sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
+sudo sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
+sudo sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+
+# configure database
+echo "Configure database adapter"
+if [ "${DB_TYPE}" == "postgres" ]; then
+    sudo sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
+    sudo sed 's/{{DB_ENCODING}}/unicode/'   -i config/database.yml
+elif [ "${DB_TYPE}" == "mysql" ]; then
+    sudo sed 's/{{DB_ADAPTER}}/mysql2/'     -i config/database.yml
+    sudo sed 's/{{DB_ENCODING}}/utf8/'      -i config/database.yml
+elif [ "${DB_TYPE}" == "sqlite3" ]; then
+    sudo sed 's/{{DB_ADAPTER}}/sqlite3/' -i config/database.yml
+else
+    sudo sed 's/{{DB_ADAPTER}}/NOT_SET/' -i config/database.yml
+    echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres and sqlite3]."
+fi
 
 # start memcached and install config if ${MEMCACHED_SIZE} is not 0
 if [ "${MEMCACHED_SIZE}" != "0" ]; then
 	sed 's/{{MEMCACHED_SIZE}}/'${MEMCACHED_SIZE}'/' -i /etc/supervisor/conf.d/memcached.conf
 	supervisorctl update
 	supervisorctl start memcached
-	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
+	sudo sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
 else
-	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
+	sudo sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
 # configure mail delivery
@@ -57,7 +82,7 @@ default:
       user_name: "${SMTP_USER}"
       password: "${SMTP_PASS}"
 EOF
-	chown www-data:www-data config/configuration.yml
+	#chown www-data:www-data config/configuration.yml
 fi
 
 appDbMigrate () {

@@ -20,7 +20,7 @@ else
  bundle install
 fi
 
-sudo -u www-data -H cat > config/additional_environment.rb << EOF
+sudo cat > config/additional_environment.rb << EOF
 config.gem 'dalli'
 config.action_controller.perform_caching  = {{ENABLE_CACHE}}
 config.cache_classes = true
@@ -28,9 +28,10 @@ config.cache_store = :dalli_store, "127.0.0.1:11211"
 EOF
 
 # add database.yml template
-sudo -u www-data -H cat > config/database.yml <<EOF
+sudo cat > config/database.yml <<EOF
 production:
-  adapter: sqlite3
+  adapter: {{DB_ADAPTER}}
+  encoding: {{DB_ENCODING}}
   database: {{DB_NAME}}
   host: {{DB_HOST}}
   port: {{DB_PORT}}
@@ -49,7 +50,6 @@ EOF
 mkdir -p tmp tmp/pdf public/plugin_assets
 chmod -R 755 files log public/plugin_assets
 chmod -R 1777 tmp
-chown -R www-data:www-data /redmine
 
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
@@ -108,7 +108,6 @@ cat > /etc/supervisor/conf.d/memcached.conf <<EOF
 priority=20
 directory=/tmp
 command=/usr/bin/memcached -m {{MEMCACHED_SIZE}}
-user=www-data
 autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
