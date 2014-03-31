@@ -107,7 +107,7 @@ cat > /etc/supervisor/conf.d/memcached.conf <<EOF
 [program:memcached]
 priority=20
 directory=/tmp
-command=/usr/bin/memcached -m {{MEMCACHED_SIZE}}
+command=/usr/bin/memcached -u root -m {{MEMCACHED_SIZE}}
 autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
