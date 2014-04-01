@@ -1,11 +1,20 @@
 #!/bin/bash
 
+DB_TYPE=${DB_TYPE:-sqlite3}
 DB_HOST=${DB_HOST:-localhost}
-DB_PORT=${DB_PORT:-3306}
-DB_NAME=${DB_NAME:-redmine_production}
+DB_PORT=${DB_PORT:-}
+DB_NAME=${DB_NAME:-redmine_production.db}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
+
+# Set the correct port based on the DB_TYPE
+case "${DB_TYPE}" in
+    mysql) DB_PORT=${DB_PORT:-3306} ;;
+    postgres) DB_PORT=${DB_PORT:-5432} ;;
+    sqlite3) DB_PORT=${DB_PORT:-} ;;
+    *) echo "Unsupported database adapter. Available adapters are mysql, postgres and sqlite3." && exit 1 ;;
+esac
 
 MEMCACHED_SIZE=${MEMCACHED_SIZE:-64}
 
@@ -14,81 +23,49 @@ SMTP_PORT=${SMTP_PORT:-587}
 SMTP_USER=${SMTP_USER:-}
 SMTP_PASS=${SMTP_PASS:-}
 
-PASSENGER_MAX_POOL_SIZE=${PASSENGER_MAX_POOL_SIZE:-6}
-PASSENGER_MIN_INSTANCES=${PASSENGER_MIN_INSTANCES:-1}
-PASSENGER_MAX_REQUESTS=${PASSENGER_MAX_REQUESTS:-0}
-PASSENGER_POOL_IDLE_TIME=${PASSENGER_POOL_IDLE_TIME:-300}
-
-export APACHE_RUN_USER="www-data"
-export APACHE_RUN_GROUP="www-data"
-export APACHE_LOG_DIR="/var/log/apache2"
-export APACHE_PID_FILE="/var/run/apache2.pid"
-export APACHE_LOCK_DIR="/var/run/lock/apache2"
-export APACHE_RUN_DIR="/var/run/apache2"
-
-sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'${PASSENGER_MAX_POOL_SIZE}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MIN_INSTANCES}}/'${PASSENGER_MIN_INSTANCES}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MAX_REQUESTS}}/'${PASSENGER_MAX_REQUESTS}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_POOL_IDLE_TIME}}/'${PASSENGER_POOL_IDLE_TIME}'/' -i /etc/apache2/apache2.conf
-
 # generate a password for root.
 ROOT_PASSWORD=$(pwgen -c -n -1 12)
 echo "root:$ROOT_PASSWORD" | chpasswd
 echo User: root Password: $ROOT_PASSWORD
 
 # start supervisord
+echo "Starting supervisord"
 /usr/bin/supervisord
 
-# start mysql server if ${DB_HOST} is localhost
-if [ "${DB_HOST}" == "localhost" ]; then
-	# fix permissions and ownership of /var/lib/mysql
-	chown -R mysql:mysql /var/lib/mysql
-	chmod 700 /var/lib/mysql
-
-	# initialize MySQL data directory
-	if [ ! -d /var/lib/mysql/mysql ]; then
-		mysql_install_db --user=mysql
-	fi
-
-	supervisorctl start mysqld
-
-	# wait for mysql server to start (max 120 seconds)
-	timeout=120
-	while ! mysqladmin -uroot ${DB_PASS:+-p$DB_PASS} status >/dev/null 2>&1
-	do
-		timeout=$(expr $timeout - 1)
-		if [ $timeout -eq 0 ]; then
-			echo "Failed to start mysql server"
-			exit 1
-		fi
-		sleep 1
-	done
-
-	if ! echo "USE ${DB_NAME}" | mysql -uroot ${DB_PASS:+-p$DB_PASS} >/dev/null 2>&1; then
-		echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET \`utf8\` COLLATE \`utf8_unicode_ci\`;" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
-		echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON \`${DB_NAME}\`.* TO 'root'@'localhost';" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
-	fi
-fi
-
 chmod 755 /redmine/files
-chown www-data:www-data /redmine/files
 
+echo "Config the database"
 cd /redmine
-sudo -u www-data -H sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PORT}}/'${DB_PORT}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+sudo sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
+sudo sed 's/{{DB_PORT}}/'${DB_PORT}'/' -i config/database.yml
+sudo sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
+sudo sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
+sudo sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
+sudo sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+
+# configure database
+echo "Configure database adapter"
+if [ "${DB_TYPE}" == "postgres" ]; then
+    sudo sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
+    sudo sed 's/{{DB_ENCODING}}/unicode/'   -i config/database.yml
+elif [ "${DB_TYPE}" == "mysql" ]; then
+    sudo sed 's/{{DB_ADAPTER}}/mysql2/'     -i config/database.yml
+    sudo sed 's/{{DB_ENCODING}}/utf8/'      -i config/database.yml
+elif [ "${DB_TYPE}" == "sqlite3" ]; then
+    sudo sed 's/{{DB_ADAPTER}}/sqlite3/' -i config/database.yml
+else
+    sudo sed 's/{{DB_ADAPTER}}/NOT_SET/' -i config/database.yml
+    echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres and sqlite3]."
+fi
 
 # start memcached and install config if ${MEMCACHED_SIZE} is not 0
 if [ "${MEMCACHED_SIZE}" != "0" ]; then
 	sed 's/{{MEMCACHED_SIZE}}/'${MEMCACHED_SIZE}'/' -i /etc/supervisor/conf.d/memcached.conf
 	supervisorctl update
 	supervisorctl start memcached
-	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
+	sudo sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
 else
-	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
+	sudo sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
 # configure mail delivery
@@ -105,30 +82,28 @@ default:
       user_name: "${SMTP_USER}"
       password: "${SMTP_PASS}"
 EOF
-	chown www-data:www-data config/configuration.yml
+	#chown www-data:www-data config/configuration.yml
 fi
 
 appDbMigrate () {
 	# isolate the plugins
-	sudo -u www-data -H mv plugins plugins-1
-	sudo -u www-data -H RAILS_ENV=production rake db:create
-	sudo -u www-data -H RAILS_ENV=production rake db:migrate
-	sudo -u www-data -H mv plugins-1 plugins
-	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
-	sudo -u www-data -H RAILS_ENV=production rake tmp:cache:clear
-	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
+	mv plugins plugins-1
+	RAILS_ENV=production rake db:create
+	RAILS_ENV=production rake db:migrate
+	mv plugins-1 plugins
+	RAILS_ENV=production rake redmine:plugins:migrate
+	RAILS_ENV=production rake tmp:cache:clear
+	RAILS_ENV=production rake tmp:sessions:clear
 }
 
 appStart () {
 	appDbMigrate
 
-	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
-	sudo -u www-data -H touch tmp/restart.txt
+	RAILS_ENV=production rake generate_secret_token
 
-	# kickstart the rails application
-	wget "http://localhost" -O /dev/null
+    RAILS_ENV=production unicorn -D -l 0.0.0.0:9000
 
-	tail -F /var/log/apache2/other_vhosts_access.log
+	tail -F /redmine/log/production.log
 }
 
 appHelp () {

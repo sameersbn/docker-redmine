@@ -2,39 +2,6 @@
 
 set -e
 
-# install passenger
-mod_passenger=$(find /usr/lib/ruby/gems/ -name mod_passenger.so)
-if [ -n "${mod_passenger}" ]; then
-	echo "LoadModule passenger_module ${mod_passenger}" > /etc/apache2/mods-available/passenger.load
-	a2enmod passenger
-else
-  echo "ERROR: could not configure passenger module"
-  exit 1
-fi
-
-cat >> /etc/apache2/apache2.conf <<EOF
-
-PassengerRoot /usr/lib/ruby/gems/1.9.1/gems/passenger-3.0.21
-PassengerRuby /usr/bin/ruby
-PassengerDefaultUser www-data
-
-PassengerMaxPoolSize {{PASSENGER_MAX_POOL_SIZE}}
-PassengerMinInstances {{PASSENGER_MIN_INSTANCES}}
-PassengerMaxRequests {{PASSENGER_MAX_REQUESTS}}
-PassengerPoolIdleTime {{PASSENGER_POOL_IDLE_TIME}}
-EOF
-
-cat > /etc/apache2/conf.d/redmine.conf <<EOF
-<VirtualHost *:80>
-  RailsEnv production
-  DocumentRoot /redmine/public
-  <Directory /redmine/public>
-    AllowOverride all
-    Options -MultiViews
-  </Directory>
-</VirtualHost>
-EOF
-
 # install redmine
 mkdir -p /redmine
 cd /redmine
@@ -47,13 +14,13 @@ if [ -d "/redmine/setup/cache" ]; then
   mv /redmine/setup/cache vendor/
   gem install fastercsv -v 1.5.0 --no-ri --no-rdoc
   gem install yard --no-ri --no-rdoc
-  bundle install --local --without postgresql
+  bundle install --local
 else
   # online gem installation
- bundle install --without postgresql
+ bundle install
 fi
 
-sudo -u www-data -H cat > config/additional_environment.rb << EOF
+sudo cat > config/additional_environment.rb << EOF
 config.gem 'dalli'
 config.action_controller.perform_caching  = {{ENABLE_CACHE}}
 config.cache_classes = true
@@ -61,9 +28,10 @@ config.cache_store = :dalli_store, "127.0.0.1:11211"
 EOF
 
 # add database.yml template
-sudo -u www-data -H cat > config/database.yml <<EOF
+sudo cat > config/database.yml <<EOF
 production:
-  adapter: mysql2
+  adapter: {{DB_ADAPTER}}
+  encoding: {{DB_ENCODING}}
   database: {{DB_NAME}}
   host: {{DB_HOST}}
   port: {{DB_PORT}}
@@ -82,7 +50,6 @@ EOF
 mkdir -p tmp tmp/pdf public/plugin_assets
 chmod -R 755 files log public/plugin_assets
 chmod -R 1777 tmp
-chown -R www-data:www-data /redmine
 
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
@@ -108,17 +75,6 @@ cat > /etc/logrotate.d/supervisord <<EOF
     notifempty
     copytruncate
 }
-EOF
-
-cat > /etc/supervisor/conf.d/apache2.conf <<EOF
-[program:apache2]
-directory=/
-command=/usr/sbin/apache2 -DFOREGROUND
-user=root
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s_error.log
 EOF
 
 # configure supervisord to start cron
@@ -147,25 +103,11 @@ stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s_error.log
 EOF
 
-# supervise mysql server start (manual)
-cat > /etc/supervisor/conf.d/mysqld.conf <<EOF
-[program:mysqld]
-priority=20
-directory=/tmp
-command=/usr/bin/mysqld_safe
-user=root
-autostart=false
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
-EOF
-
 cat > /etc/supervisor/conf.d/memcached.conf <<EOF
 [program:memcached]
 priority=20
 directory=/tmp
-command=/usr/bin/memcached -m {{MEMCACHED_SIZE}}
-user=www-data
+command=/usr/bin/memcached -u root -m {{MEMCACHED_SIZE}}
 autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
