@@ -3,7 +3,7 @@
 set -e
 
 # install passenger
-mod_passenger=$(find /usr/lib/ruby/gems/ -name mod_passenger.so)
+mod_passenger=$(find /var/lib/gems/1.9.1/gems/ -name mod_passenger.so)
 if [ -n "${mod_passenger}" ]; then
 	echo "LoadModule passenger_module ${mod_passenger}" > /etc/apache2/mods-available/passenger.load
 	a2enmod passenger
@@ -14,7 +14,7 @@ fi
 
 cat >> /etc/apache2/apache2.conf <<EOF
 
-PassengerRoot /usr/lib/ruby/gems/1.9.1/gems/passenger-3.0.21
+PassengerRoot /var/lib/gems/1.9.1/gems/passenger-3.0.21
 PassengerRuby /usr/bin/ruby
 PassengerDefaultUser www-data
 
