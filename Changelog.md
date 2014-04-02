@@ -1,6 +1,8 @@
 # Changelog
 
 **latest a.k.a HEAD**
+- updated gems cache
+- install ruby1.9.1 from ubuntu repos
 - added redmine dashboard plugin
 - added redmine agile plugin
 - repo reorganization
