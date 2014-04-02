@@ -19,14 +19,12 @@ RUN apt-get install -y gcc make && apt-get clean
 
 # image specific
 RUN apt-get install -y apache2-mpm-prefork imagemagick mysql-server \
-      memcached subversion git cvs bzr && apt-get clean
-
-RUN apt-get install -y libcurl4-openssl-dev libssl-dev \
+      memcached subversion git cvs bzr ruby1.9.1 \
+      ruby1.9.1-dev libcurl4-openssl-dev libssl-dev \
       apache2-prefork-dev libapr1-dev libaprutil1-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev \
-      libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && apt-get clean
-
-RUN apt-get install -y ruby1.9.1 ruby1.9.1-dev && apt-get clean && \
+      libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && \
+    apt-get clean && \
     gem install --no-ri --no-rdoc bundler mysql2 && \
     gem install --no-ri --no-rdoc passenger -v 3.0.21 && \
     passenger-install-apache2-module --auto
