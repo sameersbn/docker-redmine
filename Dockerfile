@@ -26,13 +26,10 @@ RUN apt-get install -y libcurl4-openssl-dev libssl-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && apt-get clean
 
-RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p484.tar.gz -O - | tar -zxf - -C /tmp/ && \
-    cd /tmp/ruby-1.9.3-p484/ && ./configure --enable-pthread --prefix=/usr && make && make install && \
-    cd /tmp/ruby-1.9.3-p484/ext/openssl/ && ruby extconf.rb && make && make install && \
-    cd /tmp/ruby-1.9.3-p484/ext/zlib && ruby extconf.rb && make && make install && cd /tmp \
-    rm -rf /tmp/ruby-1.9.3-p484 && gem install --no-ri --no-rdoc bundler mysql2
-
-RUN gem install --no-ri --no-rdoc passenger -v 3.0.21 && passenger-install-apache2-module --auto
+RUN apt-get install -y ruby1.9.1 ruby1.9.1-dev && apt-get clean && \
+    gem install --no-ri --no-rdoc bundler mysql2 && \
+    gem install --no-ri --no-rdoc passenger -v 3.0.21 && \
+    passenger-install-apache2-module --auto
 
 ADD assets/ /redmine/
 RUN mv /redmine/.vimrc /redmine/.bash_aliases /root/
