@@ -35,11 +35,11 @@ RUN wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p484.tar.gz -O - | tar 
 RUN gem install --no-ri --no-rdoc passenger -v 3.0.21 && passenger-install-apache2-module --auto
 
 ADD assets/ /redmine/
+RUN mv /redmine/.vimrc /redmine/.bash_aliases /root/
 RUN chmod 755 /redmine/init /redmine/setup/install && /redmine/setup/install
 
 ADD authorized_keys /root/.ssh/
-RUN mv /redmine/.vimrc /redmine/.bash_aliases /root/
-RUN chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys && chown root:root -R /root
+RUN chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys && chown root:root -R /root/.ssh
 
 EXPOSE 80
 
