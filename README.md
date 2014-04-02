@@ -28,19 +28,19 @@ Current Version: 2.5.0
 
 Pull the image from the docker index. This is the recommended method of installation as it is easier to update image in the future. These builds are performed by the Trusted Build service.
 
-```bash
+```
 docker pull sameersbn/redmine
 ```
 
 Since version 2.4.2, the image builds are being tagged. You can now pull a particular version of redmine by specifying the version number. For example,
 
-```bash
+```
 docker pull sameersbn/redmine:2.5.0
 ```
 
 Alternately you can build the image yourself.
 
-```bash
+```
 git clone https://github.com/sameersbn/docker-redmine.git
 cd docker-redmine
 docker build -t="$USER/redmine" .
@@ -49,14 +49,14 @@ docker build -t="$USER/redmine" .
 # Quick Start
 Run the redmine image with the name "redmine".
 
-```bash
+```
 docker run -name redmine -d sameersbn/redmine
 REDMINE_IP=$(docker inspect redmine | grep IPAddres | awk -F'"' '{print $4}')
 ```
 
 Access the Redmine application
 
-```bash
+```
 xdg-open "http://${REDMINE_IP}"
 ```
 
@@ -78,7 +78,7 @@ For the file storage we need to mount a volume at the following location.
 
 Volumes can be mounted in docker by specifying the **'-v'** option in the docker run command.
 
-```bash
+```
 mkdir -pv /opt/redmine/files
 docker run -name redmine -d \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
@@ -91,7 +91,7 @@ Redmine uses a database backend to store its data.
 ### Internal MySQL Server
 This docker image is configured to use a MySQL database backend. The database connection can be configured using environment variables. If not specified, the image will start a mysql server internally and use it. However in this case, the data stored in the mysql database will be lost if the container is stopped/deleted. To avoid this you should mount a volume at /var/lib/mysql.
 
-```bash
+```
 mkdir /opt/redmine/mysql
 docker run -name redmine -d \
   -v /opt/redmine/files:/redmine/files \
@@ -105,7 +105,7 @@ The image can be configured to use an external MySQL database instead of startin
 
 Before you start the Redmine image create user and database for redmine.
 
-```bash
+```
 mysql -uroot -p
 CREATE USER 'redmine'@'%.%.%.%' IDENTIFIED BY 'password';
 CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
@@ -114,7 +114,7 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 
 *Assuming that the mysql server host is 192.168.1.100*
 
-```bash
+```
 docker run -name redmine -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
@@ -133,7 +133,7 @@ The following environment variables need to be specified to get mail support to 
 * SMTP_USER
 * SMTP_PASS
 
-```bash
+```
 docker run -name redmine -d \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine
@@ -147,7 +147,7 @@ I have only tested standard gmail and google apps login. I expect that the curre
 
 ### Putting it all together
 
-```bash
+```
 docker run -name redmine -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql \
@@ -157,7 +157,7 @@ docker run -name redmine -d -h redmine.local.host \
 
 If you are using an external mysql database
 
-```bash
+```
 docker run -name redmine -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
@@ -192,7 +192,7 @@ There are two methods to gain root login to the container, the first method is t
 
 The second method is use the dynamically generated password. Every time the container is started a random password is generated using the pwgen tool and assigned to the root user. This password can be fetched from the docker logs.
 
-```bash
+```
 docker logs redmine 2>&1 | grep '^User: ' | tail -n1
 ```
 This password is not persistent and changes every time the image is executed.
@@ -203,31 +203,31 @@ To upgrade to newer redmine releases, simply follow this 5 step upgrade procedur
 
 **Step 1**: Stop the currently running image
 
-```bash
+```
 docker stop redmine
 ```
 
 **Step 2**: Backup the database in case something goes wrong.
 
-```bash
+```
 mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
 ```
 
 **Step 3**: Update the docker image.
 
-```bash
+```
 docker pull sameersbn/redmine
 ```
 
 **Step 4**: Migrate the database.
 
-```bash
+```
 docker run -name redmine -i -t -rm [OPTIONS] sameersbn/redmine app:db:migrate
 ```
 
 **Step 5**: Start the image
 
-```bash
+```
 docker run -name redmine -i -d [OPTIONS] sameersbn/redmine
 ```
 
