@@ -29,7 +29,7 @@ Current Version: 2.5.0
 Pull the image from the docker index. This is the recommended method of installation as it is easier to update image in the future. These builds are performed by the Trusted Build service.
 
 ```
-docker pull sameersbn/redmine
+docker pull sameersbn/redmine:latest
 ```
 
 Since version 2.4.2, the image builds are being tagged. You can now pull a particular version of redmine by specifying the version number. For example,
@@ -50,7 +50,7 @@ docker build -t="$USER/redmine" .
 Run the redmine image with the name "redmine".
 
 ```
-docker run -name redmine -d sameersbn/redmine
+docker run -name redmine -d sameersbn/redmine:latest
 REDMINE_IP=$(docker inspect redmine | grep IPAddres | awk -F'"' '{print $4}')
 ```
 
@@ -81,7 +81,7 @@ Volumes can be mounted in docker by specifying the **'-v'** option in the docker
 ```
 mkdir -pv /opt/redmine/files
 docker run -name redmine -d \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest
 ```
 
 ## Database
@@ -95,7 +95,7 @@ This docker image is configured to use a MySQL database backend. The database co
 mkdir /opt/redmine/mysql
 docker run -name redmine -d \
   -v /opt/redmine/files:/redmine/files \
-  -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine
+  -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine:latest
 ```
 
 This will make sure that the data stored in the database is not lost when the image is stopped and started again.
@@ -118,7 +118,7 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 docker run -name redmine -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
@@ -136,7 +136,7 @@ The following environment variables need to be specified to get mail support to 
 ```
 docker run -name redmine -d \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest
 ```
 
 If you are not using google mail, then please configure the  SMTP host and port using the SMTP_HOST and SMTP_PORT configuration parameters.
@@ -152,7 +152,7 @@ docker run -name redmine -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  sameersbn/redmine
+  sameersbn/redmine:latest
 ```
 
 If you are using an external mysql database
@@ -162,7 +162,7 @@ docker run -name redmine -d -h redmine.local.host \
   -v /opt/redmine/files:/redmine/files \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  sameersbn/redmine
+  sameersbn/redmine:latest
 ```
 
 ### Available Configuration Parameters
@@ -216,19 +216,19 @@ mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production 
 **Step 3**: Update the docker image.
 
 ```
-docker pull sameersbn/redmine
+docker pull sameersbn/redmine:latest
 ```
 
 **Step 4**: Migrate the database.
 
 ```
-docker run -name redmine -i -t -rm [OPTIONS] sameersbn/redmine app:db:migrate
+docker run -name redmine -i -t -rm [OPTIONS] sameersbn/redmine:latest app:db:migrate
 ```
 
 **Step 5**: Start the image
 
 ```
-docker run -name redmine -i -d [OPTIONS] sameersbn/redmine
+docker run -name redmine -i -d [OPTIONS] sameersbn/redmine:latest
 ```
 
 ## References
