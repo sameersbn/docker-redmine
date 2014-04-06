@@ -4,40 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Docker Redmine by sameersbn</title>
+
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
+    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/sameersbn/docker-redmine">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/sameersbn/docker-redmine/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/sameersbn/docker-redmine/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
-
     <div class="wrapper">
-
+      <header>
+        <h1>Docker Redmine</h1>
+        <p>A Dockerfile that installs redmine, apache, mysql and a bunch of redmine plugins and themes</p>
+        <p class="view"><a href="https://github.com/sameersbn/docker-redmine">View the Project on GitHub <small>sameersbn/docker-redmine</small></a></p>
+        <ul>
+          <li><a href="https://github.com/sameersbn/docker-redmine/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/sameersbn/docker-redmine/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/sameersbn/docker-redmine">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
       <section>
-        <div id="title">
-          <h1>Docker Redmine</h1>
-          <p>A Dockerfile that installs redmine, apache, mysql and a bunch of redmine plugins and themes</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/sameersbn">sameersbn</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
-
         <h1>
 <a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>Table of Contents</h1>
 
@@ -100,34 +89,34 @@
 
 <p>Pull the image from the docker index. This is the recommended method of installation as it is easier to update image in the future. These builds are performed by the Trusted Build service.</p>
 
-<div class="highlight highlight-bash"><pre>docker pull sameersbn/redmine
-</pre></div>
+<pre><code>docker pull sameersbn/redmine:latest
+</code></pre>
 
 <p>Since version 2.4.2, the image builds are being tagged. You can now pull a particular version of redmine by specifying the version number. For example,</p>
 
-<div class="highlight highlight-bash"><pre>docker pull sameersbn/redmine:2.5.0
-</pre></div>
+<pre><code>docker pull sameersbn/redmine:2.5.0
+</code></pre>
 
 <p>Alternately you can build the image yourself.</p>
 
-<div class="highlight highlight-bash"><pre>git clone https://github.com/sameersbn/docker-redmine.git
-<span class="nb">cd </span>docker-redmine
-docker build -t<span class="o">=</span><span class="s2">"$USER/redmine"</span> .
-</pre></div>
+<pre><code>git clone https://github.com/sameersbn/docker-redmine.git
+cd docker-redmine
+docker build -t="$USER/redmine" .
+</code></pre>
 
 <h1>
 <a name="quick-start" class="anchor" href="#quick-start"><span class="octicon octicon-link"></span></a>Quick Start</h1>
 
 <p>Run the redmine image with the name "redmine".</p>
 
-<div class="highlight highlight-bash"><pre>docker run -name redmine -d sameersbn/redmine
-<span class="nv">REDMINE_IP</span><span class="o">=</span><span class="k">$(</span>docker inspect redmine <span class="p">|</span> grep IPAddres <span class="p">|</span> awk -F<span class="s1">'"'</span> <span class="s1">'{print $4}'</span><span class="k">)</span>
-</pre></div>
+<pre><code>docker run -name redmine -d sameersbn/redmine:latest
+REDMINE_IP=$(docker inspect redmine | grep IPAddres | awk -F'"' '{print $4}')
+</code></pre>
 
 <p>Access the Redmine application</p>
 
-<div class="highlight highlight-bash"><pre>xdg-open <span class="s2">"http://${REDMINE_IP}"</span>
-</pre></div>
+<pre><code>xdg-open "http://${REDMINE_IP}"
+</code></pre>
 
 <p><strong>NOTE</strong>: Please allow a minute or two for the Redmine application to start.</p>
 
@@ -150,10 +139,10 @@ docker build -t<span class="o">=</span><span class="s2">"$USER/redmine"</span> .
 <li>/redmine/files</li>
 </ul><p>Volumes can be mounted in docker by specifying the <strong>'-v'</strong> option in the docker run command.</p>
 
-<div class="highlight highlight-bash"><pre>mkdir -pv /opt/redmine/files
-docker run -name redmine -d <span class="se">\</span>
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
-</pre></div>
+<pre><code>mkdir -pv /opt/redmine/files
+docker run -name redmine -d \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest
+</code></pre>
 
 <h2>
 <a name="database" class="anchor" href="#database"><span class="octicon octicon-link"></span></a>Database</h2>
@@ -165,11 +154,11 @@ docker run -name redmine -d <span class="se">\</span>
 
 <p>This docker image is configured to use a MySQL database backend. The database connection can be configured using environment variables. If not specified, the image will start a mysql server internally and use it. However in this case, the data stored in the mysql database will be lost if the container is stopped/deleted. To avoid this you should mount a volume at /var/lib/mysql.</p>
 
-<div class="highlight highlight-bash"><pre>mkdir /opt/redmine/mysql
-docker run -name redmine -d <span class="se">\</span>
-  -v /opt/redmine/files:/redmine/files <span class="se">\</span>
-  -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine
-</pre></div>
+<pre><code>mkdir /opt/redmine/mysql
+docker run -name redmine -d \
+  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine:latest
+</code></pre>
 
 <p>This will make sure that the data stored in the database is not lost when the image is stopped and started again.</p>
 
@@ -180,19 +169,19 @@ docker run -name redmine -d <span class="se">\</span>
 
 <p>Before you start the Redmine image create user and database for redmine.</p>
 
-<div class="highlight highlight-bash"><pre>mysql -uroot -p
-CREATE USER <span class="s1">'redmine'</span>@<span class="s1">'%.%.%.%'</span> IDENTIFIED BY <span class="s1">'password'</span><span class="p">;</span>
-CREATE DATABASE IF NOT EXISTS <span class="sb">`</span>redmine_production<span class="sb">`</span> DEFAULT CHARACTER SET <span class="sb">`</span>utf8<span class="sb">`</span> COLLATE <span class="sb">`</span>utf8_unicode_ci<span class="sb">`</span><span class="p">;</span>
-GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON <span class="sb">`</span>redmine_production<span class="sb">`</span>.* TO <span class="s1">'redmine'</span>@<span class="s1">'%.%.%.%'</span><span class="p">;</span>
-</pre></div>
+<pre><code>mysql -uroot -p
+CREATE USER 'redmine'@'%.%.%.%' IDENTIFIED BY 'password';
+CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
+GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'%.%.%.%';
+</code></pre>
 
 <p><em>Assuming that the mysql server host is 192.168.1.100</em></p>
 
-<div class="highlight highlight-bash"><pre>docker run -name redmine -d <span class="se">\</span>
-  -e <span class="s2">"DB_HOST=192.168.1.100"</span> -e <span class="s2">"DB_NAME=redmine_production"</span> <span class="se">\</span>
-  -e <span class="s2">"DB_USER=redmine"</span> -e <span class="s2">"DB_PASS=password"</span> <span class="se">\</span>
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
-</pre></div>
+<pre><code>docker run -name redmine -d \
+  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest
+</code></pre>
 
 <p>This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.</p>
 
@@ -208,10 +197,10 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 <li>SMTP_PORT (defaults to 587)</li>
 <li>SMTP_USER</li>
 <li>SMTP_PASS</li>
-</ul><div class="highlight highlight-bash"><pre>docker run -name redmine -d <span class="se">\</span>
-  -e <span class="s2">"SMTP_USER=USER@gmail.com"</span> -e <span class="s2">"SMTP_PASS=PASSWORD"</span> <span class="se">\</span>
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine
-</pre></div>
+</ul><pre><code>docker run -name redmine -d \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest
+</code></pre>
 
 <p>If you are not using google mail, then please configure the  SMTP host and port using the SMTP_HOST and SMTP_PORT configuration parameters.</p>
 
@@ -222,21 +211,21 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 <h3>
 <a name="putting-it-all-together" class="anchor" href="#putting-it-all-together"><span class="octicon octicon-link"></span></a>Putting it all together</h3>
 
-<div class="highlight highlight-bash"><pre>docker run -name redmine -d -h redmine.local.host <span class="se">\</span>
-  -v /opt/redmine/files:/redmine/files <span class="se">\</span>
-  -v /opt/redmine/mysql:/var/lib/mysql <span class="se">\</span>
-  -e <span class="s2">"SMTP_USER=USER@gmail.com"</span> -e <span class="s2">"SMTP_PASS=PASSWORD"</span> <span class="se">\</span>
-  sameersbn/redmine
-</pre></div>
+<pre><code>docker run -name redmine -d -h redmine.local.host \
+  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/mysql:/var/lib/mysql \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  sameersbn/redmine:latest
+</code></pre>
 
 <p>If you are using an external mysql database</p>
 
-<div class="highlight highlight-bash"><pre>docker run -name redmine -d -h redmine.local.host <span class="se">\</span>
-  -v /opt/redmine/files:/redmine/files <span class="se">\</span>
-  -e <span class="s2">"DB_HOST=192.168.1.100"</span> -e <span class="s2">"DB_NAME=redmine_production"</span> -e <span class="s2">"DB_USER=redmine"</span> -e <span class="s2">"DB_PASS=password"</span> <span class="se">\</span>
-  -e <span class="s2">"SMTP_USER=USER@gmail.com"</span> -e <span class="s2">"SMTP_PASS=PASSWORD"</span> <span class="se">\</span>
-  sameersbn/redmine
-</pre></div>
+<pre><code>docker run -name redmine -d -h redmine.local.host \
+  -v /opt/redmine/files:/redmine/files \
+  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  sameersbn/redmine:latest
+</code></pre>
 
 <h3>
 <a name="available-configuration-parameters" class="anchor" href="#available-configuration-parameters"><span class="octicon octicon-link"></span></a>Available Configuration Parameters</h3>
@@ -284,8 +273,8 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 
 <p>The second method is use the dynamically generated password. Every time the container is started a random password is generated using the pwgen tool and assigned to the root user. This password can be fetched from the docker logs.</p>
 
-<div class="highlight highlight-bash"><pre>docker logs redmine 2&gt;<span class="p">&amp;</span>1 <span class="p">|</span> grep <span class="s1">'^User: '</span> <span class="p">|</span> tail -n1
-</pre></div>
+<pre><code>docker logs redmine 2&gt;&amp;1 | grep '^User: ' | tail -n1
+</code></pre>
 
 <p>This password is not persistent and changes every time the image is executed.</p>
 
@@ -296,28 +285,28 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 
 <p><strong>Step 1</strong>: Stop the currently running image</p>
 
-<div class="highlight highlight-bash"><pre>docker stop redmine
-</pre></div>
+<pre><code>docker stop redmine
+</code></pre>
 
 <p><strong>Step 2</strong>: Backup the database in case something goes wrong.</p>
 
-<div class="highlight highlight-bash"><pre>mysqldump -h &lt;mysql-server-ip&gt; -uredmine -p --add-drop-table redmine_production &gt; redmine.sql
-</pre></div>
+<pre><code>mysqldump -h &lt;mysql-server-ip&gt; -uredmine -p --add-drop-table redmine_production &gt; redmine.sql
+</code></pre>
 
 <p><strong>Step 3</strong>: Update the docker image.</p>
 
-<div class="highlight highlight-bash"><pre>docker pull sameersbn/redmine
-</pre></div>
+<pre><code>docker pull sameersbn/redmine:latest
+</code></pre>
 
 <p><strong>Step 4</strong>: Migrate the database.</p>
 
-<div class="highlight highlight-bash"><pre>docker run -name redmine -i -t -rm <span class="o">[</span>OPTIONS<span class="o">]</span> sameersbn/redmine app:db:migrate
-</pre></div>
+<pre><code>docker run -name redmine -i -t -rm [OPTIONS] sameersbn/redmine:latest app:db:migrate
+</code></pre>
 
 <p><strong>Step 5</strong>: Start the image</p>
 
-<div class="highlight highlight-bash"><pre>docker run -name redmine -i -d <span class="o">[</span>OPTIONS<span class="o">]</span> sameersbn/redmine
-</pre></div>
+<pre><code>docker run -name redmine -i -d [OPTIONS] sameersbn/redmine:latest
+</code></pre>
 
 <h2>
 <a name="references" class="anchor" href="#references"><span class="octicon octicon-link"></span></a>References</h2>
@@ -328,8 +317,11 @@ GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON
 <li><a href="http://www.redmine.org/projects/redmine/wiki/RedmineInstall">http://www.redmine.org/projects/redmine/wiki/RedmineInstall</a></li>
 </ul>
       </section>
-
     </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/sameersbn">sameersbn</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
               <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
