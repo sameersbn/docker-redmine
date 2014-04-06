@@ -1,7 +1,8 @@
 # Changelog
 
 **latest**
-- added SMTP_DOMAIN config options
+- added SMTP_STARTTLS config option
+- added SMTP_DOMAIN config option
 - updated gems cache
 - install ruby1.9.1 from ubuntu repos
 - added redmine dashboard plugin

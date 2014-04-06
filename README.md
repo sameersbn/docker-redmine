@@ -133,6 +133,7 @@ The following environment variables need to be specified to get mail support to 
 * SMTP_PORT (defaults to 587)
 * SMTP_USER
 * SMTP_PASS
+* SMTP_STARTTLS (defaults to true)
 
 ```
 docker run -name redmine -d \
@@ -182,6 +183,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_PORT**: SMTP server port. Defaults to 587.
 - **SMTP_USER**: SMTP username.
 - **SMTP_PASS**: SMTP password.
+- **SMTP_STARTTLS**: Enable STARTTLS. Defaults to true.
 - **PASSENGER_MAX_POOL_SIZE**: PassengerMaxPoolSize (default: 6)
 - **PASSENGER_MIN_INSTANCES**: PassengerMinInstances (default: 1)
 - **PASSENGER_MAX_REQUESTS**: PassengerMaxRequests (default: 0)
