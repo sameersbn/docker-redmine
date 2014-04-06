@@ -128,6 +128,7 @@ The mail configuration should be specified using environment variables while sta
 
 The following environment variables need to be specified to get mail support to work.
 
+* SMTP_DOMAIN (defaults to www.gmail.com)
 * SMTP_HOST (defaults to smtp.gmail.com)
 * SMTP_PORT (defaults to 587)
 * SMTP_USER
@@ -176,6 +177,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_PASS**: The mysql database password. Defaults to no password
 - **DB_POOL**: The mysql database connection pool count. Defaults to 5.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to 64. Disabled if '0'.
+- **SMTP_DOMAIN**: SMTP domain. Defaults to www.gmail.com
 - **SMTP_HOST**: SMTP server host. Defaults to smtp.gmail.com.
 - **SMTP_PORT**: SMTP server port. Defaults to 587.
 - **SMTP_USER**: SMTP username.

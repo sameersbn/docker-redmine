@@ -9,6 +9,7 @@ DB_POOL=${DB_POOL:-5}
 
 MEMCACHED_SIZE=${MEMCACHED_SIZE:-64}
 
+SMTP_DOMAIN=${SMTP_DOMAIN:-www.gmail.com}
 SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
 SMTP_PORT=${SMTP_PORT:-587}
 SMTP_USER=${SMTP_USER:-}
@@ -99,6 +100,7 @@ default:
   email_delivery:
     delivery_method: :smtp
     smtp_settings:
+      domain: "${SMTP_DOMAIN}",
       address: ${SMTP_HOST}
       port: ${SMTP_PORT}
       authentication: :login
