@@ -80,7 +80,7 @@ else
 fi
 
 mkdir -p /redmine/public/plugin_assets/open_flash_chart
-cp -r /redmine/plugins/open_flash_chart/assets /redmine/public/plugin_assets/open_flash_chart
+cp -r /redmine/plugins/open_flash_chart/assets/* /redmine/public/plugin_assets/open_flash_chart
 
 # redmine charts2 plugin
 # wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O redmine_charts21.tar.gz
