@@ -101,7 +101,7 @@ default:
   email_delivery:
     delivery_method: :smtp
     smtp_settings:
-      domain: "${SMTP_DOMAIN}",
+      domain: "${SMTP_DOMAIN}"
       address: ${SMTP_HOST}
       port: ${SMTP_PORT}
       authentication: :login
