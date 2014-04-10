@@ -28,10 +28,10 @@ export APACHE_PID_FILE="/var/run/apache2.pid"
 export APACHE_LOCK_DIR="/var/run/lock/apache2"
 export APACHE_RUN_DIR="/var/run/apache2"
 
-sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'${PASSENGER_MAX_POOL_SIZE}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MIN_INSTANCES}}/'${PASSENGER_MIN_INSTANCES}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MAX_REQUESTS}}/'${PASSENGER_MAX_REQUESTS}'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_POOL_IDLE_TIME}}/'${PASSENGER_POOL_IDLE_TIME}'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'"${PASSENGER_MAX_POOL_SIZE}"'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_MIN_INSTANCES}}/'"${PASSENGER_MIN_INSTANCES}"'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_MAX_REQUESTS}}/'"${PASSENGER_MAX_REQUESTS}"'/' -i /etc/apache2/apache2.conf
+sed 's/{{PASSENGER_POOL_IDLE_TIME}}/'"${PASSENGER_POOL_IDLE_TIME}"'/' -i /etc/apache2/apache2.conf
 
 # generate a password for root.
 ROOT_PASSWORD=$(pwgen -c -n -1 12)
@@ -76,16 +76,16 @@ chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
 cd /redmine
-sudo -u www-data -H sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PORT}}/'${DB_PORT}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PASS}}/'${DB_PASS}'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_POOL}}/'${DB_POOL}'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i config/database.yml
+sudo -u www-data -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
 
 # start memcached and install config if ${MEMCACHED_SIZE} is not 0
 if [ "${MEMCACHED_SIZE}" != "0" ]; then
-	sed 's/{{MEMCACHED_SIZE}}/'${MEMCACHED_SIZE}'/' -i /etc/supervisor/conf.d/memcached.conf
+	sed 's/{{MEMCACHED_SIZE}}/'"${MEMCACHED_SIZE}"'/' -i /etc/supervisor/conf.d/memcached.conf
 	supervisorctl update
 	supervisorctl start memcached
 	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
