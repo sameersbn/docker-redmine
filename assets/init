@@ -76,6 +76,21 @@ chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
 cd /redmine
+
+# install database.yml template
+sudo -u www-data -H cat > config/database.yml <<EOF
+production:
+  adapter: {{DB_ADAPTER}}
+  encoding: {{DB_ENCODING}}
+  reconnect: false
+  database: {{DB_NAME}}
+  host: {{DB_HOST}}
+  port: {{DB_PORT}}
+  username: {{DB_USER}}
+  password: {{DB_PASS}}
+  pool: {{DB_POOL}}
+EOF
+
 sudo -u www-data -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
 sudo -u www-data -H sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
 sudo -u www-data -H sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml

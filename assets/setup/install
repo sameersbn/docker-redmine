@@ -67,17 +67,7 @@ config.cache_classes = true
 config.cache_store = :dalli_store, "127.0.0.1:11211"
 EOF
 
-# add database.yml template
-sudo -u www-data -H cat > config/database.yml <<EOF
-production:
-  adapter: mysql2
-  database: {{DB_NAME}}
-  host: {{DB_HOST}}
-  port: {{DB_PORT}}
-  username: {{DB_USER}}
-  password: {{DB_PASS}}
-  pool: {{DB_POOL}}
-EOF
+cp config/database.yml.example config/database.yml
 
 # install themes
 . /redmine/setup/themes/install
