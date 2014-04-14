@@ -1,11 +1,12 @@
 #!/bin/bash
 
 DB_HOST=${DB_HOST:-localhost}
-DB_PORT=${DB_PORT:-3306}
+DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-redmine_production}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
+DB_TYPE=${DB_TYPE:-mysql}
 
 MEMCACHED_SIZE=${MEMCACHED_SIZE:-64}
 
@@ -28,6 +29,12 @@ export APACHE_PID_FILE="/var/run/apache2.pid"
 export APACHE_LOCK_DIR="/var/run/lock/apache2"
 export APACHE_RUN_DIR="/var/run/apache2"
 
+case "${DB_TYPE}" in
+	mysql) DB_PORT=${DB_PORT:-3306} ;;
+	postgres) DB_PORT=${DB_PORT:-5432} ;;
+	*) echo "Unsupported database adapter. Available adapters are mysql and postgres." && exit 1 ;;
+esac
+
 sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'"${PASSENGER_MAX_POOL_SIZE}"'/' -i /etc/apache2/apache2.conf
 sed 's/{{PASSENGER_MIN_INSTANCES}}/'"${PASSENGER_MIN_INSTANCES}"'/' -i /etc/apache2/apache2.conf
 sed 's/{{PASSENGER_MAX_REQUESTS}}/'"${PASSENGER_MAX_REQUESTS}"'/' -i /etc/apache2/apache2.conf
@@ -43,6 +50,11 @@ echo User: root Password: $ROOT_PASSWORD
 
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
+	if [ "${DB_TYPE}" == "postgres" ]; then
+		echo "DB_TYPE 'postgres' is not supported internally. Please provide DB_HOST."
+		exit 1
+	fi
+
 	# fix permissions and ownership of /var/lib/mysql
 	chown -R mysql:mysql /var/lib/mysql
 	chmod 700 /var/lib/mysql
@@ -90,6 +102,19 @@ production:
   password: {{DB_PASS}}
   pool: {{DB_POOL}}
 EOF
+
+# configure database
+if [ "${DB_TYPE}" == "postgres" ]; then
+	sudo -u www-data -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
+	sudo -u www-data -H sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
+	sudo -u www-data -H sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
+elif [ "${DB_TYPE}" == "mysql" ]; then
+	sudo -u www-data -H sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
+	sudo -u www-data -H sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
+	sudo -u www-data -H sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
+else
+	echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres]."
+fi
 
 sudo -u www-data -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
 sudo -u www-data -H sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
