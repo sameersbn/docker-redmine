@@ -14,7 +14,7 @@ fi
 
 # http://www.redminecrm.com/pages/coffee-theme
 COFFEE_VERSION=0_0_4
-if [ -f /setup/themes/coffee-${COFFEE_VERSION}.zip ]; then
+if [ -f /redmine/setup/themes/coffee-${COFFEE_VERSION}.zip ]; then
 	unzip /redmine/setup/themes/coffee-${COFFEE_VERSION}.zip -d /redmine/public/themes/
 else
 	wget http://www.redminecrm.com/license_manager/4508/coffee-${COFFEE_VERSION}.zip -P /tmp/
