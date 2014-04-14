@@ -2,6 +2,8 @@
 
 set -e
 
+REDMINE_VERSION=2.5.0
+
 # install passenger
 mod_passenger=$(find /var/lib/gems/1.9.1/gems/ -name mod_passenger.so)
 if [ -n "${mod_passenger}" ]; then
@@ -35,10 +37,15 @@ cat > /etc/apache2/conf.d/redmine.conf <<EOF
 </VirtualHost>
 EOF
 
-# install redmine
 mkdir -p /redmine
 cd /redmine
-wget "http://www.redmine.org/releases/redmine-2.5.0.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
+
+# install redmine, use local copy if available
+if [ -f /redmine/setup/redmine-${REDMINE_VERSION}.tar.gz ]; then
+  tar -zvxf /redmine/setup/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C /redmine
+else
+  wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
+fi
 
 # install gems
 echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
