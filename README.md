@@ -10,6 +10,7 @@
         - [MySQL](#mysql)
             - [Internal MySQL Server](#internal-mysql-server)
             - [External MySQL Server](#external-mysql-server)
+            - [Linking to MySQL Container](#linking-to-mysql-container)
         - [PostgreSQL](#postgresql)
             - [External PostgreSQL Server](#external-postgresql-server)
     - [Mail](#mail)
@@ -124,6 +125,63 @@ docker run -name redmine -d \
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
+
+#### Linking to MySQL Container
+You can link this image with a mysql container for the database requirements. The alias of the mysql server container should be set to **mysql** while linking with the redmine image.
+
+If a mysql container is linked, only the DB_HOST and DB_PORT settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the DB_NAME, DB_USER, DB_PASS and so on.
+
+To illustrate linking with a mysql container, we will use the [sameersbn/mysql](https://github.com/sameersbn/docker-mysql) image. When using docker-mysql in production you should mount a volume for the mysql data store. Please refer the [README](https://github.com/sameersbn/docker-mysql/blob/master/README.md) of docker-mysql for details.
+
+First, lets pull the mysql image from the docker index.
+```bash
+docker pull sameersbn/mysql:latest
+```
+
+For data persistence lets create a store for the mysql and start the container.
+```bash
+mkdir -p /opt/mysql/data
+docker run --name mysql -d \
+  -v /opt/mysql/data:/var/lib/mysql \
+  sameersbn/mysql:latest
+```
+
+You should now have the mysql server running. By default the sameersbn/mysql image does not assign a password for the root user and allows remote connections for the root user from the 172.17.%.% address space. This means you can login to the mysql server from the host as the root user.
+
+Now, lets login to the mysql server and create a user and database for the redmine application.
+
+```bash
+mysql -uroot -h $(docker inspect mysql | grep IPAddres | awk -F'"' '{print $4}')
+```
+
+```sql
+CREATE USER 'redmine'@'172.17.%.%' IDENTIFIED BY 'password';
+CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
+GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'172.17.%.%';
+FLUSH PRIVILEGES;
+```
+
+Now that we have the database created for redmine, lets install the database schema. This is done by starting the redmine container with the **app:db:migrate** command.
+
+```bash
+docker run -name redmine -i -t -rm --link mysql:mysql \
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "DB_NAME=redmine_production" \
+  -v /opt/redmine/files:/redmine/files \
+  sameersbn/redmine:latest app:db:migrate
+```
+
+**NOTE: The above setup is performed only for the first run**.
+
+We are now ready to start the redmine application.
+
+```bash
+docker run -name redmine -d --link mysql:mysql \
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "DB_NAME=redmine_production" \
+  -v /opt/redmine/files:/redmine/files \
+  sameersbn/redmine:latest
+```
 
 ### PostgreSQL
 
