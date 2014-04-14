@@ -116,7 +116,20 @@ CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` 
 GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'%.%.%.%';
 ```
 
+Now that we have the database created for redmine, lets install the database schema. This is done by starting the redmine container with the **app:db:migrate** command.
+
 *Assuming that the mysql server host is 192.168.1.100*
+
+```
+docker run -name redmine -i -t --rm \
+  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -v /opt/redmine/files:/redmine/files sameersbn/redmine:latest app:db:migrate
+```
+
+**NOTE: The above setup is performed only for the first run**.
+
+We are now ready to start the redmine application.
 
 ```
 docker run -name redmine -d \
@@ -195,7 +208,21 @@ CREATE DATABASE redmine_production;
 GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
 ```
 
+Now that we have the database created for redmine, lets install the database schema. This is done by starting the redmine container with the **app:db:migrate** command.
+
 *Assuming that the PostgreSQL server host is 192.168.1.100*
+
+```bash
+docker run -name redmine -i -t --rm \
+  -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
+  -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -v /opt/redmine/files:/redmine/files \
+  sameersbn/redmine:latest app:db:migrate
+```
+
+**NOTE: The above setup is performed only for the first run**.
+
+We are now ready to start the redmine application.
 
 ```bash
 docker run -name redmine -d \
