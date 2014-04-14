@@ -13,6 +13,7 @@
             - [Linking to MySQL Container](#linking-to-mysql-container)
         - [PostgreSQL](#postgresql)
             - [External PostgreSQL Server](#external-postgresql-server)
+            - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
     - [Mail](#mail)
     - [Putting it all together](#putting-it-all-together)
     - [Available Configuration Parameters](#available-configuration-parameters)
@@ -205,6 +206,67 @@ docker run -name redmine -d \
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
+
+#### Linking to PostgreSQL Container
+You can link this image with a postgresql container for the database requirements. The alias of the postgresql server container should be set to **postgresql** while linking with the redmine image.
+
+If a postgresql container is linked, only the DB_HOST and DB_PORT settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the DB_NAME, DB_USER, DB_PASS and so on.
+
+To illustrate linking with a postgresql container, we will use the [sameersbn/postgresql](https://github.com/sameersbn/docker-postgresql) image. When using postgresql image in production you should mount a volume for the postgresql data store. Please refer the [README](https://github.com/sameersbn/docker-postgresql/blob/master/README.md) of docker-postgresql for details.
+
+First, lets pull the postgresql image from the docker index.
+```bash
+docker pull sameersbn/postgresql:latest
+```
+
+For data persistence lets create a store for the postgresql and start the container.
+```bash
+mkdir -p /opt/postgresql/data
+docker run --name postgresql -d \
+  -v /opt/postgresql/data:/var/lib/postgresql \
+  sameersbn/postgresql:latest
+```
+
+You should now have the postgresql server running. The password for the postgres user can be found in the logs of the postgresql image.
+
+```bash
+docker logs postgresql
+```
+
+Now, lets login to the postgresql server and create a user and database for the redmine application.
+
+```bash
+POSTGRESQL_IP=$(docker inspect postgresql | grep IPAddres | awk -F'"' '{print $4}')
+psql -U postgres -h ${POSTGRESQL_IP}
+```
+
+```sql
+CREATE USER redmine WITH PASSWORD 'password';
+CREATE DATABASE redmine_production;
+GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
+```
+
+Now that we have the database created for redmine, lets install the database schema. This is done by starting the redmine container with the **app:db:migrate** command.
+
+```bash
+docker run -name redmine -i -t -rm --link postgresql:postgresql \
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "DB_NAME=redmine_production" \
+  -v /opt/redmine/files:/redmine/files \
+  sameersbn/redmine:latest app:db:migrate
+```
+
+**NOTE: The above setup is performed only for the first run**.
+
+We are now ready to start the redmine application.
+
+```bash
+docker run -name redmine -d --link postgresql:postgresql \
+  -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -e "DB_NAME=redmine_production" \
+  -v /opt/redmine/files:/redmine/files \
+  sameersbn/redmine:latest
+```
 
 ### Mail
 The mail configuration should be specified using environment variables while starting the redmine image. The configuration defaults to using gmail to send emails and requires the specification of a valid username and password to login to the gmail servers.
