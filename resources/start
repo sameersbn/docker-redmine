@@ -1,0 +1,94 @@
+#!/bin/bash
+
+export APACHE_RUN_USER="www-data"
+export APACHE_RUN_GROUP="www-data"
+export APACHE_LOG_DIR="/var/log/apache2"
+export APACHE_PID_FILE="/var/run/apache2.pid"
+export APACHE_LOCK_DIR="/var/run/lock/apache2"
+export APACHE_RUN_DIR="/var/run/apache2"
+
+usage() {
+	echo "Usage: $0 [OPTIONS]"
+	echo "  -H,  --db-host      database hostname (default is localhost)."
+	echo "  -d,  --db-name      database name (default is redmine)."
+	echo "  -u,  --db-user      database username (default is root)."
+	echo "  -p,  --db-passwd    database user password (default is no password)."
+	echo "  -h,  --help         print this help."
+	exit 1
+}
+
+DB_NAME="localhost"
+DB_NAME="redmine"
+DB_USER="root"
+DB_PASSWD=""
+
+ARGS=$(getopt -o H:d:u:p:h -l "db-host:,db-name:,db-user:,db-passwd:,help" -n "$0" -- "$@")
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+
+eval set -- "$ARGS"
+while true; do
+	case "$1" in
+		-H|--db-host)
+			shift
+			DB_HOST="${1}"
+			shift
+			;;
+		-d|--db-name)
+			shift
+			DB_NAME="${1}"
+			shift
+			;;
+		-u|--db-user)
+			shift
+			DB_USER="${1}"
+			shift
+			;;
+		-p|--db-passwd)
+			shift
+			DB_PASSWD="${1}"
+			shift
+			;;
+		-h|--help)
+			shift
+			usage
+			;;
+		--)
+			shift
+			break
+			;;
+	esac
+done
+
+if [ -z "${DB_HOST}" ] || [ "${DB_HOST}" == "localhost" ]; then
+	DB_HOST="localhost"
+	DB_USER="root"
+	DB_PASSWD=""
+
+	mysql_install_db --user=mysql
+	/usr/bin/mysqld_safe &
+	sleep 3
+fi
+
+chmod -R 755 /redmine/files
+chown -R www-data:www-data /redmine/files
+
+cd /redmine
+sed 's/{{DB_HOST}}/'${DB_HOST}'/' -i config/database.yml
+sed 's/{{DB_NAME}}/'${DB_NAME}'/' -i config/database.yml
+sed 's/{{DB_USER}}/'${DB_USER}'/' -i config/database.yml
+sed 's/{{DB_PASSWD}}/'${DB_PASSWD}'/' -i config/database.yml
+
+# isolate the plugins
+mv plugins plugins-1
+
+su www-data -m -c 'rake generate_secret_token'
+su www-data -m -c 'RAILS_ENV=production rake db:create'
+su www-data -m -c 'RAILS_ENV=production rake db:migrate'
+
+mv plugins-1 plugins
+su www-data -m -c 'RAILS_ENV=production rake redmine:plugins:migrate'
+
+/usr/sbin/apache2
+tail -F /var/log/apache2/other_vhosts_access.log
