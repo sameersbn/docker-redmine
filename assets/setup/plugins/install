@@ -154,13 +154,13 @@ else
 fi
 
 # redmine agile plugin
-# wget http://redminecrm.com/license_manager/11099/redmine_agile-1_0_1-light.zip -O redmine_agile-1_0_1-light.zip
-if [ -f /redmine/setup/plugins/redmine_agile-1_0_1-light.zip ]; then
-	unzip /redmine/setup/plugins/redmine_agile-1_0_1-light.zip -d /redmine/plugins/
+# wget http://redminecrm.com/license_manager/11708/redmine_agile-1_1_2-light.zip -O redmine_agile-1_1_2-light.zip
+if [ -f /redmine/setup/plugins/redmine_agile-1_1_2-light.zip ]; then
+	unzip /redmine/setup/plugins/redmine_agile-1_1_2-light.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/11099/redmine_agile-1_0_1-light.zip -P /tmp/
-	unzip /tmp/redmine_agile-1_0_1-light.zip -d /redmine/plugins/
-	rm -rf /tmp/redmine_agile-1_0_1-light.zip
+	wget http://redminecrm.com/license_manager/11708/redmine_agile-1_1_2-light.zip -P /tmp/
+	unzip /tmp/redmine_agile-1_1_2-light.zip -d /redmine/plugins/
+	rm -rf /tmp/redmine_agile-1_1_2-light.zip
 fi
 
 #

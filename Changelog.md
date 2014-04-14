@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- upgrade to redmine_agile v1.1.2
 - added SMTP_STARTTLS config option
 - added SMTP_DOMAIN config option
 - updated gems cache
