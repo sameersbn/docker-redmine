@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- support linking to mysql and postgresql containers
 - added postgresql server support
 - upgrade to redmine_agile v1.1.2
 - added SMTP_STARTTLS config option
