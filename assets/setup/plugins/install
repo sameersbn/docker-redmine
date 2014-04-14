@@ -25,12 +25,13 @@ else
 fi
 
 # did you mean? plugin
-# wget https://github.com/abahgat/redmine_didyoumean/archive/1.2.0.tar.gz -O redmine_didyoumean-1.2.0.tar.gz
+# wget https://github.com/abahgat/redmine_didyoumean/archive/${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz -O redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz
+REDMINE_DID_YOU_MEAN_VERSION=1.2.0
 mkdir -p /redmine/plugins/redmine_didyoumean
-if [ -f /redmine/setup/plugins/redmine_didyoumean-1.2.0.tar.gz ]; then
-	tar -zvxf /redmine/setup/plugins/redmine_didyoumean-1.2.0.tar.gz --strip=1 -C /redmine/plugins/redmine_didyoumean || exit 1
+if [ -f /redmine/setup/plugins/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz ]; then
+	tar -zvxf /redmine/setup/plugins/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_didyoumean || exit 1
 else
-	wget https://github.com/abahgat/redmine_didyoumean/archive/1.2.0.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_didyoumean
+	wget https://github.com/abahgat/redmine_didyoumean/archive/${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_didyoumean
 fi
 
 # redmine embed video plugin
@@ -101,21 +102,23 @@ else
 fi
 
 # redmine recurring tasks
-# wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.1.3.0.tar.gz -O recurring_tasks-1.3.0.tar.gz
+# wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.${REDMINE_RECURRING_TASKS_VERSION}.tar.gz -O recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz
+REDMINE_RECURRING_TASKS_VERSION=1.3.0
 mkdir -p /redmine/plugins/recurring_tasks
-if [ -f /redmine/setup/plugins/recurring_tasks-1.3.0.tar.gz ]; then
-	tar -zvxf /redmine/setup/plugins/recurring_tasks-1.3.0.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks || exit 1
+if [ -f /redmine/setup/plugins/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz ]; then
+	tar -zvxf /redmine/setup/plugins/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks || exit 1
 else
-	wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.1.3.0.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
+	wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.${REDMINE_RECURRING_TASKS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
 fi
 
 # redmine dashboard tasks
-# wget https://github.com/jgraichen/redmine_dashboard/archive/v2.2.1.tar.gz -O redmine_dashboard-2.2.1.tar.gz
+# wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz
+REDMINE_DASHBOARD_VERSION=2.2.1
 mkdir -p /redmine/plugins/redmine_dashboard
-if [ -f /redmine/setup/plugins/redmine_dashboard-2.2.1.tar.gz ]; then
-	tar -zvxf /redmine/setup/plugins/redmine_dashboard-2.2.1.tar.gz --strip=1 -C /redmine/plugins/redmine_dashboard || exit 1
+if [ -f /redmine/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz ]; then
+	tar -zvxf /redmine/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_dashboard || exit 1
 else
-	wget https://github.com/jgraichen/redmine_dashboard/archive/v2.2.1.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
+	wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
 fi
 echo 'gem "guard-rspec"' >> Gemfile
 
@@ -124,43 +127,47 @@ echo 'gem "guard-rspec"' >> Gemfile
 #
 
 # issue checklist plugin
-# wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-2_0_5.zip -O redmine_issue_checklist-2_0_5.zip
-if [ -f /redmine/setup/plugins/redmine_issue_checklist-2_0_5.zip ]; then
-	unzip /redmine/setup/plugins/redmine_issue_checklist-2_0_5.zip -d /redmine/plugins/
+# wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -O redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip
+REDMINE_ISSUE_CHECKLIST_VERSION=2_0_5
+if [ -f /redmine/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip ]; then
+	unzip /redmine/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-2_0_5.zip -P /tmp/
-	unzip /tmp/redmine_issue_checklist-2_0_5.zip -d /redmine/plugins/
-	rm -rf /tmp/redmine_issue_checklist-2_0_5.zip
+	wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -P /tmp/
+	unzip /tmp/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -d /redmine/plugins/
+	rm -rf /tmp/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip
 fi
 
 # redmine people plugin
-# wget http://redminecrm.com/license_manager/4122/redmine_people-0_1_6.zip -O redmine_people-0_1_6.zip
-if [ -f /redmine/setup/plugins/redmine_people-0_1_6.zip ]; then
-	unzip /redmine/setup/plugins/redmine_people-0_1_6.zip -d /redmine/plugins/
+# wget http://redminecrm.com/license_manager/4122/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -O redmine_people-${REDMINE_PEOPLE_VERSION}.zip
+REDMINE_PEOPLE_VERSION=0_1_6
+if [ -f /redmine/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip ]; then
+	unzip /redmine/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/4122/redmine_people-0_1_6.zip -P /tmp/
-	unzip /tmp/redmine_people-0_1_6.zip -d /redmine/plugins/
-	rm -rf /tmp/redmine_people-0_1_6.zip
+	wget http://redminecrm.com/license_manager/4122/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -P /tmp/
+	unzip /tmp/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
+	rm -rf /tmp/redmine_people-${REDMINE_PEOPLE_VERSION}.zip
 fi
 
 # redmine code review plugin
-# wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-0.6.3.zip -O redmine_code_review-0.6.3.zip
-if [ -f /redmine/setup/plugins/redmine_code_review-0.6.3.zip ]; then
-	unzip /redmine/setup/plugins/redmine_code_review-0.6.3.zip -d /redmine/plugins/
+# wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -O redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip
+REDMINE_CODE_REVIEW_VERSION=0.6.3
+if [ -f /redmine/setup/plugins/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip ]; then
+	unzip /redmine/setup/plugins/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -d /redmine/plugins/
 else
-	wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-0.6.3.zip -P /tmp/
-	unzip /tmp/redmine_code_review-0.6.3.zip -d /redmine/plugins/
-	rm -rf /tmp/redmine_code_review-0.6.3.zip
+	wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -P /tmp/
+	unzip /tmp/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -d /redmine/plugins/
+	rm -rf /tmp/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip
 fi
 
 # redmine agile plugin
-# wget http://redminecrm.com/license_manager/11708/redmine_agile-1_1_2-light.zip -O redmine_agile-1_1_2-light.zip
-if [ -f /redmine/setup/plugins/redmine_agile-1_1_2-light.zip ]; then
-	unzip /redmine/setup/plugins/redmine_agile-1_1_2-light.zip -d /redmine/plugins/
+# wget http://redminecrm.com/license_manager/11708/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip-${REDMINE_AGILE_VERSION}-light.zip -O redmine_agile-${REDMINE_AGILE_VERSION}-light.zip
+REDMINE_AGILE_VERSION=1_1_2
+if [ -f /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip ]; then
+	unzip /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/11708/redmine_agile-1_1_2-light.zip -P /tmp/
-	unzip /tmp/redmine_agile-1_1_2-light.zip -d /redmine/plugins/
-	rm -rf /tmp/redmine_agile-1_1_2-light.zip
+	wget http://redminecrm.com/license_manager/11708/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -P /tmp/
+	unzip /tmp/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
+	rm -rf /tmp/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip
 fi
 
 #
