@@ -10,6 +10,8 @@
         - [MySQL](#mysql)
             - [Internal MySQL Server](#internal-mysql-server)
             - [External MySQL Server](#external-mysql-server)
+        - [PostgreSQL](#postgresql)
+            - [External PostgreSQL Server](#external-postgresql-server)
     - [Mail](#mail)
     - [Putting it all together](#putting-it-all-together)
     - [Available Configuration Parameters](#available-configuration-parameters)
@@ -123,6 +125,29 @@ docker run -name redmine -d \
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
 
+### PostgreSQL
+
+#### External PostgreSQL Server
+The image also supports using an external PostgreSQL Server. This is also controlled via environment variables.
+
+```sql
+CREATE USER redmine WITH PASSWORD 'password';
+CREATE DATABASE redmine_production;
+GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
+```
+
+*Assuming that the PostgreSQL server host is 192.168.1.100*
+
+```bash
+docker run -name redmine -d \
+  -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
+  -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
+  -v /opt/redmine/files:/redmine/files \
+  sameersbn/redmine:latest
+```
+
+This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
+
 ### Mail
 The mail configuration should be specified using environment variables while starting the redmine image. The configuration defaults to using gmail to send emails and requires the specification of a valid username and password to login to the gmail servers.
 
@@ -171,12 +196,13 @@ docker run -name redmine -d -h redmine.local.host \
 
 Below is the complete list of parameters that can be set using environment variables.
 
-- **DB_HOST**: The mysql server hostname. Defaults to localhost.
-- **DB_PORT**: The mysql server port. Defaults to 3306.
-- **DB_NAME**: The mysql database name. Defaults to redmine_production
-- **DB_USER**: The mysql database user. Defaults to root
-- **DB_PASS**: The mysql database password. Defaults to no password
-- **DB_POOL**: The mysql database connection pool count. Defaults to 5.
+- **DB_TYPE**: The database type. Possible values: mysql, postgres. Defaults to mysql.
+- **DB_HOST**: The database server hostname. Defaults to localhost.
+- **DB_PORT**: The database server port. Defaults to 3306.
+- **DB_NAME**: The database name. Defaults to redmine_production
+- **DB_USER**: The database user. Defaults to root
+- **DB_PASS**: The database password. Defaults to no password
+- **DB_POOL**: The database connection pool count. Defaults to 5.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to 64. Disabled if '0'.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to www.gmail.com
 - **SMTP_HOST**: SMTP server host. Defaults to smtp.gmail.com.

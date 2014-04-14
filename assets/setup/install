@@ -54,10 +54,10 @@ if [ -d "/redmine/setup/cache" ]; then
   mv /redmine/setup/cache vendor/
   gem install fastercsv -v 1.5.0 --no-ri --no-rdoc
   gem install yard --no-ri --no-rdoc
-  bundle install --local --without postgresql
+  bundle install --local
 else
   # online gem installation
- bundle install --without postgresql
+ bundle install
 fi
 
 sudo -u www-data -H cat > config/additional_environment.rb << EOF
