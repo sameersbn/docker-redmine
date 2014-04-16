@@ -1,6 +1,8 @@
 # Changelog
 
 **latest**
+
+- upgrade redmine_people plugin to version 0.1.8
 - use redmine announcements version 1.3
 - use redmine tags version 2.1.0
 - support linking to mysql and postgresql containers

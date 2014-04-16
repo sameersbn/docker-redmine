@@ -140,12 +140,12 @@ else
 fi
 
 # redmine people plugin
-# wget http://redminecrm.com/license_manager/4122/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -O redmine_people-${REDMINE_PEOPLE_VERSION}.zip
-REDMINE_PEOPLE_VERSION=0_1_6
+# http://redminecrm.com/projects/people/pages/1
+REDMINE_PEOPLE_VERSION=0_1_8
 if [ -f /redmine/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip ]; then
 	unzip /redmine/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/4122/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -P /tmp/
+	wget http://redminecrm.com/license_manager/11368/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -P /tmp/
 	unzip /tmp/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
 	rm -rf /tmp/redmine_people-${REDMINE_PEOPLE_VERSION}.zip
 fi
