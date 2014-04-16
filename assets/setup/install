@@ -2,7 +2,7 @@
 
 set -e
 
-REDMINE_VERSION=2.5.0
+REDMINE_VERSION=2.5.1
 
 # install passenger
 mod_passenger=$(find /var/lib/gems/1.9.1/gems/ -name mod_passenger.so)

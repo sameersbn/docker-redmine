@@ -122,6 +122,7 @@ if [ -f /redmine/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.ta
 else
 	wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
 fi
+sed "s/gem 'rake'/# gem 'rake'/" -i /redmine/plugins/redmine_dashboard/Gemfile
 echo 'gem "guard-rspec"' >> /redmine/plugins/redmine_dashboard/Gemfile
 
 #
