@@ -129,7 +129,7 @@ echo 'gem "guard-rspec"' >> /redmine/plugins/redmine_dashboard/Gemfile
 #
 
 # issue checklist plugin
-# wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -O redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip
+# http://redminecrm.com/projects/checklist/pages/1
 REDMINE_ISSUE_CHECKLIST_VERSION=2_0_5
 if [ -f /redmine/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip ]; then
 	unzip /redmine/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -d /redmine/plugins/
@@ -162,7 +162,7 @@ else
 fi
 
 # redmine agile plugin
-# wget http://redminecrm.com/license_manager/11708/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip-${REDMINE_AGILE_VERSION}-light.zip -O redmine_agile-${REDMINE_AGILE_VERSION}-light.zip
+# http://redminecrm.com/projects/agile/pages/1
 REDMINE_AGILE_VERSION=1_1_2
 if [ -f /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip ]; then
 	unzip /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
