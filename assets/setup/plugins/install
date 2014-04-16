@@ -70,7 +70,7 @@ if [ -f /redmine/setup/plugins/issuefy.tar.gz ]; then
 else
 	wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/issuefy
 fi
-echo 'gem "spreadsheet", "0.8.5"' >> Gemfile
+echo 'gem "spreadsheet", "0.8.5"' >> /redmine/plugins/issuefy/Gemfile
 
 # open flash charts plugin
 # wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O open_flash_chart.tar.gz
@@ -122,7 +122,7 @@ if [ -f /redmine/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.ta
 else
 	wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
 fi
-echo 'gem "guard-rspec"' >> Gemfile
+echo 'gem "guard-rspec"' >> /redmine/plugins/redmine_dashboard/Gemfile
 
 #
 ## Install zipped archives
