@@ -215,7 +215,7 @@ docker run --name redmine -d --link mysql:mysql \
 The image also supports using an external PostgreSQL Server. This is also controlled via environment variables.
 
 ```sql
-CREATE USER redmine WITH PASSWORD 'password';
+CREATE ROLE redmine with LOGIN CREATEDB PASSWORD 'password';
 CREATE DATABASE redmine_production;
 GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
 ```
@@ -280,7 +280,7 @@ psql -U postgres -h ${POSTGRESQL_IP}
 ```
 
 ```sql
-CREATE USER redmine WITH PASSWORD 'password';
+CREATE ROLE redmine with LOGIN CREATEDB PASSWORD 'password';
 CREATE DATABASE redmine_production;
 GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
 ```
