@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- use redmine tags version 2.1.0
 - support linking to mysql and postgresql containers
 - added postgresql server support
 - upgrade to redmine_agile v1.1.2

@@ -53,12 +53,13 @@ else
 fi
 
 # redmine tags plugin
-# wget https://github.com/ixti/redmine_tags/archive/master.tar.gz -O redmine_tags.tar.gz
+# wget https://github.com/ixti/redmine_tags/archive/${REDMINE_TAGS_VERSION}.tar.gz -O redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz
+REDMINE_TAGS_VERSION=2.1.0
 mkdir -p /redmine/plugins/redmine_tags
-if [ -f /redmine/setup/plugins/redmine_tags.tar.gz ]; then
-	tar -zvxf /redmine/setup/plugins/redmine_tags.tar.gz --strip=1 -C /redmine/plugins/redmine_tags || exit 1
+if [ -f /redmine/setup/plugins/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz ]; then
+	tar -zvxf /redmine/setup/plugins/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_tags || exit 1
 else
-	wget https://github.com/ixti/redmine_tags/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tags
+	wget https://github.com/ixti/redmine_tags/archive/${REDMINE_TAGS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tags
 fi
 
 # issuefy plugin
