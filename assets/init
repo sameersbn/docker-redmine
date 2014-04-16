@@ -173,18 +173,18 @@ fi
 appDbMigrate () {
 	# isolate the plugins
 	sudo -u www-data -H mv plugins plugins-1
-	sudo -u www-data -H RAILS_ENV=production rake db:create
-	sudo -u www-data -H RAILS_ENV=production rake db:migrate
+	sudo -u www-data -H bundle exec rake db:create RAILS_ENV=production
+	sudo -u www-data -H bundle exec rake db:migrate RAILS_ENV=production
 	sudo -u www-data -H mv plugins-1 plugins
-	sudo -u www-data -H RAILS_ENV=production rake redmine:plugins:migrate
-	sudo -u www-data -H RAILS_ENV=production rake tmp:cache:clear
-	sudo -u www-data -H RAILS_ENV=production rake tmp:sessions:clear
+	sudo -u www-data -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production
+	sudo -u www-data -H bundle exec rake tmp:cache:clear RAILS_ENV=production
+	sudo -u www-data -H bundle exec rake tmp:sessions:clear RAILS_ENV=production
 }
 
 appStart () {
 	appDbMigrate
 
-	sudo -u www-data -H RAILS_ENV=production rake generate_secret_token
+	sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production
 	sudo -u www-data -H touch tmp/restart.txt
 
 	# kickstart the rails application
