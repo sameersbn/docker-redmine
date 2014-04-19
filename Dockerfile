@@ -8,10 +8,10 @@ RUN apt-get update && \
       apache2-prefork-dev libapr1-dev libaprutil1-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && \
-    apt-get clean && \
     gem install --no-ri --no-rdoc bundler mysql2 pg && \
     gem install --no-ri --no-rdoc passenger -v 3.0.21 && \
-    passenger-install-apache2-module --auto
+    passenger-install-apache2-module --auto && \
+    apt-get clean # 20140418
 
 ADD assets/ /redmine/
 RUN chmod 755 /redmine/init /redmine/setup/install
