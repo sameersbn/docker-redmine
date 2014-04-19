@@ -1,7 +1,7 @@
 # Changelog
 
 **latest**
-
+- use sameersbn/ubuntu as the base docker image
 - upgrade redmine_people plugin to version 0.1.8
 - use redmine announcements version 1.3
 - use redmine tags version 2.1.0

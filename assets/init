@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
@@ -65,6 +66,7 @@ echo User: root Password: $ROOT_PASSWORD
 
 # start supervisord
 /usr/bin/supervisord
+supervisorctl start sshd
 
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then

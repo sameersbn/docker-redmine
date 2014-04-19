@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 REDMINE_VERSION=2.5.1
@@ -94,49 +93,10 @@ cat > /etc/logrotate.d/redmine <<EOF
 }
 EOF
 
-# setup log rotation for supervisord
-cat > /etc/logrotate.d/supervisord <<EOF
-/var/log/supervisor/*.log {
-    weekly
-    missingok
-    rotate 52
-    compress
-    delaycompress
-    notifempty
-    copytruncate
-}
-EOF
-
 cat > /etc/supervisor/conf.d/apache2.conf <<EOF
 [program:apache2]
 directory=/
 command=/usr/sbin/apache2 -DFOREGROUND
-user=root
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s_error.log
-EOF
-
-# configure supervisord to start cron
-cat > /etc/supervisor/conf.d/cron.conf <<EOF
-[program:cron]
-priority=20
-directory=/tmp
-command=/usr/sbin/cron -f
-user=root
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
-EOF
-
-# supervise ssh server start
-mkdir -p /var/run/sshd
-cat > /etc/supervisor/conf.d/sshd.conf <<EOF
-[program:sshd]
-directory=/
-command=/usr/sbin/sshd -D
 user=root
 autostart=true
 autorestart=true
