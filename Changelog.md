@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- upgrade redmine_agile plugin to version 1.3.0
 - upgrade redmine_agile plugin to version 1.2.0
 - use sameersbn/ubuntu as the base docker image
 - upgrade redmine_people plugin to version 0.1.8
