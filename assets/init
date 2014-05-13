@@ -101,6 +101,18 @@ sudo -u www-data -H cp setup/config/database.yml config/database.yml
 sudo -u www-data -H cp setup/config/unicorn.rb config/unicorn.rb
 sudo -u www-data -H cp setup/config/smtp_settings.rb config/initializers/smtp_settings.rb
 
+# override default configuration templates with user templates
+if [ -d /redmine/data/config ]; then
+	chown -R www-data /redmine/data/config
+	cd /redmine/data/config
+	[ -f additional_environment.rb ]	&& sudo -u www-data -H cp additional_environment.rb	/redmine/config/additional_environment.rb
+	[ -f database.yml ]								&& sudo -u www-data -H cp database.yml 							/redmine/config/database.yml
+	[ -f unicorn.rb ]									&& sudo -u www-data -H cp unicorn.rb 								/redmine/config/unicorn.rb
+	[ -f smtp_settings.rb ]						&& sudo -u www-data -H cp smtp_settings.rb 					/redmine/config/initializers/smtp_settings.rb
+fi
+
+cd /redmine
+
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
 	sudo -u www-data -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
