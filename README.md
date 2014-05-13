@@ -318,6 +318,7 @@ The following environment variables need to be specified to get mail support to 
 * SMTP_USER
 * SMTP_PASS
 * SMTP_STARTTLS (defaults to true)
+* SMTP_AUTHENTICATION (defaults to ':login' if SMTP_USER is set)
 
 ```
 docker run --name redmine -d \
@@ -371,6 +372,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_USER**: SMTP username.
 - **SMTP_PASS**: SMTP password.
 - **SMTP_STARTTLS**: Enable STARTTLS. Defaults to true.
+- **SMTP_AUTHENTICATION**: Specify the SMTP authentication method. Defaults to ':login' if SMTP_USER is set.
 
 ## Maintenance
 

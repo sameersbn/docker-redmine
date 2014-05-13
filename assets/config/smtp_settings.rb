@@ -6,7 +6,7 @@ if Rails.env.production?
     :domain               => "{{SMTP_DOMAIN}}",
     :user_name            => "{{SMTP_USER}}",
     :password             => "{{SMTP_PASS}}",
-    :authentication       => :login,
+    :authentication       => "{{SMTP_AUTHENTICATION}}",
     :enable_starttls_auto => {{SMTP_STARTTLS}}
   }
 end

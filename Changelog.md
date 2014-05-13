@@ -1,6 +1,7 @@
 # Changelog
 
 *latest*
+- added SMTP_AUTHENTICATION configuration option
 - added UNICORN_TIMEOUT configuration option
 - added UNICORN_WORKERS configuration option
 - replaced apache+passenger with unicorn app server
