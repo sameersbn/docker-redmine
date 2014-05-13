@@ -138,8 +138,17 @@ sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
 # configure mail delivery
 sudo -u www-data -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
 sudo -u www-data -H sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
-sudo -u www-data -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb
-sudo -u www-data -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb
+
+case "${SMTP_USER}" in
+	"") sudo -u www-data -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
+	*) sudo -u www-data -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
+esac
+
+case "${SMTP_PASS}" in
+	"") sudo -u www-data -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
+	*) sudo -u www-data -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
+esac
+
 sudo -u www-data -H sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
 sudo -u www-data -H sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
 sudo -u www-data -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb
