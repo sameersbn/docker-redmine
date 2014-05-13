@@ -7,7 +7,7 @@ RUN apt-get update && \
       ruby1.9.1-dev libcurl4-openssl-dev libssl-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && \
-    gem install --no-ri --no-rdoc bundler mysql2 pg && \
+    gem install --no-ri --no-rdoc bundler && \
     apt-get clean # 20140513
 
 ADD assets/setup/ /redmine/setup/

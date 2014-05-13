@@ -13,6 +13,10 @@ else
   wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 fi
 
+# add support for mysql and postgresql databases
+echo 'gem "mysql2", "~> 0.3.11"' >> Gemfile
+echo 'gem "pg", ">= 0.11.0"' >> Gemfile
+
 # add gems for app server and memcache support
 echo 'gem "unicorn"' >> Gemfile
 echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
