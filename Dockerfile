@@ -10,9 +10,13 @@ RUN apt-get update && \
     gem install --no-ri --no-rdoc bundler mysql2 pg && \
     apt-get clean # 20140513
 
-ADD assets/ /redmine/
-RUN chmod 755 /redmine/init /redmine/setup/install
+ADD assets/setup/ /redmine/setup/
+RUN chmod 755 /redmine/setup/install
 RUN /redmine/setup/install
+
+ADD assets/config/ /redmine/setup/config/
+ADD assets/init /redmine/init
+RUN chmod 755 /redmine/init
 
 ADD authorized_keys /root/.ssh/
 
