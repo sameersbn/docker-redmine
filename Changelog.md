@@ -1,6 +1,7 @@
 # Changelog
 
 *latest*
+- added UNICORN_WORKERS configuration option
 - replaced apache+passenger with unicorn app server
 - added redmine_contacts plugin version 3.2.16
 - upgrade redmine_agile plugin to version 1.3.1
