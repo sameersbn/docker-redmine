@@ -369,10 +369,6 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_USER**: SMTP username.
 - **SMTP_PASS**: SMTP password.
 - **SMTP_STARTTLS**: Enable STARTTLS. Defaults to true.
-- **PASSENGER_MAX_POOL_SIZE**: PassengerMaxPoolSize (default: 6)
-- **PASSENGER_MIN_INSTANCES**: PassengerMinInstances (default: 1)
-- **PASSENGER_MAX_REQUESTS**: PassengerMaxRequests (default: 0)
-- **PASSENGER_POOL_IDLE_TIME**: PassengerPoolIdleTime (default: 300)
 
 ## Maintenance
 

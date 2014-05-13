@@ -18,18 +18,6 @@ SMTP_USER=${SMTP_USER:-}
 SMTP_PASS=${SMTP_PASS:-}
 SMTP_STARTTLS=${SMTP_STARTTLS:-true}
 
-PASSENGER_MAX_POOL_SIZE=${PASSENGER_MAX_POOL_SIZE:-6}
-PASSENGER_MIN_INSTANCES=${PASSENGER_MIN_INSTANCES:-1}
-PASSENGER_MAX_REQUESTS=${PASSENGER_MAX_REQUESTS:-0}
-PASSENGER_POOL_IDLE_TIME=${PASSENGER_POOL_IDLE_TIME:-300}
-
-export APACHE_RUN_USER="www-data"
-export APACHE_RUN_GROUP="www-data"
-export APACHE_LOG_DIR="/var/log/apache2"
-export APACHE_PID_FILE="/var/run/apache2.pid"
-export APACHE_LOCK_DIR="/var/run/lock/apache2"
-export APACHE_RUN_DIR="/var/run/apache2"
-
 # is a mysql or postgresql database linked?
 # requires that the mysql or postgresql containers have exposed
 # port 3306 and 5432 respectively.
@@ -53,11 +41,6 @@ case "${DB_TYPE}" in
 	postgres) DB_PORT=${DB_PORT:-5432} ;;
 	*) echo "Unsupported database adapter. Available adapters are mysql and postgres." && exit 1 ;;
 esac
-
-sed 's/{{PASSENGER_MAX_POOL_SIZE}}/'"${PASSENGER_MAX_POOL_SIZE}"'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MIN_INSTANCES}}/'"${PASSENGER_MIN_INSTANCES}"'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_MAX_REQUESTS}}/'"${PASSENGER_MAX_REQUESTS}"'/' -i /etc/apache2/apache2.conf
-sed 's/{{PASSENGER_POOL_IDLE_TIME}}/'"${PASSENGER_POOL_IDLE_TIME}"'/' -i /etc/apache2/apache2.conf
 
 # generate a password for root.
 ROOT_PASSWORD=$(pwgen -c -n -1 12)
@@ -122,6 +105,7 @@ production:
   password: "{{DB_PASS}}"
   pool: {{DB_POOL}}
 EOF
+sudo -u www-data -H cp setup/config/unicorn.rb config/unicorn.rb
 
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
@@ -188,11 +172,8 @@ appStart () {
 
 	sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production
 	sudo -u www-data -H touch tmp/restart.txt
-
-	# kickstart the rails application
-	wget "http://localhost" -O /dev/null
-
-	tail -F /var/log/apache2/other_vhosts_access.log
+	supervisorctl start unicorn
+	tail -F /redmine/log/unicorn.stdout.log
 }
 
 appHelp () {

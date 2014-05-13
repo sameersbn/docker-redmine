@@ -3,39 +3,6 @@ set -e
 
 REDMINE_VERSION=2.5.1
 
-# install passenger
-mod_passenger=$(find /var/lib/gems/1.9.1/gems/ -name mod_passenger.so)
-if [ -n "${mod_passenger}" ]; then
-	echo "LoadModule passenger_module ${mod_passenger}" > /etc/apache2/mods-available/passenger.load
-	a2enmod passenger
-else
-  echo "ERROR: could not configure passenger module"
-  exit 1
-fi
-
-cat >> /etc/apache2/apache2.conf <<EOF
-
-PassengerRoot /var/lib/gems/1.9.1/gems/passenger-3.0.21
-PassengerRuby /usr/bin/ruby
-PassengerDefaultUser www-data
-
-PassengerMaxPoolSize {{PASSENGER_MAX_POOL_SIZE}}
-PassengerMinInstances {{PASSENGER_MIN_INSTANCES}}
-PassengerMaxRequests {{PASSENGER_MAX_REQUESTS}}
-PassengerPoolIdleTime {{PASSENGER_POOL_IDLE_TIME}}
-EOF
-
-cat > /etc/apache2/conf.d/redmine.conf <<EOF
-<VirtualHost *:80>
-  RailsEnv production
-  DocumentRoot /redmine/public
-  <Directory /redmine/public>
-    AllowOverride all
-    Options -MultiViews
-  </Directory>
-</VirtualHost>
-EOF
-
 mkdir -p /redmine
 cd /redmine
 
@@ -47,6 +14,7 @@ else
 fi
 
 # install gems
+echo 'gem "unicorn"' >> Gemfile
 echo 'gem "fastercsv", "~> 1.5.0"' >> Gemfile
 echo 'gem "yard"' >> Gemfile
 echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
@@ -75,9 +43,8 @@ cp config/database.yml.example config/database.yml
 . /redmine/setup/plugins/install
 
 # finalize redmine installation
-mkdir -p tmp tmp/pdf public/plugin_assets
-chmod -R 755 files log public/plugin_assets
-chmod -R 1777 tmp
+mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
+chmod -R u+rwX files log tmp
 chown -R www-data:www-data /redmine
 
 # setup log rotation for redmine
@@ -93,15 +60,17 @@ cat > /etc/logrotate.d/redmine <<EOF
 }
 EOF
 
-cat > /etc/supervisor/conf.d/apache2.conf <<EOF
-[program:apache2]
-directory=/
-command=/usr/sbin/apache2 -DFOREGROUND
+# configure supervisord to start unicorn
+cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
+[program:unicorn]
+priority=20
+directory=/redmine
+command=bundle exec unicorn_rails -E production -c /redmine/config/unicorn.rb
 user=root
-autostart=true
+autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s_error.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
 
 # supervise mysql server start (manual)
