@@ -94,6 +94,7 @@ chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
 cd /redmine
+sudo -u www-data -H cp setup/config/additional_environment.rb config/additional_environment.rb
 sudo -u www-data -H cp setup/config/database.yml config/database.yml
 sudo -u www-data -H cp setup/config/unicorn.rb config/unicorn.rb
 sudo -u www-data -H cp setup/config/smtp_settings.rb config/initializers/smtp_settings.rb
