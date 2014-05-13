@@ -363,6 +363,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to 5.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to 2.
+- **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to 60 seconds.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to 64. Disabled if '0'.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to www.gmail.com
 - **SMTP_HOST**: SMTP server host. Defaults to smtp.gmail.com.

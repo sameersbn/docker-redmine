@@ -19,6 +19,7 @@ SMTP_PASS=${SMTP_PASS:-}
 SMTP_STARTTLS=${SMTP_STARTTLS:-true}
 
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
+UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
 
 # is a mysql or postgresql database linked?
 # requires that the mysql or postgresql containers have exposed
@@ -141,6 +142,7 @@ fi
 
 # configure unicorn
 sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
+sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
 
 # configure mail delivery
 if [ -n "${SMTP_HOST}" -a -n "${SMTP_USER}" -a -n "${SMTP_PASS}" ]; then

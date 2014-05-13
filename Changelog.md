@@ -1,6 +1,7 @@
 # Changelog
 
 *latest*
+- added UNICORN_TIMEOUT configuration option
 - added UNICORN_WORKERS configuration option
 - replaced apache+passenger with unicorn app server
 - added redmine_contacts plugin version 3.2.16
