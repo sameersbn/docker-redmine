@@ -172,6 +172,18 @@ else
 	rm -rf /tmp/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip
 fi
 
+# redmine contacts plugin
+# http://redminecrm.com/projects/crm/pages/1
+REDMINE_CONTACTS_VERSION=3.2.16
+if [ -f /redmine/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip ]; then
+	unzip /redmine/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/
+else
+	wget http://redminecrm.com/license_manager/12123/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -P /tmp/
+	unzip /tmp/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/
+	rm -rf /tmp/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip
+fi
+sed 's/gem "spreadsheet/# gem "spreadsheet/' -i /redmine/plugins/redmine_contacts/Gemfile
+
 #
 ## Satisfy gem dependencies for plugins
 #
