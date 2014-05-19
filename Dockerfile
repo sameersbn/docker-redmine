@@ -1,4 +1,4 @@
-FROM sameersbn/ubuntu:12.04.20140418
+FROM sameersbn/ubuntu:12.04.20140519
 MAINTAINER sameer@damagehead.com
 
 RUN apt-get update && \
@@ -8,7 +8,7 @@ RUN apt-get update && \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && \
     gem install --no-ri --no-rdoc bundler && \
-    apt-get clean # 20140513
+    apt-get clean # 20140519
 
 ADD assets/setup/ /redmine/setup/
 RUN chmod 755 /redmine/setup/install
