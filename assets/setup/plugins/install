@@ -174,11 +174,11 @@ fi
 
 # redmine contacts plugin
 # http://redminecrm.com/projects/crm/pages/1
-REDMINE_CONTACTS_VERSION=3.2.16
+REDMINE_CONTACTS_VERSION=3.2.17
 if [ -f /redmine/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip ]; then
 	unzip /redmine/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/12123/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -P /tmp/
+	wget http://redminecrm.com/license_manager/12403/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -P /tmp/
 	unzip /tmp/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/
 	rm -rf /tmp/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip
 fi

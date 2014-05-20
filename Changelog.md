@@ -1,6 +1,7 @@
 # Changelog
 
 *latest*
+- upgrade redmine_contacts to version 3.2.17
 - added SMTP_AUTHENTICATION configuration option
 - added UNICORN_TIMEOUT configuration option
 - added UNICORN_WORKERS configuration option
