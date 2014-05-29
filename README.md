@@ -363,6 +363,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_USER**: The database user. Defaults to root
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to 5.
+- **NGINX_MAX_UPLOAD_SIZE**: Maximum acceptable upload size. Defaults to 20m.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to 2.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to 60 seconds.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to 64. Disabled if '0'.

@@ -2,7 +2,7 @@ FROM sameersbn/ubuntu:12.04.20140519
 MAINTAINER sameer@damagehead.com
 
 RUN apt-get update && \
-		apt-get install -y make imagemagick \
+		apt-get install -y make imagemagick nginx \
       mysql-server memcached subversion git cvs bzr ruby1.9.1 \
       ruby1.9.1-dev libcurl4-openssl-dev libssl-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
