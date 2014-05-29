@@ -50,6 +50,10 @@ mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
 chmod -R u+rwX files log tmp
 chown -R www-data:www-data /redmine
 
+# disable default nginx configuration and enable redmine nginx configuration
+rm -f /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine
+
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
 /redmine/log/*.log {
@@ -61,6 +65,20 @@ cat > /etc/logrotate.d/redmine <<EOF
     notifempty
     copytruncate
 }
+EOF
+
+# configure supervisord to start nginx
+echo "daemon off;" >> /etc/nginx/nginx.conf
+cat > /etc/supervisor/conf.d/nginx.conf <<EOF
+[program:nginx]
+priority=20
+directory=/tmp
+command=/usr/sbin/nginx
+user=root
+autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start unicorn

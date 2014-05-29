@@ -20,6 +20,8 @@ SMTP_STARTTLS=${SMTP_STARTTLS:-true}
 [ -n "${SMTP_USER}" ] && \
 	SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-:login}
 
+NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
+
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
 UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
 
@@ -96,6 +98,7 @@ chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
 cd /redmine
+cp setup/config/nginx/redmine /etc/nginx/sites-available/redmine
 sudo -u www-data -H cp setup/config/redmine/additional_environment.rb config/additional_environment.rb
 sudo -u www-data -H cp setup/config/redmine/database.yml config/database.yml
 sudo -u www-data -H cp setup/config/redmine/unicorn.rb config/unicorn.rb
@@ -105,6 +108,7 @@ sudo -u www-data -H cp setup/config/redmine/smtp_settings.rb config/initializers
 if [ -d /redmine/data/config ]; then
 	chown -R www-data /redmine/data/config
 	cd /redmine/data/config
+	[ -f nginx/redmine ]											&& cp nginx/redmine	/etc/nginx/sites-available/redmine
 	[ -f redmine/additional_environment.rb ]	&& sudo -u www-data -H cp redmine/additional_environment.rb	/redmine/config/additional_environment.rb
 	[ -f redmine/database.yml ]								&& sudo -u www-data -H cp redmine/database.yml 							/redmine/config/database.yml
 	[ -f redmine/unicorn.rb ]									&& sudo -u www-data -H cp redmine/unicorn.rb 								/redmine/config/unicorn.rb
@@ -142,6 +146,9 @@ if [ "${MEMCACHED_SIZE}" != "0" ]; then
 else
 	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
+
+# configure nginx
+sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine
 
 # configure unicorn
 sudo -u www-data -H sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
@@ -190,7 +197,11 @@ appStart () {
 
 	echo "Starting unicorn..."
 	supervisorctl start unicorn
-	tail -F /redmine/log/unicorn.stderr.log
+
+	echo "Starting nginx..."
+	supervisorctl start nginx >/dev/null
+
+	tail -F /var/log/nginx/redmine_access.log
 }
 
 appHelp () {
