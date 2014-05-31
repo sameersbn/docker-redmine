@@ -8,7 +8,7 @@ upstream redmine {
 server {
   listen *:80 default_server;
   server_tokens off;
-  root /redmine/public;
+  root /dev/null;
 
   # Increase this if you want to upload large attachments
   # Or if you want to accept large git objects over http
@@ -18,7 +18,8 @@ server {
   access_log  /var/log/nginx/redmine_access.log;
   error_log   /var/log/nginx/redmine_error.log;
 
-  location / {
+  location {{REDMINE_RELATIVE_URL_ROOT}}/ {
+    root /redmine/public;
     # serve static files from defined root folder;.
     # @redmine is a named location for the upstream fallback, see below
     try_files $uri $uri/index.html $uri.html @redmine;
