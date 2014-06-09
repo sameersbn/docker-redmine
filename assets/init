@@ -197,7 +197,7 @@ appDbMigrate () {
 
 appStart () {
 	echo "Generating secure token..."
-	sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production
+	sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
 
 	echo "Starting unicorn..."
 	supervisorctl start unicorn >/dev/null
