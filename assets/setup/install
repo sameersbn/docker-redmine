@@ -26,15 +26,11 @@ echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
 echo 'gem "fastercsv", "~> 1.5.0"' >> Gemfile
 echo 'gem "yard"' >> Gemfile
 
-# install gems
+# install gems, use cache if available
 if [ -d "/redmine/setup/cache" ]; then
-  # offline gem installation
   mv /redmine/setup/cache vendor/
-  bundle install --local --without development tests
-else
-  # online gem installation
-  bundle install --without development tests
 fi
+bundle install --without development tests
 
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
