@@ -163,11 +163,11 @@ fi
 
 # redmine agile plugin
 # http://redminecrm.com/projects/agile/pages/1
-REDMINE_AGILE_VERSION=1_3_1
+REDMINE_AGILE_VERSION=1_3_2
 if [ -f /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip ]; then
 	unzip /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
 else
-	wget http://redminecrm.com/license_manager/12153/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -P /tmp/
+	wget http://redminecrm.com/license_manager/13082/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -P /tmp/
 	unzip /tmp/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
 	rm -rf /tmp/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip
 fi
