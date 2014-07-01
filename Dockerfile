@@ -19,8 +19,6 @@ ADD assets/init /redmine/init
 RUN chmod 755 /redmine/init
 
 EXPOSE 80
-
 VOLUME ["/redmine/files"]
-
 ENTRYPOINT ["/redmine/init"]
 CMD ["app:start"]
