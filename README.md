@@ -17,7 +17,6 @@
     - [Mail](#mail)
     - [Putting it all together](#putting-it-all-together)
     - [Available Configuration Parameters](#available-configuration-parameters)
-- [Maintenance](#maintenance)
 - [Upgrading](#upgrading)
 - [References](#references)
 
@@ -373,8 +372,6 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_PASS**: SMTP password.
 - **SMTP_STARTTLS**: Enable STARTTLS. Defaults to true.
 - **SMTP_AUTHENTICATION**: Specify the SMTP authentication method. Defaults to ':login' if SMTP_USER is set.
-
-## Maintenance
 
 ## Upgrading
 
