@@ -18,8 +18,6 @@ ADD assets/config/ /redmine/setup/config/
 ADD assets/init /redmine/init
 RUN chmod 755 /redmine/init
 
-ADD authorized_keys /root/.ssh/
-
 EXPOSE 80
 
 VOLUME ["/redmine/files"]

@@ -1,6 +1,7 @@
 # Changelog
 
 *latest*
+- do not start openssh-server anymore, use nsenter to get shell access
 - added nginx to proxy requests to unicorn
 - upgrade redmine_contacts to version 3.2.17
 - added SMTP_AUTHENTICATION configuration option

@@ -57,9 +57,6 @@ echo User: root Password: $ROOT_PASSWORD
 # start supervisord
 /usr/bin/supervisord
 
-echo "Starting openssh server..."
-supervisorctl start sshd >/dev/null
-
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
 	if [ "${DB_TYPE}" == "postgres" ]; then
