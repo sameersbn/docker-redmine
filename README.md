@@ -352,6 +352,8 @@ docker run --name redmine -d -h redmine.local.host \
 
 ### Available Configuration Parameters
 
+*Please refer the docker run command options for the `--env-file` flag where you can specify all required environment variables in a single file. This will save you from writing a potentially long docker run command.*
+
 Below is the complete list of parameters that can be set using environment variables.
 
 - **DB_TYPE**: The database type. Possible values: mysql, postgres. Defaults to mysql.
