@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- automatically migrate the database when the redmine version changes
+
 **2.5.2**
 - switch to ruby1.2
 - upgrade to redmine 2.5.2
