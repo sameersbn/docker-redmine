@@ -49,11 +49,6 @@ case "${DB_TYPE}" in
 	*) echo "Unsupported database adapter. Available adapters are mysql and postgres." && exit 1 ;;
 esac
 
-# generate a password for root.
-ROOT_PASSWORD=$(pwgen -c -n -1 12)
-echo "root:$ROOT_PASSWORD" | chpasswd
-echo User: root Password: $ROOT_PASSWORD
-
 # start supervisord
 /usr/bin/supervisord
 
