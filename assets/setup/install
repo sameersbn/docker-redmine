@@ -13,6 +13,9 @@ else
   wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 fi
 
+# create version file
+echo "${REDMINE_VERSION}" > /redmine/VERSION
+
 # add support for mysql and postgresql databases
 echo 'gem "mysql2", "~> 0.3.11"' >> Gemfile
 echo 'gem "pg", ">= 0.11.0"' >> Gemfile
