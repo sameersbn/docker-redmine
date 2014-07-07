@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- upgrade to redmine 2.5.2
 - upgrade redmine_agile plugin to version 1.3.2
 - update to sameersbn/ubuntu:12.04.20140628
 - do not start openssh-server anymore, use nsenter to get shell access
