@@ -379,22 +379,22 @@ Below is the complete list of parameters that can be set using environment varia
 
 To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
 
-**Step 1**: Stop the currently running image
+**Step 1**: Update the docker image.
+
+```
+docker pull sameersbn/redmine:2.5.2
+```
+
+**Step 2**: Stop the currently running image
 
 ```
 docker stop redmine
 ```
 
-**Step 2**: Backup the database in case something goes wrong.
+**Step 3**: Backup the database in case something goes wrong.
 
 ```
 mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
-```
-
-**Step 3**: Update the docker image.
-
-```
-docker pull sameersbn/redmine:2.5.2
 ```
 
 **Step 4**: Start the image
