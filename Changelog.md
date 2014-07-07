@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- switch to ruby1.2
 - upgrade to redmine 2.5.2
 - upgrade redmine_agile plugin to version 1.3.2
 - update to sameersbn/ubuntu:12.04.20140628
