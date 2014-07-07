@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.5.2**
 - switch to ruby1.2
 - upgrade to redmine 2.5.2
 - upgrade redmine_agile plugin to version 1.3.2
