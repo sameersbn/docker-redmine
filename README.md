@@ -131,7 +131,7 @@ Now that we have the database created for redmine, lets install the database sch
 *Assuming that the mysql server host is 192.168.1.100*
 
 ```
-docker run --name redmine -i -t --rm \
+docker run --name redmine -it --rm \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine:2.5.2 app:db:migrate
@@ -188,7 +188,7 @@ FLUSH PRIVILEGES;
 Now that we have the database created for redmine, lets install the database schema. This is done by starting the redmine container with the **app:db:migrate** command.
 
 ```bash
-docker run --name redmine -i -t --rm --link mysql:mysql \
+docker run --name redmine -it --rm --link mysql:mysql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
   -v /opt/redmine/files:/redmine/files \
@@ -223,7 +223,7 @@ Now that we have the database created for redmine, lets install the database sch
 *Assuming that the PostgreSQL server host is 192.168.1.100*
 
 ```bash
-docker run --name redmine -i -t --rm \
+docker run --name redmine -it --rm \
   -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
   -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/files:/redmine/files \
@@ -286,7 +286,7 @@ GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
 Now that we have the database created for redmine, lets install the database schema. This is done by starting the redmine container with the **app:db:migrate** command.
 
 ```bash
-docker run --name redmine -i -t --rm --link postgresql:postgresql \
+docker run --name redmine -it --rm --link postgresql:postgresql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
   -v /opt/redmine/files:/redmine/files \
@@ -401,7 +401,7 @@ mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production 
 **Step 4**: Start the image
 
 ```
-docker run --name redmine -i -d [OPTIONS] sameersbn/redmine:2.5.2
+docker run --name redmine -d [OPTIONS] sameersbn/redmine:2.5.2
 ```
 
 ## References
