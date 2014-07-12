@@ -385,10 +385,11 @@ To upgrade to newer redmine releases, simply follow this 4 step upgrade procedur
 docker pull sameersbn/redmine:2.5.2
 ```
 
-**Step 2**: Stop the currently running image
+**Step 2**: Stop and remove the currently running image
 
 ```
 docker stop redmine
+docker rm redmine
 ```
 
 **Step 3**: Backup the database in case something goes wrong.
