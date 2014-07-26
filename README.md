@@ -79,10 +79,16 @@ For the file storage we need to mount a volume at the following location.
 
 * /redmine/files
 
+SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
+
+```bash
+mkdir -p /opt/redmine/files
+sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/files
+```
+
 Volumes can be mounted in docker by specifying the **'-v'** option in the docker run command.
 
 ```
-mkdir -pv /opt/redmine/files
 docker run --name redmine -d \
   -v /opt/redmine/files:/redmine/files sameersbn/redmine:2.5.2
 ```
@@ -106,8 +112,16 @@ Redmine uses a database backend to store its data.
 
 This docker image is configured to use a MySQL database backend. The database connection can be configured using environment variables. If not specified, the image will start a mysql server internally and use it. However in this case, the data stored in the mysql database will be lost if the container is stopped/deleted. To avoid this you should mount a volume at /var/lib/mysql.
 
+SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
+
+```bash
+mkdir -p /opt/redmine/mysql
+sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/files
 ```
-mkdir /opt/redmine/mysql
+
+The updated run command looks like this.
+
+```
 docker run --name redmine -d \
   -v /opt/redmine/files:/redmine/files \
   -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine:2.5.2
