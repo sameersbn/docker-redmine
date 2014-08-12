@@ -54,13 +54,12 @@ Run the redmine image with the name "redmine".
 
 ```
 docker run --name redmine -d sameersbn/redmine:2.5.2
-REDMINE_IP=$(docker inspect redmine | grep IPAddres | awk -F'"' '{print $4}')
 ```
 
 Access the Redmine application
 
 ```
-xdg-open "http://${REDMINE_IP}"
+xdg-open "http://$(docker inspect --format {{.NetworkSettings.IPAddress}} redmine)"
 ```
 
 __NOTE__: Please allow a minute or two for the Redmine application to start.
@@ -190,7 +189,7 @@ You should now have the mysql server running. By default the sameersbn/mysql ima
 Now, lets login to the mysql server and create a user and database for the redmine application.
 
 ```bash
-mysql -uroot -h $(docker inspect mysql | grep IPAddres | awk -F'"' '{print $4}')
+mysql -uroot -h$(docker inspect --format {{.NetworkSettings.IPAddress}} mysql)
 ```
 
 ```sql
@@ -288,8 +287,7 @@ docker logs postgresql
 Now, lets login to the postgresql server and create a user and database for the redmine application.
 
 ```bash
-POSTGRESQL_IP=$(docker inspect postgresql | grep IPAddres | awk -F'"' '{print $4}')
-psql -U postgres -h ${POSTGRESQL_IP}
+psql -U postgres -h $(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql)
 ```
 
 ```sql
