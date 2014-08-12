@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- update to the sameersbn/ubuntu:12.04.20140812 baseimage
 - automatically migrate the database when the redmine version changes
 
 **2.5.2**
