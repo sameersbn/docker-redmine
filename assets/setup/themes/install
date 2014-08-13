@@ -57,5 +57,5 @@ mkdir -p ${THEMES_INSTALL_DIR}/gitmike
 if [ -f ${THEMES_SETUP_DIR}/gitmike-${GITMIKE_VERSION}.tar.gz ]; then
   tar -zvxf ${THEMES_SETUP_DIR}/gitmike-${GITMIKE_VERSION}.tar.gz --strip=1 -C ${THEMES_INSTALL_DIR}/gitmike
 else
-  wget https://github.com/makotokw/redmine-theme-gitmike/archive/${GITMIKE_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${THEMES_INSTALL_DIR}/gitmike
+  wget -nv https://github.com/makotokw/redmine-theme-gitmike/archive/${GITMIKE_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${THEMES_INSTALL_DIR}/gitmike
 fi

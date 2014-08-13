@@ -11,7 +11,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_tweaks
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_tweaks.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_tweaks.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_tweaks || exit 1
 else
-  wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_tweaks
+  wget -nv https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_tweaks
 fi
 
 # line numbers plugin
@@ -20,7 +20,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/line_numbers
 if [ -f ${PLUGINS_SETUP_DIR}/line_numbers.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/line_numbers.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/line_numbers || exit 1
 else
-  wget https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/line_numbers
+  wget -nv https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/line_numbers
 fi
 
 # did you mean? plugin
@@ -30,7 +30,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_didyoumean
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_didyoumean || exit 1
 else
-  wget https://github.com/abahgat/redmine_didyoumean/archive/${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_didyoumean
+  wget -nv https://github.com/abahgat/redmine_didyoumean/archive/${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_didyoumean
 fi
 
 # redmine embed video plugin
@@ -39,7 +39,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_embedded_video
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_embedded_video.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_embedded_video.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_embedded_video || exit 1
 else
-  wget https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_embedded_video
+  wget -nv https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_embedded_video
 fi
 
 # redmine gist plugin
@@ -48,7 +48,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_gist
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_gist.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_gist.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_gist || exit 1
 else
-  wget https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_gist
+  wget -nv https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_gist
 fi
 
 # redmine tags plugin
@@ -58,7 +58,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_tags
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_tags || exit 1
 else
-  wget https://github.com/ixti/redmine_tags/archive/${REDMINE_TAGS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_tags
+  wget -nv https://github.com/ixti/redmine_tags/archive/${REDMINE_TAGS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_tags
 fi
 
 # issuefy plugin
@@ -67,7 +67,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/issuefy
 if [ -f ${PLUGINS_SETUP_DIR}/issuefy.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/issuefy.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/issuefy || exit 1
 else
-  wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/issuefy
+  wget -nv https://github.com/tchx84/issuefy/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/issuefy
 fi
 echo 'gem "spreadsheet", "0.8.5"' >> ${PLUGINS_INSTALL_DIR}/issuefy/Gemfile
 
@@ -77,7 +77,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/open_flash_chart
 if [ -f ${PLUGINS_SETUP_DIR}/open_flash_chart.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/open_flash_chart.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/open_flash_chart || exit 1
 else
-  wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/open_flash_chart
+  wget -nv https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/open_flash_chart
 fi
 
 mkdir -p /home/redmine/redmine/public/plugin_assets/open_flash_chart
@@ -89,7 +89,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_charts2
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_charts21.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_charts21.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_charts2 || exit 1
 else
-  wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_charts2
+  wget -nv https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_charts2
 fi
 
 # redmine announcements plugin
@@ -99,7 +99,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_announcements
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_announcements || exit 1
 else
-  wget https://github.com/buoyant/redmine_announcements/archive/v${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_announcements
+  wget -nv https://github.com/buoyant/redmine_announcements/archive/v${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_announcements
 fi
 
 # redmine recurring tasks
@@ -109,7 +109,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/recurring_tasks
 if [ -f ${PLUGINS_SETUP_DIR}/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/recurring_tasks || exit 1
 else
-  wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.${REDMINE_RECURRING_TASKS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/recurring_tasks
+  wget -nv https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.${REDMINE_RECURRING_TASKS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/recurring_tasks
 fi
 
 # redmine dashboard tasks
@@ -119,7 +119,7 @@ mkdir -p ${PLUGINS_INSTALL_DIR}/redmine_dashboard
 if [ -f ${PLUGINS_SETUP_DIR}/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz ]; then
   tar -zvxf ${PLUGINS_SETUP_DIR}/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_dashboard || exit 1
 else
-  wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_dashboard
+  wget -nv https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C ${PLUGINS_INSTALL_DIR}/redmine_dashboard
 fi
 sed "s/gem 'rake'/# gem 'rake'/" -i ${PLUGINS_INSTALL_DIR}/redmine_dashboard/Gemfile
 echo 'gem "guard-rspec"' >> ${PLUGINS_INSTALL_DIR}/redmine_dashboard/Gemfile

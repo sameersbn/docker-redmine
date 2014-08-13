@@ -23,7 +23,7 @@ mkdir -p ${INSTALL_DIR}
 if [ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]; then
   tar -zvxf ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${INSTALL_DIR}
 else
-  wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${INSTALL_DIR}
+  wget -nv "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${INSTALL_DIR}
 fi
 
 cd ${INSTALL_DIR}
