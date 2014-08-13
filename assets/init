@@ -195,7 +195,7 @@ appStart () {
 	[ -f /redmine/files/VERSION ] && CURRENT_VERSION=$(cat /redmine/files/VERSION)
 	if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
 		appDbMigrate
-		sudo -u www-data -H echo "${REDMINE_VERSION}" > /redmine/files/VERSION
+		echo "${REDMINE_VERSION}" | sudo -u www-data -H tee /redmine/files/VERSION >/dev/null
 	fi
 
 	echo "Generating secure token..."
