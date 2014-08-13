@@ -15,6 +15,7 @@
             - [External PostgreSQL Server](#external-postgresql-server)
             - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
     - [Mail](#mail)
+    - [Using SSL](#using-ssl)
     - [Putting it all together](#putting-it-all-together)
     - [Available Configuration Parameters](#available-configuration-parameters)
 - [Upgrading](#upgrading)
@@ -343,6 +344,17 @@ __NOTE:__
 
 I have only tested standard gmail and google apps login. I expect that the currently provided configuration parameters should be sufficient for most users. If this is not the case, then please let me know.
 
+### Using SSL
+
+To enable SSL, you must make a certificate and key available to nginx and pass their locations when running the container.
+
+```
+docker run --name redmine -d -h redmine.local.host \
+  -v /opt/redmine/certs:/redmine/certs \
+  -e "NGINX_CERT=/redmine/certs/ssl-cert-snakeoil.pem" -e "NGINX_KEY=/redmine/certs/ssl-cert-snakeoil.key" \
+  ...
+```
+
 ### Putting it all together
 
 ```
@@ -377,6 +389,8 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to 5.
 - **NGINX_MAX_UPLOAD_SIZE**: Maximum acceptable upload size. Defaults to 20m.
+- **NGINX_CERT**: The path to the PEM-format SSL certificate to use.
+- **NGINX_KEY**: The path to the SSL certificate's private key.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to 2.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to 60 seconds.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to 64. Disabled if '0'.
