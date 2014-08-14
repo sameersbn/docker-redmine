@@ -1,0 +1,9 @@
+production:
+  adapter: "{{DB_ADAPTER}}"
+  encoding: "{{DB_ENCODING}}"
+  reconnect: false
+  database: "{{DB_NAME}}"
+  socket: "{{DB_SOCK}}"
+  username: "{{DB_USER}}"
+  password: "{{DB_PASS}}"
+  pool: {{DB_POOL}}
