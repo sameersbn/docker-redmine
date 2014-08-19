@@ -9,7 +9,7 @@ RUN add-apt-repository -y ppa:brightbox/ruby-ng && \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
       libxslt1-dev libffi-dev libyaml-dev zlib1g-dev libzlib-ruby && \
     gem install --no-ri --no-rdoc bundler && \
-    apt-get clean # 20140519
+    apt-get clean && rm -rf /var/lib/apt/lists/* # 20140818
 
 ADD assets/setup/ /redmine/setup/
 RUN chmod 755 /redmine/setup/install
