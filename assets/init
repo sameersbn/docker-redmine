@@ -18,7 +18,7 @@ SMTP_USER=${SMTP_USER:-}
 SMTP_PASS=${SMTP_PASS:-}
 SMTP_STARTTLS=${SMTP_STARTTLS:-true}
 [ -n "${SMTP_USER}" ] && \
-	SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-:login}
+  SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-:login}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
@@ -29,13 +29,13 @@ UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
 # requires that the mysql or postgresql containers have exposed
 # port 3306 and 5432 respectively.
 if [ -n "${MYSQL_PORT_3306_TCP_ADDR}" ]; then
-	DB_TYPE=mysql
-	DB_HOST=${DB_HOST:-${MYSQL_PORT_3306_TCP_ADDR}}
-	DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
+  DB_TYPE=mysql
+  DB_HOST=${DB_HOST:-${MYSQL_PORT_3306_TCP_ADDR}}
+  DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
 elif [ -n "${POSTGRESQL_PORT_5432_TCP_ADDR}" ]; then
-	DB_TYPE=postgres
-	DB_HOST=${DB_HOST:-${POSTGRESQL_PORT_5432_TCP_ADDR}}
-	DB_PORT=${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}
+  DB_TYPE=postgres
+  DB_HOST=${DB_HOST:-${POSTGRESQL_PORT_5432_TCP_ADDR}}
+  DB_PORT=${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}
 fi
 
 # fallback to using the internal mysql server
@@ -44,9 +44,9 @@ DB_HOST=${DB_HOST:-localhost}
 
 # use default port number if it is still not set
 case "${DB_TYPE}" in
-	mysql) DB_PORT=${DB_PORT:-3306} ;;
-	postgres) DB_PORT=${DB_PORT:-5432} ;;
-	*) echo "Unsupported database adapter. Available adapters are mysql and postgres." && exit 1 ;;
+  mysql) DB_PORT=${DB_PORT:-3306} ;;
+  postgres) DB_PORT=${DB_PORT:-5432} ;;
+  *) echo "Unsupported database adapter. Available adapters are mysql and postgres." && exit 1 ;;
 esac
 
 # start supervisord
@@ -54,40 +54,40 @@ esac
 
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
-	if [ "${DB_TYPE}" == "postgres" ]; then
-		echo "DB_TYPE 'postgres' is not supported internally. Please provide DB_HOST."
-		exit 1
-	fi
+  if [ "${DB_TYPE}" == "postgres" ]; then
+    echo "DB_TYPE 'postgres' is not supported internally. Please provide DB_HOST."
+    exit 1
+  fi
 
-	# fix permissions and ownership of /var/lib/mysql
-	chown -R mysql:mysql /var/lib/mysql
-	chmod 700 /var/lib/mysql
+  # fix permissions and ownership of /var/lib/mysql
+  chown -R mysql:mysql /var/lib/mysql
+  chmod 700 /var/lib/mysql
 
-	# initialize MySQL data directory
-	if [ ! -d /var/lib/mysql/mysql ]; then
-		mysql_install_db --user=mysql
-	fi
+  # initialize MySQL data directory
+  if [ ! -d /var/lib/mysql/mysql ]; then
+    mysql_install_db --user=mysql
+  fi
 
-	echo "Starting mysql server..."
-	supervisorctl start mysqld >/dev/null
+  echo "Starting mysql server..."
+  supervisorctl start mysqld >/dev/null
 
-	# wait for mysql server to start (max 120 seconds)
-	timeout=120
-	while ! mysqladmin -uroot ${DB_PASS:+-p$DB_PASS} status >/dev/null 2>&1
-	do
-		timeout=$(expr $timeout - 1)
-		if [ $timeout -eq 0 ]; then
-			echo "Failed to start mysql server"
-			exit 1
-		fi
-		sleep 1
-	done
+  # wait for mysql server to start (max 120 seconds)
+  timeout=120
+  while ! mysqladmin -uroot ${DB_PASS:+-p$DB_PASS} status >/dev/null 2>&1
+  do
+    timeout=$(expr $timeout - 1)
+    if [ $timeout -eq 0 ]; then
+      echo "Failed to start mysql server"
+      exit 1
+    fi
+    sleep 1
+  done
 
-	if ! echo "USE ${DB_NAME}" | mysql -uroot ${DB_PASS:+-p$DB_PASS} >/dev/null 2>&1; then
-		DB_INIT="yes"
-		echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET \`utf8\` COLLATE \`utf8_unicode_ci\`;" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
-		echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON \`${DB_NAME}\`.* TO 'root'@'localhost';" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
-	fi
+  if ! echo "USE ${DB_NAME}" | mysql -uroot ${DB_PASS:+-p$DB_PASS} >/dev/null 2>&1; then
+    DB_INIT="yes"
+    echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET \`utf8\` COLLATE \`utf8_unicode_ci\`;" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
+    echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON \`${DB_NAME}\`.* TO 'root'@'localhost';" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
+  fi
 fi
 
 chmod 755 /redmine/files
@@ -102,28 +102,28 @@ sudo -u www-data -H cp setup/config/redmine/smtp_settings.rb config/initializers
 
 # override default configuration templates with user templates
 if [ -d /redmine/data/config ]; then
-	chown -R www-data /redmine/data/config
-	cd /redmine/data/config
-	[ -f nginx/redmine ]											&& cp nginx/redmine	/etc/nginx/sites-available/redmine
-	[ -f redmine/additional_environment.rb ]	&& sudo -u www-data -H cp redmine/additional_environment.rb	/redmine/config/additional_environment.rb
-	[ -f redmine/database.yml ]								&& sudo -u www-data -H cp redmine/database.yml 							/redmine/config/database.yml
-	[ -f redmine/unicorn.rb ]									&& sudo -u www-data -H cp redmine/unicorn.rb 								/redmine/config/unicorn.rb
-	[ -f redmine/smtp_settings.rb ]						&& sudo -u www-data -H cp redmine/smtp_settings.rb 					/redmine/config/initializers/smtp_settings.rb
+  chown -R www-data /redmine/data/config
+  cd /redmine/data/config
+  [ -f nginx/redmine ]                      && cp nginx/redmine /etc/nginx/sites-available/redmine
+  [ -f redmine/additional_environment.rb ]  && sudo -u www-data -H cp redmine/additional_environment.rb /redmine/config/additional_environment.rb
+  [ -f redmine/database.yml ]               && sudo -u www-data -H cp redmine/database.yml              /redmine/config/database.yml
+  [ -f redmine/unicorn.rb ]                 && sudo -u www-data -H cp redmine/unicorn.rb                /redmine/config/unicorn.rb
+  [ -f redmine/smtp_settings.rb ]           && sudo -u www-data -H cp redmine/smtp_settings.rb          /redmine/config/initializers/smtp_settings.rb
 fi
 
 cd /redmine
 
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
-	sudo -u www-data -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
-	sudo -u www-data -H sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
-	sudo -u www-data -H sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
+  sudo -u www-data -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
+  sudo -u www-data -H sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
+  sudo -u www-data -H sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
 elif [ "${DB_TYPE}" == "mysql" ]; then
-	sudo -u www-data -H sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
-	sudo -u www-data -H sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
-	sudo -u www-data -H sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
+  sudo -u www-data -H sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
+  sudo -u www-data -H sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
+  sudo -u www-data -H sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
 else
-	echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres]."
+  echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres]."
 fi
 
 sudo -u www-data -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
@@ -135,14 +135,14 @@ sudo -u www-data -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
 
 # start memcached and install config if ${MEMCACHED_SIZE} is not 0
 if [ "${MEMCACHED_SIZE}" != "0" ]; then
-	sed 's/{{MEMCACHED_SIZE}}/'"${MEMCACHED_SIZE}"'/' -i /etc/supervisor/conf.d/memcached.conf
-	supervisorctl update >/dev/null
+  sed 's/{{MEMCACHED_SIZE}}/'"${MEMCACHED_SIZE}"'/' -i /etc/supervisor/conf.d/memcached.conf
+  supervisorctl update >/dev/null
 
-	echo "Starting memcached..."
-	supervisorctl start memcached >/dev/null
-	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
+  echo "Starting memcached..."
+  supervisorctl start memcached >/dev/null
+  sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
 else
-	sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
+  sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
 # configure nginx
@@ -157,90 +157,90 @@ sudo -u www-data -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initialize
 sudo -u www-data -H sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
 
 case "${SMTP_USER}" in
-	"") sudo -u www-data -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
-	*) sudo -u www-data -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
+  "") sudo -u www-data -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
+  *) sudo -u www-data -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
 case "${SMTP_PASS}" in
-	"") sudo -u www-data -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
-	*) sudo -u www-data -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
+  "") sudo -u www-data -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
+  *) sudo -u www-data -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
 sudo -u www-data -H sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
 sudo -u www-data -H sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
 
 case "${SMTP_AUTHENTICATION}" in
-	"") sudo -u www-data -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
-	*) sudo -u www-data -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
+  "") sudo -u www-data -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
+  *) sudo -u www-data -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
 appDbMigrate () {
-	# isolate the plugins
-	echo "Migrating database..."
-	sudo -u www-data -H mv plugins plugins-1
-	sudo -u www-data -H bundle exec rake db:create RAILS_ENV=production >/dev/null
-	sudo -u www-data -H bundle exec rake db:migrate RAILS_ENV=production >/dev/null
+  # isolate the plugins
+  echo "Migrating database..."
+  sudo -u www-data -H mv plugins plugins-1
+  sudo -u www-data -H bundle exec rake db:create RAILS_ENV=production >/dev/null
+  sudo -u www-data -H bundle exec rake db:migrate RAILS_ENV=production >/dev/null
 
-	echo "Migrating plugins..."
-	sudo -u www-data -H mv plugins-1 plugins
-	sudo -u www-data -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production >/dev/null
-	sudo -u www-data -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
-	sudo -u www-data -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
+  echo "Migrating plugins..."
+  sudo -u www-data -H mv plugins-1 plugins
+  sudo -u www-data -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production >/dev/null
+  sudo -u www-data -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
+  sudo -u www-data -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
 }
 
 appStart () {
-	# migrate database if the redmine version has changed.
-	CURRENT_VERSION=
-	REDMINE_VERSION=$(cat VERSION)
-	[ -f /redmine/files/VERSION ] && CURRENT_VERSION=$(cat /redmine/files/VERSION)
-	if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
-		appDbMigrate
-		sudo -u www-data -H echo "${REDMINE_VERSION}" > /redmine/files/VERSION
-	fi
+  # migrate database if the redmine version has changed.
+  CURRENT_VERSION=
+  REDMINE_VERSION=$(cat VERSION)
+  [ -f /redmine/files/VERSION ] && CURRENT_VERSION=$(cat /redmine/files/VERSION)
+  if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
+    appDbMigrate
+    sudo -u www-data -H echo "${REDMINE_VERSION}" > /redmine/files/VERSION
+  fi
 
-	echo "Generating secure token..."
-	sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
+  echo "Generating secure token..."
+  sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
 
-	echo "Starting unicorn..."
-	supervisorctl start unicorn >/dev/null
+  echo "Starting unicorn..."
+  supervisorctl start unicorn >/dev/null
 
-	echo "Starting nginx..."
-	supervisorctl start nginx >/dev/null
+  echo "Starting nginx..."
+  supervisorctl start nginx >/dev/null
 
-	tail -F /var/log/nginx/redmine_access.log
+  tail -F /var/log/nginx/redmine_access.log
 }
 
 appHelp () {
-	echo "Available options:"
-	echo " app:start          - Starts the redmine server (default)"
-	echo " app:db:migrate     - Migrate the database."
-	echo " app:help           - Displays the help"
-	echo " [command]          - Execute the specified linux command eg. bash."
+  echo "Available options:"
+  echo " app:start          - Starts the redmine server (default)"
+  echo " app:db:migrate     - Migrate the database."
+  echo " app:help           - Displays the help"
+  echo " [command]          - Execute the specified linux command eg. bash."
 }
 
 case "$1" in
-	app:start)
-		appStart
-		;;
-	app:db:migrate)
-		appDbMigrate
-		;;
-	app:help)
-		appHelp
-		;;
-	*)
-		if [ -x $1 ]; then
-			$1
-		else
-			prog=$(which $1)
-			if [ -n "${prog}" ] ; then
-				shift 1
-				$prog $@
-			else
-				appHelp
-			fi
-		fi
-		;;
+  app:start)
+    appStart
+    ;;
+  app:db:migrate)
+    appDbMigrate
+    ;;
+  app:help)
+    appHelp
+    ;;
+  *)
+    if [ -x $1 ]; then
+      $1
+    else
+      prog=$(which $1)
+      if [ -n "${prog}" ] ; then
+        shift 1
+        $prog $@
+      else
+        appHelp
+      fi
+    fi
+    ;;
 esac
 
 exit 0
