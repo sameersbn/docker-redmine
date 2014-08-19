@@ -1,4 +1,4 @@
-FROM sameersbn/ubuntu:12.04.20140812
+FROM sameersbn/ubuntu:12.04.20140818
 MAINTAINER sameer@damagehead.com
 
 RUN add-apt-repository -y ppa:brightbox/ruby-ng && \
