@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added DB_SOCK config option for Unix-domain database connection
 - update to the sameersbn/ubuntu:12.04.20140812 baseimage
 - automatically migrate the database when the redmine version changes
 
