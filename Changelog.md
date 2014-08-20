@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added NGINX_CERT and NGINX_KEY configuration options to enable SSL
 - update to the sameersbn/ubuntu:12.04.20140812 baseimage
 - automatically migrate the database when the redmine version changes
 

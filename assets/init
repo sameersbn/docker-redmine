@@ -95,6 +95,7 @@ chown www-data:www-data /redmine/files
 
 cd /redmine
 cp setup/config/nginx/redmine /etc/nginx/sites-available/redmine
+cp setup/config/nginx/redmine-ssl /etc/nginx/sites-available/redmine-ssl
 sudo -u www-data -H cp setup/config/redmine/additional_environment.rb config/additional_environment.rb
 sudo -u www-data -H cp setup/config/redmine/database.yml config/database.yml
 sudo -u www-data -H cp setup/config/redmine/unicorn.rb config/unicorn.rb
@@ -105,6 +106,7 @@ if [ -d /redmine/data/config ]; then
   chown -R www-data /redmine/data/config
   cd /redmine/data/config
   [ -f nginx/redmine ]                      && cp nginx/redmine /etc/nginx/sites-available/redmine
+  [ -f nginx/redmine-ssl ]                      && cp nginx/redmine /etc/nginx/sites-available/redmine-ssl
   [ -f redmine/additional_environment.rb ]  && sudo -u www-data -H cp redmine/additional_environment.rb /redmine/config/additional_environment.rb
   [ -f redmine/database.yml ]               && sudo -u www-data -H cp redmine/database.yml              /redmine/config/database.yml
   [ -f redmine/unicorn.rb ]                 && sudo -u www-data -H cp redmine/unicorn.rb                /redmine/config/unicorn.rb
@@ -145,8 +147,21 @@ else
   sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
-# configure nginx
+# configure nginx max upload size
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine
+sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine-ssl
+
+# if certificate and key are specified, modify the default ssl config
+if [ -n "${NGINX_CERT}" -a -r "${NGINX_CERT}" -a -n "${NGINX_KEY}" -a -r "${NGINX_KEY}" ]; then
+  sed 's|{{NGINX_CERT}}|'"${NGINX_CERT}"'|' -i /etc/nginx/sites-available/redmine-ssl
+  sed 's|{{NGINX_KEY}}|'"${NGINX_KEY}"'|' -i /etc/nginx/sites-available/redmine-ssl
+fi
+
+# if ssl config has a certificate and key, enable it
+rm -f /etc/nginx/sites-enabled/redmine-ssl
+if ! grep -E '{NGINX_KEY|NGINX_CERT}' /etc/nginx/sites-available/redmine-ssl >/dev/null 2>&1; then
+  ln -s /etc/nginx/sites-available/redmine-ssl /etc/nginx/sites-enabled/redmine-ssl
+fi
 
 # configure unicorn
 sudo -u www-data -H sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
