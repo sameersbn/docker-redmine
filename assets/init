@@ -157,8 +157,8 @@ sudo -u www-data -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i confi
 # configure relative_url_root
 sudo -u root -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-available/redmine
 if [ ${REDMINE_RELATIVE_URL_ROOT} ]; then
-	sudo -u www-data -H cp -f setup/config/config.ru config.ru
-	sudo -u root -H sed "s,# ENV\['RAILS_RELATIVE_URL_ROOT'\] = \"{{REDMINE_RELATIVE_URL_ROOT}}\",ENV\['RAILS_RELATIVE_URL_ROOT'\] = \"${REDMINE_RELATIVE_URL_ROOT}\"," -i config/unicorn.rb
+  sudo -u www-data -H cp -f setup/config/config.ru config.ru
+  sudo -u root -H sed "s,# ENV\['RAILS_RELATIVE_URL_ROOT'\] = \"{{REDMINE_RELATIVE_URL_ROOT}}\",ENV\['RAILS_RELATIVE_URL_ROOT'\] = \"${REDMINE_RELATIVE_URL_ROOT}\"," -i config/unicorn.rb
 fi
 
 # configure mail delivery
