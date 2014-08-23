@@ -115,7 +115,7 @@ SELinux users are also required to change the security context of the mount poin
 
 ```bash
 mkdir -p /opt/redmine/mysql
-sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/files
+sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/mysql
 ```
 
 The updated run command looks like this.
