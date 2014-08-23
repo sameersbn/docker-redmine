@@ -18,7 +18,7 @@ server {
   access_log  /var/log/nginx/redmine_access.log;
   error_log   /var/log/nginx/redmine_error.log;
 
-  location {{REDMINE_RELATIVE_URL_ROOT}}/ {
+  location {{REDMINE_RELATIVE_URL_ROOT}} {
     root /redmine/public;
     # serve static files from defined root folder;.
     # @redmine is a named location for the upstream fallback, see below
