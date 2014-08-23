@@ -3,6 +3,10 @@ set -e
 
 REDMINE_VERSION=2.5.2
 
+# add redmine user
+adduser --disabled-login --gecos 'Redmine' redmine
+passwd -d redmine
+
 mkdir -p /redmine
 cd /redmine
 
