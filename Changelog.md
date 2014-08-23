@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added REDMINE_RELATIVE_URL_ROOT configuration option (thanks to @k-kagurazaka)
 - update to the sameersbn/ubuntu:12.04.20140812 baseimage
 - automatically migrate the database when the redmine version changes
 
