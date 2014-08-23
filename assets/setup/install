@@ -14,8 +14,8 @@ mkdir -p /redmine
 cd /redmine
 
 # install redmine, use local copy if available
-if [ -f /redmine/setup/redmine-${REDMINE_VERSION}.tar.gz ]; then
-  tar -zvxf /redmine/setup/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C /redmine
+if [ -f /app/setup/redmine-${REDMINE_VERSION}.tar.gz ]; then
+  tar -zvxf /app/setup/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C /redmine
 else
   wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
 fi
@@ -37,8 +37,8 @@ echo 'gem "fastercsv", "~> 1.5.0"' >> Gemfile
 echo 'gem "yard"' >> Gemfile
 
 # install gems, use cache if available
-if [ -d "/redmine/setup/cache" ]; then
-  mv /redmine/setup/cache vendor/
+if [ -d "/app/setup/cache" ]; then
+  mv /app/setup/cache vendor/
 fi
 bundle install --without development tests
 
@@ -46,10 +46,10 @@ bundle install --without development tests
 cp config/database.yml.example config/database.yml
 
 # install themes
-. /redmine/setup/themes/install
+. /app/setup/themes/install
 
 # install plugins
-. /redmine/setup/plugins/install
+. /app/setup/plugins/install
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/

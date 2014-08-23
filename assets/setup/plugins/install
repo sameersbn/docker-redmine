@@ -8,8 +8,8 @@ set -e
 # redmine tweaks plugin
 # wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O redmine_tweaks.tar.gz
 mkdir -p /redmine/plugins/redmine_tweaks
-if [ -f /redmine/setup/plugins/redmine_tweaks.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_tweaks.tar.gz --strip=1 -C /redmine/plugins/redmine_tweaks || exit 1
+if [ -f /app/setup/plugins/redmine_tweaks.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_tweaks.tar.gz --strip=1 -C /redmine/plugins/redmine_tweaks || exit 1
 else
   wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tweaks
 fi
@@ -17,8 +17,8 @@ fi
 # line numbers plugin
 # wget https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O line_numbers.tar.gz
 mkdir -p /redmine/plugins/line_numbers
-if [ -f /redmine/setup/plugins/line_numbers.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/line_numbers.tar.gz --strip=1 -C /redmine/plugins/line_numbers || exit 1
+if [ -f /app/setup/plugins/line_numbers.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/line_numbers.tar.gz --strip=1 -C /redmine/plugins/line_numbers || exit 1
 else
   wget https://github.com/cdwertmann/line_numbers/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/line_numbers
 fi
@@ -27,8 +27,8 @@ fi
 # wget https://github.com/abahgat/redmine_didyoumean/archive/${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz -O redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz
 REDMINE_DID_YOU_MEAN_VERSION=1.2.0
 mkdir -p /redmine/plugins/redmine_didyoumean
-if [ -f /redmine/setup/plugins/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_didyoumean || exit 1
+if [ -f /app/setup/plugins/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_didyoumean-${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_didyoumean || exit 1
 else
   wget https://github.com/abahgat/redmine_didyoumean/archive/${REDMINE_DID_YOU_MEAN_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_didyoumean
 fi
@@ -36,8 +36,8 @@ fi
 # redmine embed video plugin
 # wget https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O redmine_embedded_video.tar.gz
 mkdir -p /redmine/plugins/redmine_embedded_video
-if [ -f /redmine/setup/plugins/redmine_embedded_video.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_embedded_video.tar.gz --strip=1 -C /redmine/plugins/redmine_embedded_video || exit 1
+if [ -f /app/setup/plugins/redmine_embedded_video.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_embedded_video.tar.gz --strip=1 -C /redmine/plugins/redmine_embedded_video || exit 1
 else
   wget https://github.com/cforce/redmine_embedded_video/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_embedded_video
 fi
@@ -45,8 +45,8 @@ fi
 # redmine gist plugin
 # wget https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O redmine_gist.tar.gz
 mkdir -p /redmine/plugins/redmine_gist
-if [ -f /redmine/setup/plugins/redmine_gist.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_gist.tar.gz --strip=1 -C /redmine/plugins/redmine_gist || exit 1
+if [ -f /app/setup/plugins/redmine_gist.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_gist.tar.gz --strip=1 -C /redmine/plugins/redmine_gist || exit 1
 else
   wget https://github.com/dergachev/redmine_gist/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_gist
 fi
@@ -55,8 +55,8 @@ fi
 # wget https://github.com/ixti/redmine_tags/archive/${REDMINE_TAGS_VERSION}.tar.gz -O redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz
 REDMINE_TAGS_VERSION=2.1.0
 mkdir -p /redmine/plugins/redmine_tags
-if [ -f /redmine/setup/plugins/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_tags || exit 1
+if [ -f /app/setup/plugins/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_tags-${REDMINE_TAGS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_tags || exit 1
 else
   wget https://github.com/ixti/redmine_tags/archive/${REDMINE_TAGS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tags
 fi
@@ -64,8 +64,8 @@ fi
 # issuefy plugin
 # wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O issuefy.tar.gz
 mkdir -p /redmine/plugins/issuefy
-if [ -f /redmine/setup/plugins/issuefy.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/issuefy.tar.gz --strip=1 -C /redmine/plugins/issuefy || exit 1
+if [ -f /app/setup/plugins/issuefy.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/issuefy.tar.gz --strip=1 -C /redmine/plugins/issuefy || exit 1
 else
   wget https://github.com/tchx84/issuefy/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/issuefy
 fi
@@ -74,8 +74,8 @@ echo 'gem "spreadsheet", "0.8.5"' >> /redmine/plugins/issuefy/Gemfile
 # open flash charts plugin
 # wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O open_flash_chart.tar.gz
 mkdir -p /redmine/plugins/open_flash_chart
-if [ -f /redmine/setup/plugins/open_flash_chart.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/open_flash_chart.tar.gz --strip=1 -C /redmine/plugins/open_flash_chart || exit 1
+if [ -f /app/setup/plugins/open_flash_chart.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/open_flash_chart.tar.gz --strip=1 -C /redmine/plugins/open_flash_chart || exit 1
 else
   wget https://github.com/pullmonkey/open_flash_chart/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/open_flash_chart
 fi
@@ -86,8 +86,8 @@ cp -r /redmine/plugins/open_flash_chart/assets/* /redmine/public/plugin_assets/o
 # redmine charts2 plugin
 # wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O redmine_charts21.tar.gz
 mkdir -p /redmine/plugins/redmine_charts2
-if [ -f /redmine/setup/plugins/redmine_charts21.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_charts21.tar.gz --strip=1 -C /redmine/plugins/redmine_charts2 || exit 1
+if [ -f /app/setup/plugins/redmine_charts21.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_charts21.tar.gz --strip=1 -C /redmine/plugins/redmine_charts2 || exit 1
 else
   wget https://github.com/pharmazone/redmine_charts2/archive/redmine21.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_charts2
 fi
@@ -96,8 +96,8 @@ fi
 # wget https://github.com/buoyant/redmine_announcements/archive/v${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz -O redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz
 REDMINE_ANNOUNCEMENTS_VERSION=1.3
 mkdir -p /redmine/plugins/redmine_announcements
-if [ -f /redmine/setup/plugins/redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_announcements || exit 1
+if [ -f /app/setup/plugins/redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_announcements-${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_announcements || exit 1
 else
   wget https://github.com/buoyant/redmine_announcements/archive/v${REDMINE_ANNOUNCEMENTS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_announcements
 fi
@@ -106,8 +106,8 @@ fi
 # wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.${REDMINE_RECURRING_TASKS_VERSION}.tar.gz -O recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz
 REDMINE_RECURRING_TASKS_VERSION=1.3.0
 mkdir -p /redmine/plugins/recurring_tasks
-if [ -f /redmine/setup/plugins/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks || exit 1
+if [ -f /app/setup/plugins/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/recurring_tasks-${REDMINE_RECURRING_TASKS_VERSION}.tar.gz --strip=1 -C /redmine/plugins/recurring_tasks || exit 1
 else
   wget https://github.com/nutso/redmine-plugin-recurring-tasks/archive/v.${REDMINE_RECURRING_TASKS_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/recurring_tasks
 fi
@@ -116,8 +116,8 @@ fi
 # wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz
 REDMINE_DASHBOARD_VERSION=2.2.1
 mkdir -p /redmine/plugins/redmine_dashboard
-if [ -f /redmine/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz ]; then
-  tar -zvxf /redmine/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_dashboard || exit 1
+if [ -f /app/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz ]; then
+  tar -zvxf /app/setup/plugins/redmine_dashboard-${REDMINE_DASHBOARD_VERSION}.tar.gz --strip=1 -C /redmine/plugins/redmine_dashboard || exit 1
 else
   wget https://github.com/jgraichen/redmine_dashboard/archive/v${REDMINE_DASHBOARD_VERSION}.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_dashboard
 fi
@@ -131,8 +131,8 @@ echo 'gem "guard-rspec"' >> /redmine/plugins/redmine_dashboard/Gemfile
 # issue checklist plugin
 # http://redminecrm.com/projects/checklist/pages/1
 REDMINE_ISSUE_CHECKLIST_VERSION=2_0_5
-if [ -f /redmine/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip ]; then
-  unzip /redmine/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -d /redmine/plugins/
+if [ -f /app/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip ]; then
+  unzip /app/setup/plugins/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -d /redmine/plugins/
 else
   wget http://redminecrm.com/license_manager/4200/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -P /tmp/
   unzip /tmp/redmine_issue_checklist-${REDMINE_ISSUE_CHECKLIST_VERSION}.zip -d /redmine/plugins/
@@ -142,8 +142,8 @@ fi
 # redmine people plugin
 # http://redminecrm.com/projects/people/pages/1
 REDMINE_PEOPLE_VERSION=0_1_8
-if [ -f /redmine/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip ]; then
-  unzip /redmine/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
+if [ -f /app/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip ]; then
+  unzip /app/setup/plugins/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
 else
   wget http://redminecrm.com/license_manager/11368/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -P /tmp/
   unzip /tmp/redmine_people-${REDMINE_PEOPLE_VERSION}.zip -d /redmine/plugins/
@@ -153,8 +153,8 @@ fi
 # redmine code review plugin
 # wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -O redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip
 REDMINE_CODE_REVIEW_VERSION=0.6.3
-if [ -f /redmine/setup/plugins/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip ]; then
-  unzip /redmine/setup/plugins/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -d /redmine/plugins/
+if [ -f /app/setup/plugins/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip ]; then
+  unzip /app/setup/plugins/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -d /redmine/plugins/
 else
   wget https://bitbucket.org/haru_iida/redmine_code_review/downloads/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -P /tmp/
   unzip /tmp/redmine_code_review-${REDMINE_CODE_REVIEW_VERSION}.zip -d /redmine/plugins/
@@ -164,8 +164,8 @@ fi
 # redmine agile plugin
 # http://redminecrm.com/projects/agile/pages/1
 REDMINE_AGILE_VERSION=1_3_2
-if [ -f /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip ]; then
-  unzip /redmine/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
+if [ -f /app/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip ]; then
+  unzip /app/setup/plugins/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
 else
   wget http://redminecrm.com/license_manager/13082/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -P /tmp/
   unzip /tmp/redmine_agile-${REDMINE_AGILE_VERSION}-light.zip -d /redmine/plugins/
@@ -175,8 +175,8 @@ fi
 # redmine contacts plugin
 # http://redminecrm.com/projects/crm/pages/1
 REDMINE_CONTACTS_VERSION=3.2.17
-if [ -f /redmine/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip ]; then
-  unzip /redmine/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/
+if [ -f /app/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip ]; then
+  unzip /app/setup/plugins/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/
 else
   wget http://redminecrm.com/license_manager/12403/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -P /tmp/
   unzip /tmp/redmine_contacts-${REDMINE_CONTACTS_VERSION}-light.zip -d /redmine/plugins/

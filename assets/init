@@ -95,12 +95,11 @@ fi
 chmod 755 /redmine/files
 chown www-data:www-data /redmine/files
 
-cd /redmine
-cp setup/config/nginx/redmine /etc/nginx/sites-available/redmine
-sudo -u www-data -H cp setup/config/redmine/additional_environment.rb config/additional_environment.rb
-sudo -u www-data -H cp setup/config/redmine/database.yml config/database.yml
-sudo -u www-data -H cp setup/config/redmine/unicorn.rb config/unicorn.rb
-sudo -u www-data -H cp setup/config/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
+cp /app/setup/config/nginx/redmine /etc/nginx/sites-available/redmine
+sudo -u www-data -H cp /app/setup/config/redmine/additional_environment.rb /redmine/config/additional_environment.rb
+sudo -u www-data -H cp /app/setup/config/redmine/database.yml /redmine/config/database.yml
+sudo -u www-data -H cp /app/setup/config/redmine/unicorn.rb /redmine/config/unicorn.rb
+sudo -u www-data -H cp /app/setup/config/redmine/smtp_settings.rb /redmine/config/initializers/smtp_settings.rb
 
 # override default configuration templates with user templates
 if [ -d /redmine/data/config ]; then
@@ -156,7 +155,7 @@ sudo -u www-data -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i confi
 
 # configure relative_url_root
 if [ -n "${REDMINE_RELATIVE_URL_ROOT}" ]; then
-  sudo -u www-data -H cp -f setup/config/config.ru config.ru
+  sudo -u www-data -H cp -f /app/setup/config/config.ru config.ru
   sudo -u www-data -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
   sed 's,#alias /redmine/public,alias /redmine/public,' -i /etc/nginx/sites-available/redmine
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-available/redmine
