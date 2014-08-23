@@ -9,7 +9,7 @@
 # documentation.
 
 # Uncomment and customize the last line to run in a non-root path
-# ENV['RAILS_RELATIVE_URL_ROOT'] = "{{REDMINE_RELATIVE_URL_ROOT}}"
+ENV['RAILS_RELATIVE_URL_ROOT'] = "{{REDMINE_RELATIVE_URL_ROOT}}"
 
 # Use at least one worker per core if you're on a dedicated server,
 # more will usually help for _short_ waits on databases/caches.
