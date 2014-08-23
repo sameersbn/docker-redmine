@@ -2,13 +2,13 @@
 # Maintainer: @sameersbn
 
 upstream redmine {
-  server unix:/redmine/tmp/sockets/redmine.socket fail_timeout=0;
+  server unix:/home/redmine/redmine/tmp/sockets/redmine.socket fail_timeout=0;
 }
 
 server {
   listen *:80 default_server;
   server_tokens off;
-  root /redmine/public;
+  root /home/redmine/redmine/public;
 
   # Increase this if you want to upload large attachments
   # Or if you want to accept large git objects over http
@@ -19,7 +19,7 @@ server {
   error_log   /var/log/nginx/redmine_error.log;
 
   location {{REDMINE_RELATIVE_URL_ROOT}} {
-    #alias /redmine/public;
+    #alias /home/redmine/redmine/public;
     # serve static files from defined root folder;.
     # @redmine is a named location for the upstream fallback, see below
     try_files $uri $uri/index.html $uri.html @redmine;

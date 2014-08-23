@@ -93,46 +93,49 @@ if [ "${DB_HOST}" == "localhost" ]; then
 fi
 
 chmod 755 /redmine/files
-chown www-data:www-data /redmine/files
+chown redmine:redmine /redmine/files
 
 cp /app/setup/config/nginx/redmine /etc/nginx/sites-available/redmine
-sudo -u www-data -H cp /app/setup/config/redmine/additional_environment.rb /redmine/config/additional_environment.rb
-sudo -u www-data -H cp /app/setup/config/redmine/database.yml /redmine/config/database.yml
-sudo -u www-data -H cp /app/setup/config/redmine/unicorn.rb /redmine/config/unicorn.rb
-sudo -u www-data -H cp /app/setup/config/redmine/smtp_settings.rb /redmine/config/initializers/smtp_settings.rb
+sudo -u redmine -H cp /app/setup/config/redmine/additional_environment.rb /home/redmine/redmine/config/additional_environment.rb
+sudo -u redmine -H cp /app/setup/config/redmine/database.yml /home/redmine/redmine/config/database.yml
+sudo -u redmine -H cp /app/setup/config/redmine/unicorn.rb /home/redmine/redmine/config/unicorn.rb
+sudo -u redmine -H cp /app/setup/config/redmine/smtp_settings.rb /home/redmine/redmine/config/initializers/smtp_settings.rb
 
 # override default configuration templates with user templates
 if [ -d /redmine/data/config ]; then
-  chown -R www-data /redmine/data/config
+  chown -R redmine /redmine/data/config
   cd /redmine/data/config
   [ -f nginx/redmine ]                      && cp nginx/redmine /etc/nginx/sites-available/redmine
-  [ -f redmine/additional_environment.rb ]  && sudo -u www-data -H cp redmine/additional_environment.rb /redmine/config/additional_environment.rb
-  [ -f redmine/database.yml ]               && sudo -u www-data -H cp redmine/database.yml              /redmine/config/database.yml
-  [ -f redmine/unicorn.rb ]                 && sudo -u www-data -H cp redmine/unicorn.rb                /redmine/config/unicorn.rb
-  [ -f redmine/smtp_settings.rb ]           && sudo -u www-data -H cp redmine/smtp_settings.rb          /redmine/config/initializers/smtp_settings.rb
+  [ -f redmine/additional_environment.rb ]  && sudo -u redmine -H cp redmine/additional_environment.rb /home/redmine/redmine/config/additional_environment.rb
+  [ -f redmine/database.yml ]               && sudo -u redmine -H cp redmine/database.yml              /home/redmine/redmine/config/database.yml
+  [ -f redmine/unicorn.rb ]                 && sudo -u redmine -H cp redmine/unicorn.rb                /home/redmine/redmine/config/unicorn.rb
+  [ -f redmine/smtp_settings.rb ]           && sudo -u redmine -H cp redmine/smtp_settings.rb          /home/redmine/redmine/config/initializers/smtp_settings.rb
 fi
 
-cd /redmine
+cd /home/redmine/redmine
+
+# symlink file store
+rm -rf files && ln -sf /redmine/files
 
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
-  sudo -u www-data -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
-  sudo -u www-data -H sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
-  sudo -u www-data -H sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
+  sudo -u redmine -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
+  sudo -u redmine -H sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
+  sudo -u redmine -H sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
 elif [ "${DB_TYPE}" == "mysql" ]; then
-  sudo -u www-data -H sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
-  sudo -u www-data -H sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
-  sudo -u www-data -H sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
+  sudo -u redmine -H sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
+  sudo -u redmine -H sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
+  sudo -u redmine -H sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
 else
   echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres]."
 fi
 
-sudo -u www-data -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i config/database.yml
-sudo -u www-data -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
+sudo -u redmine -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
+sudo -u redmine -H sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
+sudo -u redmine -H sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml
+sudo -u redmine -H sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i config/database.yml
+sudo -u redmine -H sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i config/database.yml
+sudo -u redmine -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
 
 # start memcached and install config if ${MEMCACHED_SIZE} is not 0
 if [ "${MEMCACHED_SIZE}" != "0" ]; then
@@ -141,63 +144,63 @@ if [ "${MEMCACHED_SIZE}" != "0" ]; then
 
   echo "Starting memcached..."
   supervisorctl start memcached >/dev/null
-  sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
+  sudo -u redmine -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
 else
-  sudo -u www-data -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
+  sudo -u redmine -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
 # configure nginx
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine
 
 # configure unicorn
-sudo -u www-data -H sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
-sudo -u www-data -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
+sudo -u redmine -H sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
+sudo -u redmine -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
 
 # configure relative_url_root
 if [ -n "${REDMINE_RELATIVE_URL_ROOT}" ]; then
-  sudo -u www-data -H cp -f /app/setup/config/config.ru config.ru
-  sudo -u www-data -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
-  sed 's,#alias /redmine/public,alias /redmine/public,' -i /etc/nginx/sites-available/redmine
+  sudo -u redmine -H cp -f /app/setup/config/config.ru config.ru
+  sudo -u redmine -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
+  sed 's,#alias /home/redmine/redmine/public,alias /home/redmine/redmine/public,' -i /etc/nginx/sites-available/redmine
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-available/redmine
 else
-  sudo -u www-data -H sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
+  sudo -u redmine -H sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-available/redmine
 fi
 
 # configure mail delivery
-sudo -u www-data -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
-sudo -u www-data -H sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
+sudo -u redmine -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
+sudo -u redmine -H sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
 
 case "${SMTP_USER}" in
-  "") sudo -u www-data -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
-  *) sudo -u www-data -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
+  "") sudo -u redmine -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
+  *) sudo -u redmine -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
 case "${SMTP_PASS}" in
-  "") sudo -u www-data -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
-  *) sudo -u www-data -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
+  "") sudo -u redmine -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
+  *) sudo -u redmine -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
-sudo -u www-data -H sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
-sudo -u www-data -H sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
+sudo -u redmine -H sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
+sudo -u redmine -H sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
 
 case "${SMTP_AUTHENTICATION}" in
-  "") sudo -u www-data -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
-  *) sudo -u www-data -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
+  "") sudo -u redmine -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
+  *) sudo -u redmine -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
 appDbMigrate () {
   # isolate the plugins
   echo "Migrating database..."
-  sudo -u www-data -H mv plugins plugins-1
-  sudo -u www-data -H bundle exec rake db:create RAILS_ENV=production >/dev/null
-  sudo -u www-data -H bundle exec rake db:migrate RAILS_ENV=production >/dev/null
+  sudo -u redmine -H mv plugins plugins-1
+  sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production >/dev/null
+  sudo -u redmine -H bundle exec rake db:migrate RAILS_ENV=production >/dev/null
 
   echo "Migrating plugins..."
-  sudo -u www-data -H mv plugins-1 plugins
-  sudo -u www-data -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production >/dev/null
-  sudo -u www-data -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
-  sudo -u www-data -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
+  sudo -u redmine -H mv plugins-1 plugins
+  sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production >/dev/null
+  sudo -u redmine -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
+  sudo -u redmine -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
 }
 
 appStart () {
@@ -207,11 +210,11 @@ appStart () {
   [ -f /redmine/files/VERSION ] && CURRENT_VERSION=$(cat /redmine/files/VERSION)
   if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
     appDbMigrate
-    sudo -u www-data -H echo "${REDMINE_VERSION}" > /redmine/files/VERSION
+    sudo -u redmine -H echo "${REDMINE_VERSION}" > /redmine/files/VERSION
   fi
 
   echo "Generating secure token..."
-  sudo -u www-data -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
+  sudo -u redmine -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
 
   echo "Starting unicorn..."
   supervisorctl start unicorn >/dev/null

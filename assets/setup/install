@@ -10,18 +10,18 @@ passwd -d redmine
 # create the data store
 sudo -u redmine -H mkdir -p /home/redmine/data
 
-mkdir -p /redmine
-cd /redmine
-
 # install redmine, use local copy if available
+mkdir -p /home/redmine/redmine
 if [ -f /app/setup/redmine-${REDMINE_VERSION}.tar.gz ]; then
-  tar -zvxf /app/setup/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C /redmine
+  tar -zvxf /app/setup/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C /home/redmine/redmine
 else
-  wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /redmine
+  wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /home/redmine/redmine
 fi
 
+cd /home/redmine/redmine
+
 # create version file
-echo "${REDMINE_VERSION}" > /redmine/VERSION
+echo "${REDMINE_VERSION}" > /home/redmine/redmine/VERSION
 
 # add support for mysql and postgresql databases
 echo 'gem "mysql2", "~> 0.3.11"' >> Gemfile
@@ -40,7 +40,7 @@ echo 'gem "yard"' >> Gemfile
 if [ -d "/app/setup/cache" ]; then
   mv /app/setup/cache vendor/
 fi
-bundle install --without development tests
+bundle install --local --without development tests
 
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
@@ -54,7 +54,7 @@ cp config/database.yml.example config/database.yml
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
 chmod -R u+rwX files log tmp
-chown -R www-data:www-data /redmine
+chown -R redmine:redmine /home/redmine/redmine
 
 # disable default nginx configuration and enable redmine nginx configuration
 rm -f /etc/nginx/sites-enabled/default
@@ -62,7 +62,7 @@ ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine
 
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
-/redmine/log/*.log {
+/home/redmine/redmine/log/*.log {
     weekly
     missingok
     rotate 52
@@ -91,8 +91,8 @@ EOF
 cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
 [program:unicorn]
 priority=20
-directory=/redmine
-command=bundle exec unicorn_rails -E production -c /redmine/config/unicorn.rb
+directory=/home/redmine/redmine
+command=bundle exec unicorn_rails -E production -c /home/redmine/redmine/config/unicorn.rb
 user=root
 autostart=false
 autorestart=true
@@ -118,7 +118,7 @@ cat > /etc/supervisor/conf.d/memcached.conf <<EOF
 priority=20
 directory=/tmp
 command=/usr/bin/memcached -m {{MEMCACHED_SIZE}}
-user=www-data
+user=redmine
 autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log

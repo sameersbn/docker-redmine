@@ -20,28 +20,28 @@ worker_processes {{UNICORN_WORKERS}}
 # as root unless it's from system init scripts.
 # If running the master process as root and the workers as an unprivileged
 # user, do this to switch euid/egid in the workers (also chowns logs):
-user "www-data", "www-data"
+user "redmine", "redmine"
 
 # Help ensure your application will always spawn in the symlinked
 # "current" directory that Capistrano sets up.
-working_directory "/redmine" # available in 0.94.0+
+working_directory "/home/redmine/redmine" # available in 0.94.0+
 
 # listen on both a Unix domain socket and a TCP port,
 # we use a shorter backlog for quicker failover when busy
-listen "/redmine/tmp/sockets/redmine.socket", :backlog => 64
+listen "/home/redmine/redmine/tmp/sockets/redmine.socket", :backlog => 64
 listen "127.0.0.1:8080", :tcp_nopush => true
 
 # nuke workers after 30 seconds instead of 60 seconds (the default)
 timeout {{UNICORN_TIMEOUT}}
 
 # feel free to point this anywhere accessible on the filesystem
-pid "/redmine/tmp/pids/unicorn.pid"
+pid "/home/redmine/redmine/tmp/pids/unicorn.pid"
 
 # By default, the Unicorn logger will write to stderr.
 # Additionally, some applications/frameworks log to stderr or stdout,
 # so prevent them from going to /dev/null when daemonized here:
-stderr_path "/redmine/log/unicorn.stderr.log"
-stdout_path "/redmine/log/unicorn.stdout.log"
+stderr_path "/home/redmine/redmine/log/unicorn.stderr.log"
+stdout_path "/home/redmine/redmine/log/unicorn.stdout.log"
 
 # combine Ruby 2.0.0dev or REE with "preload_app true" for memory savings
 # http://rubyenterpriseedition.com/faq.html#adapt_apps_for_cow
@@ -97,7 +97,7 @@ after_fork do |server, worker|
   defined?(ActiveRecord::Base) and
     ActiveRecord::Base.establish_connection
 
-	worker.user('www-data', 'www-data') if Process.euid == 0
+	worker.user('redmine', 'redmine') if Process.euid == 0
 
   # if preload_app is true, then you may also want to check and
   # restart any other shared sockets/descriptors such as Memcached,
