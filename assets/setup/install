@@ -7,6 +7,9 @@ REDMINE_VERSION=2.5.2
 adduser --disabled-login --gecos 'Redmine' redmine
 passwd -d redmine
 
+# create the data store
+sudo -u redmine -H mkdir -p /home/redmine/data
+
 mkdir -p /redmine
 cd /redmine
 
