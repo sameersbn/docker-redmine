@@ -21,7 +21,7 @@ RUN chmod 755 /app/init
 
 EXPOSE 80
 
-VOLUME ["/redmine/files"]
+VOLUME ["/redmine/redmine/data"]
 ENTRYPOINT ["/app/init"]
 
 CMD ["app:start"]

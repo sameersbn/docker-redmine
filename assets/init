@@ -54,6 +54,14 @@ esac
 # start supervisord
 /usr/bin/supervisord
 
+# fix permission and ownership of /home/redmine/data
+chmod 755 /home/redmine/data
+chown redmine:redmine /home/redmine/data
+
+# set executable flags on /home/redmine/data (needed if mounted from a data-only
+# container using --volumes-from)
+chmod +x /home/redmine/data
+
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
   if [ "${DB_TYPE}" == "postgres" ]; then
@@ -92,9 +100,6 @@ if [ "${DB_HOST}" == "localhost" ]; then
   fi
 fi
 
-chmod 755 /redmine/files
-chown redmine:redmine /redmine/files
-
 cp /app/setup/config/nginx/redmine /etc/nginx/sites-available/redmine
 sudo -u redmine -H cp /app/setup/config/redmine/additional_environment.rb /home/redmine/redmine/config/additional_environment.rb
 sudo -u redmine -H cp /app/setup/config/redmine/database.yml /home/redmine/redmine/config/database.yml
@@ -102,20 +107,17 @@ sudo -u redmine -H cp /app/setup/config/redmine/unicorn.rb /home/redmine/redmine
 sudo -u redmine -H cp /app/setup/config/redmine/smtp_settings.rb /home/redmine/redmine/config/initializers/smtp_settings.rb
 
 # override default configuration templates with user templates
-if [ -d /redmine/data/config ]; then
-  chown -R redmine /redmine/data/config
-  cd /redmine/data/config
+if [ -d /home/redmine/data/config ]; then
+  chown -R redmine /home/redmine/data/config
+  cd /home/redmine/data/config
   [ -f nginx/redmine ]                      && cp nginx/redmine /etc/nginx/sites-available/redmine
   [ -f redmine/additional_environment.rb ]  && sudo -u redmine -H cp redmine/additional_environment.rb /home/redmine/redmine/config/additional_environment.rb
-  [ -f redmine/database.yml ]               && sudo -u redmine -H cp redmine/database.yml              /home/redmine/redmine/config/database.yml
-  [ -f redmine/unicorn.rb ]                 && sudo -u redmine -H cp redmine/unicorn.rb                /home/redmine/redmine/config/unicorn.rb
-  [ -f redmine/smtp_settings.rb ]           && sudo -u redmine -H cp redmine/smtp_settings.rb          /home/redmine/redmine/config/initializers/smtp_settings.rb
+  [ -f redmine/database.yml ]               && sudo -u redmine -H cp redmine/database.yml /home/redmine/redmine/config/database.yml
+  [ -f redmine/unicorn.rb ]                 && sudo -u redmine -H cp redmine/unicorn.rb  /home/redmine/redmine/config/unicorn.rb
+  [ -f redmine/smtp_settings.rb ]           && sudo -u redmine -H cp redmine/smtp_settings.rb /home/redmine/redmine/config/initializers/smtp_settings.rb
 fi
 
 cd /home/redmine/redmine
-
-# symlink file store
-rm -rf files && ln -sf /redmine/files
 
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
@@ -189,6 +191,26 @@ case "${SMTP_AUTHENTICATION}" in
   *) sudo -u redmine -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
 esac
 
+# create file uploads directory
+mkdir -p /home/redmine/data/files
+chmod 755 /home/redmine/data/files
+chown redmine:redmine /home/redmine/data/files
+
+# symlink file store
+rm -rf files
+if [ -d /redmine/files ]; then
+  # for backward compatibility, user should mount the volume at /home/redmine/data
+  echo "WARNING: "
+  echo "  The data volume path has now been changed to /home/redmine/data/files."
+  echo "  Refer http://git.io/H59-lg for migration information."
+  echo "  Setting up backward compatibility..."
+  chmod 755 /redmine/files
+  chown redmine:redmine /redmine/files
+  ln -sf /redmine/files
+else
+  ln -sf /home/redmine/data/files
+fi
+
 appDbMigrate () {
   # isolate the plugins
   echo "Migrating database..."
@@ -207,10 +229,10 @@ appStart () {
   # migrate database if the redmine version has changed.
   CURRENT_VERSION=
   REDMINE_VERSION=$(cat VERSION)
-  [ -f /redmine/files/VERSION ] && CURRENT_VERSION=$(cat /redmine/files/VERSION)
+  [ -f /home/redmine/data/VERSION ] && CURRENT_VERSION=$(cat /home/redmine/data/VERSION)
   if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
     appDbMigrate
-    sudo -u redmine -H echo "${REDMINE_VERSION}" > /redmine/files/VERSION
+    echo "${REDMINE_VERSION}" > /home/redmine/data/VERSION
   fi
 
   echo "Generating secure token..."
