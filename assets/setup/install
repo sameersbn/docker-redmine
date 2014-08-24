@@ -48,7 +48,7 @@ echo 'gem "yard"' >> Gemfile
 if [ -d "${GEM_CACHE_DIR}" ]; then
   mv ${GEM_CACHE_DIR} vendor/
 fi
-bundle install --local --without development tests
+bundle install --without development tests
 
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
