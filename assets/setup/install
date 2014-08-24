@@ -2,6 +2,14 @@
 set -e
 
 REDMINE_VERSION=2.5.2
+INSTALL_DIR="/home/redmine/redmine"
+PLUGINS_INSTALL_DIR="${INSTALL_DIR}/plugins"
+THEMES_INSTALL_DIR="${INSTALL_DIR}/public/themes"
+
+SETUP_DIR="/app/setup"
+THEMES_SETUP_DIR="${SETUP_DIR}/themes"
+PLUGINS_SETUP_DIR="${SETUP_DIR}/plugins"
+GEM_CACHE_DIR="${SETUP_DIR}/cache"
 
 # add redmine user
 adduser --disabled-login --gecos 'Redmine' redmine
@@ -11,17 +19,17 @@ passwd -d redmine
 sudo -u redmine -H mkdir -p /home/redmine/data
 
 # install redmine, use local copy if available
-mkdir -p /home/redmine/redmine
-if [ -f /app/setup/redmine-${REDMINE_VERSION}.tar.gz ]; then
-  tar -zvxf /app/setup/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C /home/redmine/redmine
+mkdir -p ${INSTALL_DIR}
+if [ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]; then
+  tar -zvxf ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${INSTALL_DIR}
 else
-  wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C /home/redmine/redmine
+  wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${INSTALL_DIR}
 fi
 
-cd /home/redmine/redmine
+cd ${INSTALL_DIR}
 
 # create version file
-echo "${REDMINE_VERSION}" > /home/redmine/redmine/VERSION
+echo "${REDMINE_VERSION}" > ${INSTALL_DIR}/VERSION
 
 # add support for mysql and postgresql databases
 echo 'gem "mysql2", "~> 0.3.11"' >> Gemfile
@@ -37,8 +45,8 @@ echo 'gem "fastercsv", "~> 1.5.0"' >> Gemfile
 echo 'gem "yard"' >> Gemfile
 
 # install gems, use cache if available
-if [ -d "/app/setup/cache" ]; then
-  mv /app/setup/cache vendor/
+if [ -d "${GEM_CACHE_DIR}" ]; then
+  mv ${GEM_CACHE_DIR} vendor/
 fi
 bundle install --local --without development tests
 
@@ -46,15 +54,15 @@ bundle install --local --without development tests
 cp config/database.yml.example config/database.yml
 
 # install themes
-. /app/setup/themes/install
+. ${THEMES_SETUP_DIR}/install
 
 # install plugins
-. /app/setup/plugins/install
+. ${PLUGINS_SETUP_DIR}/install
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
 chmod -R u+rwX files log tmp
-chown -R redmine:redmine /home/redmine/redmine
+chown -R redmine:redmine ${INSTALL_DIR}
 
 # disable default nginx configuration and enable redmine nginx configuration
 rm -f /etc/nginx/sites-enabled/default
@@ -62,7 +70,7 @@ ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine
 
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
-/home/redmine/redmine/log/*.log {
+${INSTALL_DIR}/log/*.log {
     weekly
     missingok
     rotate 52
@@ -91,8 +99,8 @@ EOF
 cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
 [program:unicorn]
 priority=20
-directory=/home/redmine/redmine
-command=bundle exec unicorn_rails -E production -c /home/redmine/redmine/config/unicorn.rb
+directory=${INSTALL_DIR}
+command=bundle exec unicorn_rails -E production -c ${INSTALL_DIR}/config/unicorn.rb
 user=root
 autostart=false
 autorestart=true

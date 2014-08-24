@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+INSTALL_DIR="/home/redmine/redmine"
+CONFIG_DIR="${INSTALL_DIR}/config"
+DATA_DIR="/home/redmine/data"
+
+SETUP_DIR="/app/setup"
+SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
+USERCONF_TEMPLATES_DIR="${DATA_DIR}/config"
+
 REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
 
 DB_HOST=${DB_HOST:-}
@@ -54,13 +62,13 @@ esac
 # start supervisord
 /usr/bin/supervisord
 
-# fix permission and ownership of /home/redmine/data
-chmod 755 /home/redmine/data
-chown redmine:redmine /home/redmine/data
+# fix permission and ownership of ${DATA_DIR}
+chmod 755 ${DATA_DIR}
+chown redmine:redmine ${DATA_DIR}
 
-# set executable flags on /home/redmine/data (needed if mounted from a data-only
+# set executable flags on ${DATA_DIR} (needed if mounted from a data-only
 # container using --volumes-from)
-chmod +x /home/redmine/data
+chmod +x ${DATA_DIR}
 
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
@@ -100,24 +108,21 @@ if [ "${DB_HOST}" == "localhost" ]; then
   fi
 fi
 
-cp /app/setup/config/nginx/redmine /etc/nginx/sites-available/redmine
-sudo -u redmine -H cp /app/setup/config/redmine/additional_environment.rb /home/redmine/redmine/config/additional_environment.rb
-sudo -u redmine -H cp /app/setup/config/redmine/database.yml /home/redmine/redmine/config/database.yml
-sudo -u redmine -H cp /app/setup/config/redmine/unicorn.rb /home/redmine/redmine/config/unicorn.rb
-sudo -u redmine -H cp /app/setup/config/redmine/smtp_settings.rb /home/redmine/redmine/config/initializers/smtp_settings.rb
+cd ${INSTALL_DIR}
 
-# override default configuration templates with user templates
-if [ -d /home/redmine/data/config ]; then
-  chown -R redmine /home/redmine/data/config
-  cd /home/redmine/data/config
-  [ -f nginx/redmine ]                      && cp nginx/redmine /etc/nginx/sites-available/redmine
-  [ -f redmine/additional_environment.rb ]  && sudo -u redmine -H cp redmine/additional_environment.rb /home/redmine/redmine/config/additional_environment.rb
-  [ -f redmine/database.yml ]               && sudo -u redmine -H cp redmine/database.yml /home/redmine/redmine/config/database.yml
-  [ -f redmine/unicorn.rb ]                 && sudo -u redmine -H cp redmine/unicorn.rb  /home/redmine/redmine/config/unicorn.rb
-  [ -f redmine/smtp_settings.rb ]           && sudo -u redmine -H cp redmine/smtp_settings.rb /home/redmine/redmine/config/initializers/smtp_settings.rb
-fi
+# install default confuguration templates
+cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
+sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
+sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
+sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
+sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 
-cd /home/redmine/redmine
+# override default configuration templates with user templates if available
+[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]                     && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
+[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ] && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
+[ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]              && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
+[ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]                && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
+[ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]          && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
@@ -153,16 +158,18 @@ fi
 
 # configure nginx
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine
+sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-available/redmine
 
 # configure unicorn
+sudo -u redmine -H sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i config/unicorn.rb
 sudo -u redmine -H sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
 sudo -u redmine -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
 
 # configure relative_url_root
 if [ -n "${REDMINE_RELATIVE_URL_ROOT}" ]; then
-  sudo -u redmine -H cp -f /app/setup/config/config.ru config.ru
+  sudo -u redmine -H cp -f ${SYSCONF_TEMPLATES_DIR}/config.ru config.ru
   sudo -u redmine -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
-  sed 's,#alias /home/redmine/redmine/public,alias /home/redmine/redmine/public,' -i /etc/nginx/sites-available/redmine
+  sed 's,#alias '"${INSTALL_DIR}"'/public,alias '"${INSTALL_DIR}"'/public,' -i /etc/nginx/sites-available/redmine
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-available/redmine
 else
   sudo -u redmine -H sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
@@ -192,23 +199,23 @@ case "${SMTP_AUTHENTICATION}" in
 esac
 
 # create file uploads directory
-mkdir -p /home/redmine/data/files
-chmod 755 /home/redmine/data/files
-chown redmine:redmine /home/redmine/data/files
+mkdir -p ${DATA_DIR}/files
+chmod 755 ${DATA_DIR}/files
+chown redmine:redmine ${DATA_DIR}/files
 
 # symlink file store
 rm -rf files
 if [ -d /redmine/files ]; then
-  # for backward compatibility, user should mount the volume at /home/redmine/data
+  # for backward compatibility, user should mount the volume at ${DATA_DIR}
   echo "WARNING: "
-  echo "  The data volume path has now been changed to /home/redmine/data/files."
+  echo "  The data volume path has now been changed to ${DATA_DIR}/files."
   echo "  Refer http://git.io/H59-lg for migration information."
   echo "  Setting up backward compatibility..."
   chmod 755 /redmine/files
   chown redmine:redmine /redmine/files
   ln -sf /redmine/files
 else
-  ln -sf /home/redmine/data/files
+  ln -sf ${DATA_DIR}/files
 fi
 
 appDbMigrate () {
@@ -229,10 +236,10 @@ appStart () {
   # migrate database if the redmine version has changed.
   CURRENT_VERSION=
   REDMINE_VERSION=$(cat VERSION)
-  [ -f /home/redmine/data/VERSION ] && CURRENT_VERSION=$(cat /home/redmine/data/VERSION)
+  [ -f ${DATA_DIR}/VERSION ] && CURRENT_VERSION=$(cat ${DATA_DIR}/VERSION)
   if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
     appDbMigrate
-    echo "${REDMINE_VERSION}" > /home/redmine/data/VERSION
+    echo "${REDMINE_VERSION}" > ${DATA_DIR}/VERSION
   fi
 
   echo "Generating secure token..."
