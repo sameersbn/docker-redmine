@@ -11,15 +11,17 @@ RUN add-apt-repository -y ppa:brightbox/ruby-ng && \
     gem install --no-ri --no-rdoc bundler && \
     rm -rf /var/lib/apt/lists/* # 20140818
 
-ADD assets/setup/ /redmine/setup/
-RUN chmod 755 /redmine/setup/install
-RUN /redmine/setup/install
+ADD assets/setup/ /app/setup/
+RUN chmod 755 /app/setup/install
+RUN /app/setup/install
 
-ADD assets/config/ /redmine/setup/config/
-ADD assets/init /redmine/init
-RUN chmod 755 /redmine/init
+ADD assets/config/ /app/setup/config/
+ADD assets/init /app/init
+RUN chmod 755 /app/init
 
 EXPOSE 80
-VOLUME ["/redmine/files"]
-ENTRYPOINT ["/redmine/init"]
+
+VOLUME ["/redmine/redmine/data"]
+ENTRYPOINT ["/app/init"]
+
 CMD ["app:start"]

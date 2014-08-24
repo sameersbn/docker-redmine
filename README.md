@@ -76,20 +76,29 @@ You should now have Redmine ready for testing. If you want to use Redmine for mo
 ## Data Store
 For the file storage we need to mount a volume at the following location.
 
-* /redmine/files
+* /home/redmine/data
+
+> **NOTE**
+>
+> Existing users **need to move** the existing files directory inside `/opt/redmine/data/`.
+>
+> ```bash
+> mkdir -p /opt/redmine/data
+> mv /opt/redmine/files /opt/redmine/data
+> ```
 
 SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
 
 ```bash
-mkdir -p /opt/redmine/files
-sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/files
+mkdir -p /opt/redmine/data
+sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/data
 ```
 
 Volumes can be mounted in docker by specifying the **'-v'** option in the docker run command.
 
 ```
 docker run --name redmine -d \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine:2.5.2
+  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
 ```
 
 ## Database
@@ -122,7 +131,7 @@ The updated run command looks like this.
 
 ```
 docker run --name redmine -d \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine:2.5.2
 ```
 
@@ -148,7 +157,7 @@ Now that we have the database created for redmine, lets install the database sch
 docker run --name redmine -it --rm \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine:2.5.2 app:db:migrate
+  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2 app:db:migrate
 ```
 
 **NOTE: The above setup is performed only for the first run**.
@@ -159,7 +168,7 @@ We are now ready to start the redmine application.
 docker run --name redmine -d \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine:2.5.2
+  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
@@ -205,7 +214,7 @@ Now that we have the database created for redmine, lets install the database sch
 docker run --name redmine -it --rm --link mysql:mysql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2 app:db:migrate
 ```
 
@@ -217,7 +226,7 @@ We are now ready to start the redmine application.
 docker run --name redmine -d --link mysql:mysql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
 
@@ -240,7 +249,7 @@ Now that we have the database created for redmine, lets install the database sch
 docker run --name redmine -it --rm \
   -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
   -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2 app:db:migrate
 ```
 
@@ -252,7 +261,7 @@ We are now ready to start the redmine application.
 docker run --name redmine -d \
   -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
   -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
 
@@ -302,7 +311,7 @@ Now that we have the database created for redmine, lets install the database sch
 docker run --name redmine -it --rm --link postgresql:postgresql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2 app:db:migrate
 ```
 
@@ -314,7 +323,7 @@ We are now ready to start the redmine application.
 docker run --name redmine -d --link postgresql:postgresql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
 
@@ -334,7 +343,7 @@ The following environment variables need to be specified to get mail support to 
 ```
 docker run --name redmine -d \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  -v /opt/redmine/files:/redmine/files sameersbn/redmine:2.5.2
+  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
 ```
 
 If you are not using google mail, then please configure the  SMTP host and port using the SMTP_HOST and SMTP_PORT configuration parameters.
@@ -347,7 +356,7 @@ I have only tested standard gmail and google apps login. I expect that the curre
 
 ```
 docker run --name redmine -d -h redmine.local.host \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   -v /opt/redmine/mysql:/var/lib/mysql \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   sameersbn/redmine:2.5.2
@@ -357,7 +366,7 @@ If you are using an external mysql database
 
 ```
 docker run --name redmine -d -h redmine.local.host \
-  -v /opt/redmine/files:/redmine/files \
+  -v /opt/redmine/data:/home/redmine/data \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   sameersbn/redmine:2.5.2
