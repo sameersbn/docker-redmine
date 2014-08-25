@@ -16,6 +16,12 @@
             - [External PostgreSQL Server](#external-postgresql-server)
             - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
     - [Mail](#mail)
+    - [SSL](#ssl)
+      - [Generation of Self Signed Certificates](#generation-of-self-signed-certificates)
+      - [Strengthening the server security](#strengthening-the-server-security)
+      - [Installation of the Certificates](#installation-of-the-certificates)
+      - [Enabling HTTPS support](#enabling-https-support)
+      - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
     - [Putting it all together](#putting-it-all-together)
     - [Available Configuration Parameters](#available-configuration-parameters)
 - [Shell Access](#shell-access)
@@ -406,6 +412,93 @@ __NOTE:__
 
 I have only tested standard gmail and google apps login. I expect that the currently provided configuration parameters should be sufficient for most users. If this is not the case, then please let me know.
 
+### SSL
+Access to the redmine application can be secured using SSL so as to prevent unauthorized access to the data in it. While a CA certified SSL certificate allows for verification of trust via the CA, a self signed certificates can also provide an equal level of trust verification as long as each client takes some additional steps to verify the identity of your website. I will provide instructions on achieving this towards the end of this section.
+
+To secure your application via SSL you basically need two things:
+- Private key (.key)
+- SSL certificate (.pem)
+
+When using CA certified certificates, these files are provided to you by the CA. When using self-signed certificates you need to generate these files yourself. Skip the following section if you are armed with CA certified SSL certificates.
+
+Jump to the [Strengthening the server security](#strengthening-the-server-security) section if you are using a load balancer such as hipache, haproxy or nginx.
+
+#### Generation of Self Signed Certificates
+Generation of self-signed SSL certificates involves a simple 3 step procedure.
+
+**STEP 1**: Create the server private key
+
+```bash
+openssl genrsa -out redmine.key 2048
+```
+
+**STEP 2**: Create the certificate signing request (CSR)
+
+```bash
+openssl req -new -key redmine.key -out redmine.csr
+```
+
+**STEP 3**: Sign the certificate using the private key and CSR
+
+```bash
+openssl x509 -req -days 365 -in redmine.csr -signkey redmine.key -out redmine.crt
+```
+
+Congratulations! you have now generated an SSL certificate thats valid for 365 days.
+
+#### Strengthening the server security
+This section provides you with instructions to [strengthen your server security](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html). To achieve this we need to generate stronger DHE parameters.
+
+```bash
+openssl dhparam -out dhparam.pem 2048
+```
+
+#### Installation of the SSL Certificates
+Out of the four files generated above, we need to install the redmine.key, redmine.crt and dhparam.pem files at the redmine server. The CSR file is not needed, but do make sure you safely backup the file (in case you ever need it again).
+
+The default path that the redmine application is configured to look for the SSL certificates is at /app/setup/certs, this can however be changed using the SSL_KEY_PATH, SSL_CERTIFICATE_PATH and SSL_DHPARAM_PATH configuration options.
+
+If you remember from above, the /home/git/data path is the path of the [data store](#data-store), which means that we have to create a folder named certs inside /opt/redmine/setup/ and copy the files into it and as a measure of security we will update the permission on the redmine.key file to only be readable by the owner.
+
+```bash
+mkdir -p /opt/redmine/setup/certs
+cp redmine.key /opt/redmine/setup/certs/
+cp redmine.crt /opt/redmine/setup/certs/
+cp dhparam.pem /opt/redmine/setup/certs/
+chmod 400 /opt/redmine/setup/certs/redmine.key
+```
+
+Great! we are now just a step away from having our application secured.
+
+#### Enabling HTTPS support
+HTTPS support can be enabled by setting the REDMINE_HTTPS option to true.
+
+```bash
+docker run --name=redmine -d \
+  -e 'REDMINE=true' \
+  -v /opt/redmine/setup:/app/setup \
+  sameersbn/redmine:2.5.2
+```
+
+In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
+
+#### Using HTTPS with a load balancer
+Load balancers like haproxy/hipache talk to backend applications over plain http and as such, installation of ssl keys and certificates in the container are not required when using a load balancer.
+
+When using a load balancer, you should set the REDMINE_HTTPS_ONLY option to false with the REDMINE_HTTPS options set to true. With this in place, you should also configure the load balancer to support handling of https requests. But that is out of the scope of this document. Please refer to [Using SSL/HTTPS with HAProxy](http://seanmcgary.com/posts/using-sslhttps-with-haproxy) for information on the subject.
+
+Note that when the REDMINE_HTTPS_ONLY is disabled, the application does not perform the automatic http to https redirection and this functionality has to be configured at the load balancer which is also described in the link above. Unfortunately hipache does not come with an option to perform http to https redirection, so the only choice you really have is to switch to using haproxy or nginx for load balancing.
+
+In summation, the docker command would look something like this:
+
+```bash
+docker run --name=redmine -d \
+  -e 'REDMINE_HTTPS=true' \
+  -e 'REDMINE_HTTPS_ONLY=false' \
+  -v /opt/redmine/setup:/app/setup \
+  sameersbn/redmine:2.5.2
+```
+
 ### Putting it all together
 
 ```bash
@@ -443,6 +536,11 @@ Below is the complete list of parameters that can be set using environment varia
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to `2`.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to `64`. Disabled if `0`.
+- **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/app/setup/certs/redmine.crt`.
+- **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
+- **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.
+- **REDMINE_HTTPS**: Enable HTTPS (SSL/TLS) port on server. Defaults to `false`.
+- **REDMINE_HTTPS_ONLY**: Forwards all HTTP requests to HTTPS if HTTPS is enabled. Defaults to `true`.
 - **SMTP_ENABLED**: Enable mail delivery via SMTP. Defaults to `true` if `SMTP_USER` is defined, else defaults to `false`.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to `www.gmail.com`
 - **SMTP_HOST**: SMTP server host. Defaults to `smtp.gmail.com`

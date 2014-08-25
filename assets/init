@@ -7,6 +7,7 @@ DATA_DIR="/home/redmine/data"
 
 SETUP_DIR="/app/setup"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
+SSL_CERTIFICATES_DIR="${SETUP_DIR}/certs"
 USERCONF_TEMPLATES_DIR="${DATA_DIR}/config"
 
 REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
@@ -34,6 +35,13 @@ fi
 SMTP_ENABLED=${SMTP_ENABLED:-false}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
+
+REDMINE_HTTPS=${REDMINE_HTTPS:-false}
+REDMINE_HTTPS_ONLY=${REDMINE_HTTPS_ONLY:-true}
+
+SSL_CERTIFICATE_PATH=${SSL_CERTIFICATE_PATH:-${SSL_CERTIFICATES_DIR}/redmine.pem}
+SSL_KEY_PATH=${SSL_KEY_PATH:-${SSL_CERTIFICATES_DIR}/redmine.key}
+SSL_DHPARAM_PATH=${SSL_DHPARAM_PATH:-${SSL_CERTIFICATES_DIR}/dhparam.pem}
 
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
 UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
@@ -115,6 +123,8 @@ cd ${INSTALL_DIR}
 
 # install default confuguration templates
 cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
+cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-available/redmine-ssl
+cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-redir /etc/nginx/sites-available/redmine-redir
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
@@ -123,6 +133,8 @@ sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/i
 
 # override default configuration templates with user templates if available
 [ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]                     && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
+[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]                 && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-available/redmine-ssl
+[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-redir ]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-redir /etc/nginx/sites-available/redmine-redir
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ] && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]              && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]                && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
@@ -161,9 +173,30 @@ else
   sudo -u redmine -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
-# configure nginx
+# configure nginx max upload size, install, ssl paths
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine
+sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine-ssl
 sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-available/redmine
+sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-available/redmine-ssl
+sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-available/redmine-ssl
+sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-available/redmine-ssl
+
+# if dhparam path is valid, add to the config, otherwise remove the option
+if [ -r "${SSL_DHPARAM_PATH}" ]; then
+  sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i /etc/nginx/sites-available/redmine-ssl
+else
+  sed '/ssl_dhparam: {{SSL_DHPARAM_PATH}};/d' -i /etc/nginx/sites-available/redmine-ssl
+fi
+
+# enable the sites as directed by variables
+if [ "${REDMINE_HTTPS}" == "true" ]; then
+  ln -s /etc/nginx/sites-available/redmine-ssl /etc/nginx/sites-enabled/redmine-ssl
+fi
+if [ "${REDMINE_HTTPS}" == "true" -a "${REDMINE_HTTPS_ONLY}" == "true" ]; then
+  ln -s /etc/nginx/sites-available/redmine-redir /etc/nginx/sites-enabled/redmine-redir
+else
+  ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine
+fi
 
 # configure unicorn
 sudo -u redmine -H sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i config/unicorn.rb
@@ -175,10 +208,13 @@ if [ -n "${REDMINE_RELATIVE_URL_ROOT}" ]; then
   sudo -u redmine -H cp -f ${SYSCONF_TEMPLATES_DIR}/config.ru config.ru
   sudo -u redmine -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
   sed 's,#alias '"${INSTALL_DIR}"'/public,alias '"${INSTALL_DIR}"'/public,' -i /etc/nginx/sites-available/redmine
+  sed 's,#alias '"${INSTALL_DIR}"'/public,alias '"${INSTALL_DIR}"'/public,' -i /etc/nginx/sites-available/redmine-ssl
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-available/redmine
+  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-available/redmine-ssl
 else
   sudo -u redmine -H sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-available/redmine
+  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-available/redmine-ssl
 fi
 
 if [ "${SMTP_ENABLED}" == "true" ]; then
