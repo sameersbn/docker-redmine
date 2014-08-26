@@ -451,7 +451,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_STARTTLS**: Enable STARTTLS. Defaults to `true`.
 - **SMTP_AUTHENTICATION**: Specify the SMTP authentication method. Defaults to `:login` if `SMTP_USER` is set.
 
-## Upgrading
+# Upgrading
 
 To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
 
