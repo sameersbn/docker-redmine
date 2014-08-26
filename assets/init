@@ -27,8 +27,11 @@ SMTP_PORT=${SMTP_PORT:-587}
 SMTP_USER=${SMTP_USER:-}
 SMTP_PASS=${SMTP_PASS:-}
 SMTP_STARTTLS=${SMTP_STARTTLS:-true}
-[ -n "${SMTP_USER}" ] && \
+if [ -n "${SMTP_USER}" ]; then
+  SMTP_ENABLED=${SMTP_ENABLED:-true}
   SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-:login}
+fi
+SMTP_ENABLED=${SMTP_ENABLED:-false}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
@@ -115,6 +118,7 @@ cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
+[ "${SMTP_ENABLED}" == "true" ] && \
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 
 # override default configuration templates with user templates if available
@@ -122,6 +126,7 @@ sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/i
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ] && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]              && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]                && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
+[ "${SMTP_ENABLED}" == "true" ] && \
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]          && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 
 # configure database
@@ -176,27 +181,29 @@ else
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-available/redmine
 fi
 
-# configure mail delivery
-sudo -u redmine -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
-sudo -u redmine -H sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
+if [ "${SMTP_ENABLED}" == "true" ]; then
+  # configure mail delivery
+  sudo -u redmine -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
+  sudo -u redmine -H sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
 
-case "${SMTP_USER}" in
-  "") sudo -u redmine -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
-  *) sudo -u redmine -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
-esac
+  case "${SMTP_USER}" in
+    "") sudo -u redmine -H sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
+    *) sudo -u redmine -H sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
+  esac
 
-case "${SMTP_PASS}" in
-  "") sudo -u redmine -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
-  *) sudo -u redmine -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
-esac
+  case "${SMTP_PASS}" in
+    "") sudo -u redmine -H sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
+    *) sudo -u redmine -H sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
+  esac
 
-sudo -u redmine -H sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
-sudo -u redmine -H sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
+  sudo -u redmine -H sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
+  sudo -u redmine -H sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
 
-case "${SMTP_AUTHENTICATION}" in
-  "") sudo -u redmine -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
-  *) sudo -u redmine -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
-esac
+  case "${SMTP_AUTHENTICATION}" in
+    "") sudo -u redmine -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
+    *) sudo -u redmine -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
+  esac
+fi
 
 # create file uploads directory
 mkdir -p ${DATA_DIR}/files
