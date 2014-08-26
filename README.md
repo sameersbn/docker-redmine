@@ -190,8 +190,17 @@ docker pull sameersbn/mysql:latest
 ```
 
 For data persistence lets create a store for the mysql and start the container.
+
+SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
+
 ```bash
 mkdir -p /opt/mysql/data
+sudo chcon -Rt svirt_sandbox_file_t /opt/mysql/data
+```
+
+The updated run command looks like this.
+
+```bash
 docker run --name mysql -d \
   -v /opt/mysql/data:/var/lib/mysql \
   sameersbn/mysql:latest
@@ -273,20 +282,31 @@ docker run --name redmine -d \
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
 
 #### Linking to PostgreSQL Container
+
 You can link this image with a postgresql container for the database requirements. The alias of the postgresql server container should be set to **postgresql** while linking with the redmine image.
 
-If a postgresql container is linked, only the DB_HOST and DB_PORT settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the DB_NAME, DB_USER, DB_PASS and so on.
+If a postgresql container is linked, only the `DB_TYPE`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
 
 To illustrate linking with a postgresql container, we will use the [sameersbn/postgresql](https://github.com/sameersbn/docker-postgresql) image. When using postgresql image in production you should mount a volume for the postgresql data store. Please refer the [README](https://github.com/sameersbn/docker-postgresql/blob/master/README.md) of docker-postgresql for details.
 
 First, lets pull the postgresql image from the docker index.
+
 ```bash
 docker pull sameersbn/postgresql:latest
 ```
 
 For data persistence lets create a store for the postgresql and start the container.
+
+SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
+
 ```bash
 mkdir -p /opt/postgresql/data
+sudo chcon -Rt svirt_sandbox_file_t /opt/postgresql/data
+```
+
+The updated run command looks like this.
+
+```bash
 docker run --name postgresql -d \
   -v /opt/postgresql/data:/var/lib/postgresql \
   sameersbn/postgresql:latest
