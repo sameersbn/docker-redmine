@@ -54,7 +54,7 @@ docker build --tag="$USER/redmine" .
 Run the redmine image with the name "redmine".
 
 ```bash
-docker run --name redmine -d -p 10080:80 \
+docker run --name=redmine -it --rm -p 10080:80 \
 sameersbn/redmine:2.5.2
 ```
 
@@ -94,7 +94,7 @@ sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/data
 Volumes can be mounted in docker by specifying the **'-v'** option in the docker run command.
 
 ```bash
-docker run --name=redmine -d \
+docker run --name=redmine -it --rm \
   -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
 ```
 
@@ -127,7 +127,7 @@ sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/mysql
 The updated run command looks like this.
 
 ```bash
-docker run --name=redmine -d \
+docker run --name=redmine -it --rm \
   -v /opt/redmine/data:/home/redmine/data \
   -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine:2.5.2
 ```
@@ -163,7 +163,7 @@ docker run --name=redmine -it --rm \
 We are now ready to start the redmine application.
 
 ```bash
-docker run --name=redmine -d \
+docker run --name=redmine -it --rm \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
@@ -197,7 +197,7 @@ sudo chcon -Rt svirt_sandbox_file_t /opt/mysql/data
 The updated run command looks like this.
 
 ```bash
-docker run --name mysql -d \
+docker run --name mysql -it --rm \
   -v /opt/mysql/data:/var/lib/mysql \
   sameersbn/mysql:latest
 ```
@@ -232,7 +232,7 @@ docker run --name=redmine -it --rm --link mysql:mysql \
 We are now ready to start the redmine application.
 
 ```bash
-docker run --name=redmine -d --link mysql:mysql \
+docker run --name=redmine -it --rm --link mysql:mysql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
   -v /opt/redmine/data:/home/redmine/data \
@@ -268,7 +268,7 @@ docker run --name=redmine -it --rm \
 We are now ready to start the redmine application.
 
 ```bash
-docker run --name=redmine -d \
+docker run --name=redmine -it --rm \
   -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
   -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
   -v /opt/redmine/data:/home/redmine/data \
@@ -303,7 +303,7 @@ sudo chcon -Rt svirt_sandbox_file_t /opt/postgresql/data
 The updated run command looks like this.
 
 ```bash
-docker run --name postgresql -d \
+docker run --name postgresql -it --rm \
   -v /opt/postgresql/data:/var/lib/postgresql \
   sameersbn/postgresql:latest
 ```
@@ -341,7 +341,7 @@ docker run --name=redmine -it --rm --link postgresql:postgresql \
 We are now ready to start the redmine application.
 
 ```bash
-docker run --name=redmine -d --link postgresql:postgresql \
+docker run --name=redmine -it --rm --link postgresql:postgresql \
   -e "DB_USER=redmine" -e "DB_PASS=password" \
   -e "DB_NAME=redmine_production" \
   -v /opt/redmine/data:/home/redmine/data \
@@ -364,7 +364,7 @@ The following environment variables need to be specified to get mail support to 
 * SMTP_AUTHENTICATION (defaults to `:login` if `SMTP_USER` is set)
 
 ```bash
-docker run --name=redmine -d \
+docker run --name=redmine -it --rm \
   -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
 ```
