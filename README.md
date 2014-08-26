@@ -130,7 +130,9 @@ docker run --name=redmine -it --rm \
 
 Redmine uses a database backend to store its data.
 
-### Internal MySQL Server
+### MySQL
+
+#### Internal MySQL Server
 
 > **Warning**
 >
