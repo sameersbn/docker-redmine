@@ -347,7 +347,7 @@ docker logs postgresql
 Now, lets login to the postgresql server and create a user and database for the redmine application.
 
 ```bash
-psql -U postgres -h $(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql)
+docker run -it --rm sameersbn/postgresql:latest psql -U postgres -h $(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql)
 ```
 
 ```sql
