@@ -332,6 +332,7 @@ The mail configuration should be specified using environment variables while sta
 
 The following environment variables need to be specified to get mail support to work.
 
+* SMTP_ENABLED (defaults to false)
 * SMTP_DOMAIN (defaults to www.gmail.com)
 * SMTP_HOST (defaults to smtp.gmail.com)
 * SMTP_PORT (defaults to 587)
@@ -342,7 +343,7 @@ The following environment variables need to be specified to get mail support to 
 
 ```
 docker run --name redmine -d \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  -e "SMTP_ENABLED=true" -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:2.5.2
 ```
 
@@ -358,7 +359,7 @@ I have only tested standard gmail and google apps login. I expect that the curre
 docker run --name redmine -d -h redmine.local.host \
   -v /opt/redmine/data:/home/redmine/data \
   -v /opt/redmine/mysql:/var/lib/mysql \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  -e "SMTP_ENABLED=true" -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   sameersbn/redmine:2.5.2
 ```
 
@@ -368,7 +369,7 @@ If you are using an external mysql database
 docker run --name redmine -d -h redmine.local.host \
   -v /opt/redmine/data:/home/redmine/data \
   -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+  -e "SMTP_ENABLED=true" -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
   sameersbn/redmine:2.5.2
 ```
 
@@ -389,6 +390,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to 2.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to 60 seconds.
 - **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to 64. Disabled if '0'.
+- **SMTP_ENABLED**: Enable mail delivery via SMTP. Defaults to false.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to www.gmail.com
 - **SMTP_HOST**: SMTP server host. Defaults to smtp.gmail.com.
 - **SMTP_PORT**: SMTP server port. Defaults to 587.
