@@ -50,21 +50,17 @@ docker build --tag="$USER/redmine" .
 ```
 
 # Quick Start
+
 Run the redmine image with the name "redmine".
 
 ```bash
-docker run --name redmine -d sameersbn/redmine:2.5.2
-```
-
-Access the Redmine application
-
-```bash
-xdg-open "http://$(docker inspect --format {{.NetworkSettings.IPAddress}} redmine)"
+docker run --name redmine -d -p 10080:80 \
+sameersbn/redmine:2.5.2
 ```
 
 **NOTE**: Please allow a minute or two for the Redmine application to start.
 
-Login using the default username and password:
+Point your browser to `http://localhost:10080` and login using the default username and password:
 
 * username: **admin**
 * password: **admin**
