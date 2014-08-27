@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- update to sameersbn/ubuntu:14.04.20140628 image
 - added new SMTP_ENABLED configuration option. Fixes #30
 - moved data volume path to /home/redmine/data
 - added REDMINE_RELATIVE_URL_ROOT configuration option (thanks to @k-kagurazaka)

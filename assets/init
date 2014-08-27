@@ -63,7 +63,7 @@ case "${DB_TYPE}" in
 esac
 
 # start supervisord
-/usr/bin/supervisord
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
 # fix permission and ownership of ${DATA_DIR}
 chmod 755 ${DATA_DIR}
