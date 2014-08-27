@@ -13,6 +13,7 @@ REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
 
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
+DB_SOCK=${DB_SOCK:-}
 DB_NAME=${DB_NAME:-redmine_production}
 DB_USER=${DB_USER:-root}
 DB_PASS=${DB_PASS:-}
@@ -73,8 +74,8 @@ chown redmine:redmine ${DATA_DIR}
 # container using --volumes-from)
 chmod +x ${DATA_DIR}
 
-# start mysql server if ${DB_HOST} is localhost
-if [ "${DB_HOST}" == "localhost" ]; then
+# start mysql server if ${DB_HOST} is localhost and not using Unix-domain socket
+if [ ! -S "${DB_SOCK}" -a "${DB_HOST}" == "localhost" ]; then
   if [ "${DB_TYPE}" == "postgres" ]; then
     echo "DB_TYPE 'postgres' is not supported internally. Please provide DB_HOST."
     exit 1
@@ -130,6 +131,9 @@ sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/i
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]          && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 
 # configure database
+if [ -S "${DB_SOCK}" ]; then
+  sudo -u www-data -H cp setup/config/redmine/domainsocket.yml config/database.yml
+fi
 if [ "${DB_TYPE}" == "postgres" ]; then
   sudo -u redmine -H sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
   sudo -u redmine -H sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
@@ -142,6 +146,7 @@ else
   echo "Invalid database type: '$DB_TYPE'. Supported choices: [mysql, postgres]."
 fi
 
+sudo -u redmine -H sed 's|{{DB_SOCK}}|'"${DB_SOCK}"'|' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml
