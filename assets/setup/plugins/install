@@ -184,6 +184,18 @@ else
 fi
 sed 's/gem "spreadsheet/# gem "spreadsheet/' -i ${PLUGINS_INSTALL_DIR}/redmine_contacts/Gemfile
 
+# Bitbucket plugin
+# http://www.redmine.org/plugins/redmine_bitbucket
+REDMINE_BITBUCKET_VERSION=1.0.0
+if [ -f ${PLUGINS_SETUP_DIR/redmine_bitbucket-${REDMINE_BITBUCKET_VERSION}.zip}]; then
+  unzip ${PLUGINS_SETUP_DIR}/redmine_bitbucket-${REDMINE_BITBUCKET_VERSION}.zip -d ${PLUGINS_INSTALL_DIR}
+else
+  wget -O /tmp/redmine_bitbucket-${REDMINE_BITBUCKET_VERSION}.zip https://bitbucket.org/steveqx/redmine_bitbucket/get/${REDMINE_BITBUCKET_VERSION}.zip -P /tmp/
+  unzip /tmp/redmine_bitbucket-${REDMINE_BITBUCKET_VERSION}.zip -d ${PLUGINS_INSTALL_DIR}    
+  rm -rf /tmp/redmine_bitbucket-${REDMINE_BITBUCKET_VERSION}.zip
+fi
+mv ${PLUGINS_INSTALL_DIR}/steveqx-redmine_bitbucket* ${PLUGINS_INSTALL_DIR}/redmine_bitbucket # Needed due to bitbucket archive format
+
 #
 ## Satisfy gem dependencies for plugins
 #
