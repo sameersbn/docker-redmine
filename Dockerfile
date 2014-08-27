@@ -2,6 +2,7 @@ FROM sameersbn/ubuntu:14.04.20140818
 MAINTAINER sameer@damagehead.com
 
 RUN add-apt-repository -y ppa:brightbox/ruby-ng && \
+    add-apt-repository -y ppa:nginx/stable && \
     apt-get update && \
     apt-get install -y make imagemagick nginx \
       mysql-server memcached subversion git cvs bzr ruby2.1 \

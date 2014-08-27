@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- upgrade to nginx-1.6.x series from the nginx/stable ppa
 - update to sameersbn/ubuntu:14.04.20140628 image
 - added new SMTP_ENABLED configuration option. Fixes #30
 - moved data volume path to /home/redmine/data
