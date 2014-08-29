@@ -35,6 +35,10 @@ SMTP_ENABLED=${SMTP_ENABLED:-false}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
+NGINX_SSL_ENABLED=${NGINX_SSL_ENABLED:-false}
+
+VHOST_NAME=${VHOST_NAME:-$(hostname -f)}
+
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
 UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
 
@@ -114,7 +118,11 @@ fi
 cd ${INSTALL_DIR}
 
 # install default confuguration templates
-cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
+if [ "${NGINX_SSL_ENABLED}" == "true" ]; then
+  cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-available/redmine
+else
+  cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
+fi
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
@@ -164,6 +172,8 @@ fi
 # configure nginx
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-available/redmine
 sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-available/redmine
+sed 's,{{DATA_DIR}},'"${DATA_DIR}"',g' -i /etc/nginx/sites-available/redmine
+sed 's,{{VHOST_NAME}},'"${VHOST_NAME}"',g' -i /etc/nginx/sites-available/redmine
 
 # configure unicorn
 sudo -u redmine -H sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i config/unicorn.rb

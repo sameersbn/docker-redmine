@@ -20,6 +20,7 @@ ADD assets/init /app/init
 RUN chmod 755 /app/init
 
 EXPOSE 80
+EXPOSE 443
 
 VOLUME ["/home/redmine/data"]
 
