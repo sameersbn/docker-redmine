@@ -456,16 +456,16 @@ openssl dhparam -out dhparam.pem 2048
 #### Installation of the SSL Certificates
 Out of the four files generated above, we need to install the redmine.key, redmine.crt and dhparam.pem files at the redmine server. The CSR file is not needed, but do make sure you safely backup the file (in case you ever need it again).
 
-The default path that the redmine application is configured to look for the SSL certificates is at /app/setup/certs, this can however be changed using the SSL_KEY_PATH, SSL_CERTIFICATE_PATH and SSL_DHPARAM_PATH configuration options.
 
-If you remember from above, the /home/git/data path is the path of the [data store](#data-store), which means that we have to create a folder named certs inside /opt/redmine/setup/ and copy the files into it and as a measure of security we will update the permission on the redmine.key file to only be readable by the owner.
+The default path that the redmine application is configured to look for the SSL certificates is at /opt/redmine/data/certs, this can however be changed using the SSL_KEY_PATH, SSL_CERTIFICATE_PATH and SSL_DHPARAM_PATH configuration options.
+If you remember from above, the `/home/redmine/data` path is the path of the [data store](#data-store), which means that we have to create a folder named certs inside `/opt/redmine/data/` and copy the files into it and as a measure of security we will update the permission on the `redmine.key` file to only be readable by the owner.
 
 ```bash
-mkdir -p /opt/redmine/setup/certs
-cp redmine.key /opt/redmine/setup/certs/
-cp redmine.crt /opt/redmine/setup/certs/
-cp dhparam.pem /opt/redmine/setup/certs/
-chmod 400 /opt/redmine/setup/certs/redmine.key
+mkdir -p /opt/redmine/data/certs
+cp redmine.key /opt/redmine/data/certs/
+cp redmine.crt /opt/redmine/data/certs/
+cp dhparam.pem /opt/redmine/data/certs/
+chmod 400 /opt/redmine/data/certs/redmine.key
 ```
 
 Great! we are now just a step away from having our application secured.
@@ -476,7 +476,7 @@ HTTPS support can be enabled by setting the REDMINE_HTTPS option to true.
 ```bash
 docker run --name=redmine -d \
   -e 'REDMINE=true' \
-  -v /opt/redmine/setup:/app/setup \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
 
@@ -495,7 +495,7 @@ In summation, the docker command would look something like this:
 docker run --name=redmine -d \
   -e 'REDMINE_HTTPS=true' \
   -e 'REDMINE_HTTPS_ONLY=false' \
-  -v /opt/redmine/setup:/app/setup \
+  -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
 
