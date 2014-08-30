@@ -34,10 +34,10 @@ if [ -n "${SMTP_USER}" ]; then
 fi
 SMTP_ENABLED=${SMTP_ENABLED:-false}
 
-NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
-
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
 REDMINE_HTTPS_ONLY=${REDMINE_HTTPS_ONLY:-true}
+
+NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
 SSL_CERTIFICATE_PATH=${SSL_CERTIFICATE_PATH:-${SSL_CERTIFICATES_DIR}/redmine.pem}
 SSL_KEY_PATH=${SSL_KEY_PATH:-${SSL_CERTIFICATES_DIR}/redmine.key}
@@ -68,6 +68,15 @@ case "${DB_TYPE}" in
   mysql) DB_PORT=${DB_PORT:-3306} ;;
   postgres) DB_PORT=${DB_PORT:-5432} ;;
   *) echo "Unsupported database adapter. Available adapters are mysql and postgres." && exit 1 ;;
+esac
+
+case "${REDMINE_HTTPS}" in
+  true)
+    NGINX_X_FORWARDED_PROTO=${NGINX_X_FORWARDED_PROTO:-https}
+    ;;
+  *)
+    NGINX_X_FORWARDED_PROTO=${NGINX_X_FORWARDED_PROTO:-\$scheme}
+    ;;
 esac
 
 # start supervisord
@@ -178,6 +187,8 @@ sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-available/redmi
 sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-available/redmine-ssl
 sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-available/redmine-ssl
 sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-available/redmine-ssl
+sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
+sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine-ssl
 
 # if dhparam path is valid, add to the config, otherwise remove the option
 if [ -r "${SSL_DHPARAM_PATH}" ]; then
