@@ -10,8 +10,6 @@ SETUP_DIR="/app/setup"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
 USERCONF_TEMPLATES_DIR="${DATA_DIR}/config"
 
-REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
-
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-redmine_production}
@@ -36,6 +34,7 @@ SMTP_ENABLED=${SMTP_ENABLED:-false}
 
 REDMINE_PORT=${REDMINE_PORT:-}
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
+REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
@@ -201,12 +200,12 @@ else
 fi
 
 # configure nginx
+sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
 sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i /etc/nginx/sites-enabled/redmine
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
+sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
 sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-enabled/redmine
 sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
 
 # if dhparam path is valid, add to the config, otherwise remove the option
 if [ -r "${SSL_DHPARAM_PATH}" ]; then
