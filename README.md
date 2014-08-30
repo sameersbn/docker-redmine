@@ -487,7 +487,7 @@ Load balancers like haproxy/hipache talk to backend applications over plain http
 
 When using a load balancer, you should set the REDMINE_HTTPS_ONLY option to false with the REDMINE_HTTPS options set to true. With this in place, you should also configure the load balancer to support handling of https requests. But that is out of the scope of this document. Please refer to [Using SSL/HTTPS with HAProxy](http://seanmcgary.com/posts/using-sslhttps-with-haproxy) for information on the subject.
 
-Note that when the REDMINE_HTTPS_ONLY is disabled, the application does not perform the automatic http to https redirection and this functionality has to be configured at the load balancer which is also described in the link above. Unfortunately hipache does not come with an option to perform http to https redirection, so the only choice you really have is to switch to using haproxy or nginx for load balancing.
+When using a load balancer, you probably want to make sure the load balancer performs the automatic http to https redirection. Information on this can also be found in the link above.
 
 In summation, the docker command would look something like this:
 
