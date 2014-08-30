@@ -5,6 +5,16 @@ upstream redmine {
   server unix:{{INSTALL_DIR}}/tmp/sockets/redmine.socket fail_timeout=0;
 }
 
+## This is a normal HTTP host which redirects all traffic to the HTTPS host.
+server {
+  listen *:80;
+  server_name _;
+  server_tokens off;
+  ## root doesn't have to be a valid path since we are redirecting
+  root /nowhere;
+  rewrite ^ https://$host:443$request_uri? permanent;
+}
+
 server {
   listen *:443 default_server;
   server_tokens off;

@@ -124,7 +124,6 @@ cd ${INSTALL_DIR}
 # install default confuguration templates
 cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
 cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-available/redmine-ssl
-cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-redir /etc/nginx/sites-available/redmine-redir
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
@@ -134,7 +133,6 @@ sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/i
 # override default configuration templates with user templates if available
 [ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]                     && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-available/redmine
 [ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]                 && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-available/redmine-ssl
-[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-redir ]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-redir /etc/nginx/sites-available/redmine-redir
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ] && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]              && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]                && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
@@ -192,9 +190,7 @@ fi
 if [ "${REDMINE_HTTPS}" == "true" ]; then
   ln -s /etc/nginx/sites-available/redmine-ssl /etc/nginx/sites-enabled/redmine-ssl
 fi
-if [ "${REDMINE_HTTPS}" == "true" -a "${REDMINE_HTTPS_ONLY}" == "true" ]; then
-  ln -s /etc/nginx/sites-available/redmine-redir /etc/nginx/sites-enabled/redmine-redir
-else
+if [ "${REDMINE_HTTPS}" == "true" -a "${REDMINE_HTTPS_ONLY}" == "false" ]; then
   ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine
 fi
 
