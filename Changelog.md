@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added REDMINE_PORT configuration option
 - enabled SPDY support
 - added NGINX_X_FORWARDED_PROTO configuration option
 - added REDMINE_HTTPS and associated configuration options

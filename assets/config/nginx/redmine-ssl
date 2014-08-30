@@ -12,7 +12,7 @@ server {
   server_tokens off;
   ## root doesn't have to be a valid path since we are redirecting
   root /nowhere;
-  rewrite ^ https://$host:443$request_uri? permanent;
+  rewrite ^ https://$host:{{REDMINE_PORT}}$request_uri? permanent;
 }
 
 server {

@@ -34,6 +34,7 @@ if [ -n "${SMTP_USER}" ]; then
 fi
 SMTP_ENABLED=${SMTP_ENABLED:-false}
 
+REDMINE_PORT=${REDMINE_PORT:-}
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
@@ -71,9 +72,11 @@ esac
 
 case "${REDMINE_HTTPS}" in
   true)
+    REDMINE_PORT=${REDMINE_PORT:-443}
     NGINX_X_FORWARDED_PROTO=${NGINX_X_FORWARDED_PROTO:-https}
     ;;
   *)
+    REDMINE_PORT=${REDMINE_PORT:-80}
     NGINX_X_FORWARDED_PROTO=${NGINX_X_FORWARDED_PROTO:-\$scheme}
     ;;
 esac
@@ -197,7 +200,8 @@ else
   sudo -u redmine -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
 fi
 
-# configure nginx max upload size, install, ssl paths
+# configure nginx
+sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i /etc/nginx/sites-enabled/redmine
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-enabled/redmine
 sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
 sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-enabled/redmine
