@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- enabled SPDY support
 - added NGINX_X_FORWARDED_PROTO configuration option
 - added REDMINE_HTTPS and associated configuration options
 - upgrade to nginx-1.6.x series from the nginx/stable ppa

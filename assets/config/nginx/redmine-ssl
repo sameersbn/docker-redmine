@@ -16,7 +16,7 @@ server {
 }
 
 server {
-  listen 443 ssl;
+  listen 443 ssl spdy;
   server_tokens off;
   root {{INSTALL_DIR}}/public;
 
