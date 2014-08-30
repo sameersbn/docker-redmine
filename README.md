@@ -413,17 +413,19 @@ __NOTE:__
 I have only tested standard gmail and google apps login. I expect that the currently provided configuration parameters should be sufficient for most users. If this is not the case, then please let me know.
 
 ### SSL
-Access to the redmine application can be secured using SSL so as to prevent unauthorized access to the data in it. While a CA certified SSL certificate allows for verification of trust via the CA, a self signed certificates can also provide an equal level of trust verification as long as each client takes some additional steps to verify the identity of your website. I will provide instructions on achieving this towards the end of this section.
+
+Access to the redmine application can be secured using SSL so as to prevent unauthorized access. While a CA certified SSL certificate allows for verification of trust via the CA, a self signed certificates can also provide an equal level of trust verification as long as each client takes some additional steps to verify the identity of your website. I will provide instructions on achieving this towards the end of this section.
 
 To secure your application via SSL you basically need two things:
-- Private key (.key)
-- SSL certificate (.pem)
+- **Private key (.key)**
+- **SSL certificate (.crt)**
 
 When using CA certified certificates, these files are provided to you by the CA. When using self-signed certificates you need to generate these files yourself. Skip the following section if you are armed with CA certified SSL certificates.
 
-Jump to the [Strengthening the server security](#strengthening-the-server-security) section if you are using a load balancer such as hipache, haproxy or nginx.
+Jump to the [Using HTTPS with a load balancer](#using-https-with-a-load-balancer) section if you are using a load balancer such as hipache, haproxy or nginx.
 
 #### Generation of Self Signed Certificates
+
 Generation of self-signed SSL certificates involves a simple 3 step procedure.
 
 **STEP 1**: Create the server private key
@@ -447,6 +449,7 @@ openssl x509 -req -days 365 -in redmine.csr -signkey redmine.key -out redmine.cr
 Congratulations! you have now generated an SSL certificate thats valid for 365 days.
 
 #### Strengthening the server security
+
 This section provides you with instructions to [strengthen your server security](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html). To achieve this we need to generate stronger DHE parameters.
 
 ```bash
@@ -454,10 +457,11 @@ openssl dhparam -out dhparam.pem 2048
 ```
 
 #### Installation of the SSL Certificates
-Out of the four files generated above, we need to install the redmine.key, redmine.crt and dhparam.pem files at the redmine server. The CSR file is not needed, but do make sure you safely backup the file (in case you ever need it again).
 
+Out of the four files generated above, we need to install the `redmine.key`, `redmine.crt` and `dhparam.pem` files at the redmine server. The CSR file is not needed, but do make sure you safely backup the file (in case you ever need it again).
 
-The default path that the redmine application is configured to look for the SSL certificates is at /opt/redmine/data/certs, this can however be changed using the SSL_KEY_PATH, SSL_CERTIFICATE_PATH and SSL_DHPARAM_PATH configuration options.
+The default path that the redmine application is configured to look for the SSL certificates is at `/home/redmine/data/certs`, this can however be changed using the `SSL_KEY_PATH`, `SSL_CERTIFICATE_PATH` and `SSL_DHPARAM_PATH` configuration options.
+
 If you remember from above, the `/home/redmine/data` path is the path of the [data store](#data-store), which means that we have to create a folder named certs inside `/opt/redmine/data/` and copy the files into it and as a measure of security we will update the permission on the `redmine.key` file to only be readable by the owner.
 
 ```bash
@@ -468,10 +472,11 @@ cp dhparam.pem /opt/redmine/data/certs/
 chmod 400 /opt/redmine/data/certs/redmine.key
 ```
 
-Great! we are now just a step away from having our application secured.
+Great! we are now just one step away from having our application secured.
 
 #### Enabling HTTPS support
-HTTPS support can be enabled by setting the REDMINE_HTTPS option to true.
+
+HTTPS support can be enabled by setting the `REDMINE_HTTPS` option to `true`.
 
 ```bash
 docker run --name=redmine -d \
@@ -490,7 +495,7 @@ With this in place, you should configure the load balancer to support handling o
 
 When using a load balancer, you probably want to make sure the load balancer performs the automatic http to https redirection. Information on this can also be found in the link above.
 
-In summation, the docker command would look something like this:
+In summation, when using a load balancer, the docker command would look for the most part something like this:
 
 ```bash
 docker run --name=redmine -d \
