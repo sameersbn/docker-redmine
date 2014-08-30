@@ -498,7 +498,7 @@ When using a load balancer, you probably want to make sure the load balancer per
 In summation, when using a load balancer, the docker command would look for the most part something like this:
 
 ```bash
-docker run --name=redmine -d \
+docker run --name=redmine -d -p 10080:80 \
   -e 'REDMINE_HTTPS=true' \
   -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
