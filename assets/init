@@ -310,10 +310,20 @@ appStart () {
   tail -F /var/log/nginx/redmine_access.log
 }
 
+appRake () {
+  if [ -z ${1} ]; then
+    echo "Please specify the rake task to execute. See http://www.redmine.org/projects/redmine/wiki/RedmineRake"
+    return 1
+  fi
+  echo "Running redmine rake task..."
+  sudo -u redmine -H bundle exec rake $@ RAILS_ENV=production
+}
+
 appHelp () {
   echo "Available options:"
   echo " app:start          - Starts the redmine server (default)"
   echo " app:db:migrate     - Migrate the database."
+  echo " app:rake <task>    - Execute a rake task."
   echo " app:help           - Displays the help"
   echo " [command]          - Execute the specified linux command eg. bash."
 }
@@ -324,6 +334,10 @@ case "$1" in
     ;;
   app:db:migrate)
     appDbMigrate
+    ;;
+  app:rake)
+    shift 1
+    appRake $@
     ;;
   app:help)
     appHelp
