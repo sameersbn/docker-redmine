@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added app:rake command to execute rake commands
 - added REDMINE_PORT configuration option
 - enabled SPDY support
 - added NGINX_X_FORWARDED_PROTO configuration option

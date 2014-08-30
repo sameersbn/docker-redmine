@@ -26,6 +26,7 @@
     - [Available Configuration Parameters](#available-configuration-parameters)
 - [Shell Access](#shell-access)
 - [Upgrading](#upgrading)
+- [Rake Tasks](#rake-tasks)
 - [References](#references)
 
 # Introduction
@@ -606,6 +607,24 @@ mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production 
 ```bash
 docker run --name=redmine -d [OPTIONS] sameersbn/redmine:2.5.2
 ```
+
+## Rake Tasks
+
+The `app:rake` command allows you to run redmine rake tasks. To run a rake task simply specify the task to be executed to the `app:rake` command. For example, if you want to send a test email to the admin user.
+
+```bash
+docker run --name=redmine -d [OPTIONS] \
+  sameersbn/redmine:2.5.2 app:rake redmine:email:test[admin]
+```
+
+Similarly, to remove uploaded files left unattached
+
+```bash
+docker run --name=gitlab -d [OPTIONS] \
+  sameersbn/gitlab:7.2.1 app:rake redmine:attachments:prune
+```
+
+For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
 
 ## References
   * http://www.redmine.org/
