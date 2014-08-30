@@ -1,6 +1,10 @@
 # Changelog
 
 **latest**
+- added REDMINE_PORT configuration option
+- enabled SPDY support
+- added NGINX_X_FORWARDED_PROTO configuration option
+- added REDMINE_HTTPS and associated configuration options
 - upgrade to nginx-1.6.x series from the nginx/stable ppa
 - update to sameersbn/ubuntu:14.04.20140628 image
 - added new SMTP_ENABLED configuration option. Fixes #30
