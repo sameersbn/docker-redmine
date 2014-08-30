@@ -66,6 +66,7 @@ chown -R redmine:redmine ${INSTALL_DIR}
 
 # disable default nginx configuration
 rm -f /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine
 
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
