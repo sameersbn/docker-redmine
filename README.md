@@ -483,9 +483,10 @@ docker run --name=redmine -d \
 In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
 
 #### Using HTTPS with a load balancer
-Load balancers like haproxy/hipache talk to backend applications over plain http and as such, installation of ssl keys and certificates in the container are not required when using a load balancer.
 
-When using a load balancer, you should set the REDMINE_HTTPS_ONLY option to false with the REDMINE_HTTPS options set to true. With this in place, you should also configure the load balancer to support handling of https requests. But that is out of the scope of this document. Please refer to [Using SSL/HTTPS with HAProxy](http://seanmcgary.com/posts/using-sslhttps-with-haproxy) for information on the subject.
+Load balancers like nginx/haproxy/hipache talk to backend applications over plain http and as such the installation of ssl keys and certificates are not required and should **NOT** be installed in the container. The SSL configuration has to instead be done at the load balancer. Hoewever, when using a load balancer you **MUST** set `REDMINE_HTTPS` to `true`.
+
+With this in place, you should configure the load balancer to support handling of https requests. But that is out of the scope of this document. Please refer to [Using SSL/HTTPS with HAProxy](http://seanmcgary.com/posts/using-sslhttps-with-haproxy) for information on the subject.
 
 When using a load balancer, you probably want to make sure the load balancer performs the automatic http to https redirection. Information on this can also be found in the link above.
 
@@ -494,7 +495,6 @@ In summation, the docker command would look something like this:
 ```bash
 docker run --name=redmine -d \
   -e 'REDMINE_HTTPS=true' \
-  -e 'REDMINE_HTTPS_ONLY=false' \
   -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
@@ -541,7 +541,6 @@ Below is the complete list of parameters that can be set using environment varia
 - **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
 - **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.
 - **REDMINE_HTTPS**: Enable HTTPS (SSL/TLS) port on server. Defaults to `false`.
-- **REDMINE_HTTPS_ONLY**: Forwards all HTTP requests to HTTPS if HTTPS is enabled. Defaults to `true`.
 - **SMTP_ENABLED**: Enable mail delivery via SMTP. Defaults to `true` if `SMTP_USER` is defined, else defaults to `false`.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to `www.gmail.com`
 - **SMTP_HOST**: SMTP server host. Defaults to `smtp.gmail.com`
