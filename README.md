@@ -475,7 +475,7 @@ HTTPS support can be enabled by setting the REDMINE_HTTPS option to true.
 
 ```bash
 docker run --name=redmine -d \
-  -e 'REDMINE=true' \
+  -e 'REDMINE_HTTPS=true' \
   -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2
 ```
