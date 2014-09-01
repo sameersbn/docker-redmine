@@ -22,6 +22,7 @@
       - [Installation of the Certificates](#installation-of-the-certificates)
       - [Enabling HTTPS support](#enabling-https-support)
       - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
+    - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
     - [Putting it all together](#putting-it-all-together)
     - [Available Configuration Parameters](#available-configuration-parameters)
 - [Shell Access](#shell-access)
@@ -505,6 +506,23 @@ docker run --name=redmine -d -p 10080:80 \
   sameersbn/redmine:2.5.2
 ```
 
+### Deploy to a subdirectory (relative url root)
+
+By default redmine expects that your application is running at the root (eg. /). This section explains how to run your application inside a directory.
+
+Let's assume we want to deploy our application to '/redmine'. Redmine needs to know this directory to generate the appropriate routes. This can be specified using the `REDMINE_RELATIVE_URL_ROOT` configuration option like so:
+
+```bash
+docker run --name=redmine -d -p 10080:80 \
+  -e 'REDMINE_RELATIVE_URL_ROOT=/redmine' \
+  -v /opt/redmine/data:/home/redmine/data \
+  sameersbn/redmine:2.5.2
+```
+
+Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.com/redmine`.
+
+**Note**: *The `REDMINE_RELATIVE_URL_ROOT` parameter should always begin with a slash and **SHOULD NOT** have any trailing slashes.*
+
 ### Putting it all together
 
 ```bash
@@ -532,6 +550,7 @@ docker run --name=redmine -d -h redmine.local.host \
 Below is the complete list of parameters that can be set using environment variables.
 
 - **REDMINE_PORT**: The port of the Redmine server. Defaults to `80` for plain http and `443` when https is enabled.
+- **REDMINE_RELATIVE_URL_ROOT**: The relative url of the Redmine server, e.g. `/redmine`. No default.
 - **DB_TYPE**: The database type. Possible values: `mysql`, `postgres`. Defaults to `mysql`.
 - **DB_HOST**: The database server hostname. Defaults to `localhost`.
 - **DB_PORT**: The database server port. Defaults to `3306`.
