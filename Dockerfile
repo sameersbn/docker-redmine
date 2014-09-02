@@ -11,21 +11,16 @@ RUN add-apt-repository -y ppa:brightbox/ruby-ng \
  && gem install --no-ri --no-rdoc bundler \
  && rm -rf /var/lib/apt/lists/* # 20140818
 
-ADD assets/setup/ /app/setup/
-RUN chmod 755 /app/setup/install
-RUN /app/setup/install
-
 ADD assets/config/ /app/setup/config/
 ADD assets/init /app/init
-RUN chmod 755 /app/init
+ADD assets/setup/ /app/setup/
+RUN chmod 755 /app/setup/install \
+ && /app/setup/install \
+ && chmod 755 /app/init
 
 EXPOSE 80
 
-# Remove Predefined  Volume Instruction 
-# if a user whants a Volume he can start it with that option else you force all users to have
-# If you Create A Volume and a user isn't aware of that it can leave volumes on disk if you don do
-# docker rm -v containerid
-#VOLUME ["/home/redmine/data"]
+VOLUME ["/home/redmine/data"]
 
 ENTRYPOINT ["/app/init"]
 CMD ["app:start"]
