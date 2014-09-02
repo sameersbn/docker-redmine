@@ -7,7 +7,7 @@ RUN add-apt-repository -y ppa:brightbox/ruby-ng \
  && apt-get install -y make imagemagick nginx mysql-server memcached \
       subversion git cvs bzr ruby2.1 ruby2.1-dev libcurl4-openssl-dev libssl-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
-      libxslt1-dev libffi-dev libyaml-dev zlib1g-dev && \
+      libxslt1-dev libffi-dev libyaml-dev zlib1g-dev \
  && gem install --no-ri --no-rdoc bundler \
  && rm -rf /var/lib/apt/lists/* # 20140818
 
