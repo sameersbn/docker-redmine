@@ -188,4 +188,4 @@ sed 's/gem "spreadsheet/# gem "spreadsheet/' -i ${PLUGINS_INSTALL_DIR}/redmine_c
 ## Satisfy gem dependencies for plugins
 #
 
-bundle install --without development tests
+bundle install --without development tests --path vendor/bundle
