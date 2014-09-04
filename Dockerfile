@@ -1,15 +1,15 @@
 FROM sameersbn/ubuntu:14.04.20140818
 MAINTAINER sameer@damagehead.com
 
-RUN add-apt-repository -y ppa:brightbox/ruby-ng && \
-    add-apt-repository -y ppa:nginx/stable && \
-    apt-get update && \
-    apt-get install -y make imagemagick nginx mysql-server memcached \
+RUN add-apt-repository -y ppa:brightbox/ruby-ng \
+ && add-apt-repository -y ppa:nginx/stable \
+ && apt-get update \
+ && apt-get install -y make imagemagick nginx mysql-server memcached \
       subversion git cvs bzr ruby2.1 ruby2.1-dev libcurl4-openssl-dev libssl-dev \
       libmagickcore-dev libmagickwand-dev libmysqlclient-dev libpq-dev \
-      libxslt1-dev libffi-dev libyaml-dev zlib1g-dev && \
-    gem install --no-ri --no-rdoc bundler && \
-    rm -rf /var/lib/apt/lists/* # 20140818
+      libxslt1-dev libffi-dev libyaml-dev zlib1g-dev \
+ && gem install --no-ri --no-rdoc bundler \
+ && rm -rf /var/lib/apt/lists/* # 20140818
 
 ADD assets/setup/ /app/setup/
 RUN chmod 755 /app/setup/install
