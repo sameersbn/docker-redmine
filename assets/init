@@ -273,83 +273,83 @@ else
   ln -sf ${DATA_DIR}/files
 fi
 
+# migrate database if the redmine version has changed.
+CURRENT_VERSION=
+REDMINE_VERSION=$(cat ${INSTALL_DIR}/VERSION)
+[ -f ${DATA_DIR}/tmp/VERSION ] && CURRENT_VERSION=$(cat ${DATA_DIR}/tmp/VERSION)
+if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
+  # recreate the tmp directory
+  rm -rf ${DATA_DIR}/tmp
+  sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/
+  chmod -R u+rwX ${DATA_DIR}/tmp/
+
+  # create the tmp/thumbnails directory
+  sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/thumbnails
+
+  # create the plugin_assets directory
+  sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/plugin_assets
+
+  # copy the installed gems to tmp/bundle and move the Gemfile.lock
+  sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
+  sudo -u redmine -H cp -a Gemfile.lock ${DATA_DIR}/tmp/
+
+  echo "Migrating database. Please be patient, this could take a while..."
+  sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production
+  sudo -u redmine -H bundle exec rake db:migrate RAILS_ENV=production
+
+  # clear sessions and application cache
+  sudo -u redmine -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
+  sudo -u redmine -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
+
+  echo "Generating secure token..."
+  sudo -u redmine -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
+
+  # update version file
+  echo "${REDMINE_VERSION}" | sudo -u redmine -H tee --append ${DATA_DIR}/tmp/VERSION >/dev/null
+fi
+
+# remove vendor/bundle and symlink to ${DATA_DIR}/tmp/bundle
+rm -rf vendor/bundle Gemfile.lock
+ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
+ln -sf ${DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
+
+# install user plugins
+if [ -d ${DATA_DIR}/plugins ]; then
+  echo "Installing plugins..."
+  rsync -avq --chown=redmine:redmine ${DATA_DIR}/plugins/ ${INSTALL_DIR}/plugins/
+
+  # install gems and migrate the plugins when plugins are added/removed
+  CURRENT_SHA1=
+  [ -f ${DATA_DIR}/tmp/plugins.sha1 ] && CURRENT_SHA1=$(cat ${DATA_DIR}/tmp/plugins.sha1)
+  PLUGINS_SHA1=$(find ${DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+  if [ "${CURRENT_SHA1}" != "${PLUGINS_SHA1}" ]; then
+    echo "Installing gems required by plugins..."
+    bundle install --without development tests --path vendor/bundle
+
+    echo "Migrating plugins. Please be patient, this could take a while..."
+    sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production
+
+    # save SHA1
+    echo -n "${PLUGINS_SHA1}" > ${DATA_DIR}/tmp/plugins.sha1
+  fi
+
+  # source plugins init script
+  if [ -f ${DATA_DIR}/plugins/init ]; then
+    echo "Executing plugins startup script..."
+    . ${DATA_DIR}/plugins/init
+  fi
+fi
+
+# install user themes
+if [ -d ${DATA_DIR}/themes ]; then
+  echo "Installing themes..."
+  rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
+fi
+
+# fix ownership of ${DATA_DIR}/tmp/
+chown -R redmine:redmine ${DATA_DIR}/tmp/
+
 appStart () {
-  # migrate database if the redmine version has changed.
-  CURRENT_VERSION=
-  REDMINE_VERSION=$(cat ${INSTALL_DIR}/VERSION)
-  [ -f ${DATA_DIR}/tmp/VERSION ] && CURRENT_VERSION=$(cat ${DATA_DIR}/tmp/VERSION)
-  if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
-    # recreate the tmp directory
-    rm -rf ${DATA_DIR}/tmp
-    sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/
-    chmod -R u+rwX ${DATA_DIR}/tmp/
-
-    # create the tmp/thumbnails directory
-    sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/thumbnails
-
-    # create the plugin_assets directory
-    sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/plugin_assets
-
-    # copy the installed gems to tmp/bundle and move the Gemfile.lock
-    sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
-    sudo -u redmine -H cp -a Gemfile.lock ${DATA_DIR}/tmp/
-
-    echo "Migrating database. Please be patient, this could take a while..."
-    sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production
-    sudo -u redmine -H bundle exec rake db:migrate RAILS_ENV=production
-
-    # clear sessions and application cache
-    sudo -u redmine -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
-    sudo -u redmine -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
-
-    echo "Generating secure token..."
-    sudo -u redmine -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
-
-    # update version file
-    echo "${REDMINE_VERSION}" | sudo -u redmine -H tee --append ${DATA_DIR}/tmp/VERSION >/dev/null
-  fi
-
-  # remove vendor/bundle and symlink to ${DATA_DIR}/tmp/bundle
-  rm -rf vendor/bundle Gemfile.lock
-  ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
-  ln -sf ${DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
-
-  # install user plugins
-  if [ -d ${DATA_DIR}/plugins ]; then
-    echo "Installing plugins..."
-    rsync -avq --chown=redmine:redmine ${DATA_DIR}/plugins/ ${INSTALL_DIR}/plugins/
-
-    # install gems and migrate the plugins when plugins are added/removed
-    CURRENT_SHA1=
-    [ -f ${DATA_DIR}/tmp/plugins.sha1 ] && CURRENT_SHA1=$(cat ${DATA_DIR}/tmp/plugins.sha1)
-    PLUGINS_SHA1=$(find ${DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
-    if [ "${CURRENT_SHA1}" != "${PLUGINS_SHA1}" ]; then
-      echo "Installing gems required by plugins..."
-      bundle install --without development tests --path vendor/bundle
-
-      echo "Migrating plugins. Please be patient, this could take a while..."
-      sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production
-
-      # save SHA1
-      echo -n "${PLUGINS_SHA1}" > ${DATA_DIR}/tmp/plugins.sha1
-    fi
-
-    # source plugins init script
-    if [ -f ${DATA_DIR}/plugins/init ]; then
-      echo "Executing plugins startup script..."
-      . ${DATA_DIR}/plugins/init
-    fi
-  fi
-
-  # install user themes
-  if [ -d ${DATA_DIR}/themes ]; then
-    echo "Installing themes..."
-    rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
-  fi
-
-  # fix ownership of ${DATA_DIR}/tmp/
-  chown -R redmine:redmine ${DATA_DIR}/tmp/
-
   echo "Starting unicorn..."
   supervisorctl start unicorn >/dev/null
 
