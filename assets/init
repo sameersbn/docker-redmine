@@ -123,7 +123,6 @@ if [ "${DB_HOST}" == "localhost" ]; then
   done
 
   if ! echo "USE ${DB_NAME}" | mysql -uroot ${DB_PASS:+-p$DB_PASS} >/dev/null 2>&1; then
-    DB_INIT="yes"
     echo "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET \`utf8\` COLLATE \`utf8_unicode_ci\`;" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
     echo "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON \`${DB_NAME}\`.* TO 'root'@'localhost';" | mysql -uroot ${DB_PASS:+-p$DB_PASS}
   fi
@@ -293,7 +292,7 @@ appStart () {
   CURRENT_VERSION=
   REDMINE_VERSION=$(cat VERSION)
   [ -f ${DATA_DIR}/VERSION ] && CURRENT_VERSION=$(cat ${DATA_DIR}/VERSION)
-  if [ "$DB_INIT" == "yes" -o "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
+  if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
     appDbMigrate
     echo "${REDMINE_VERSION}" > ${DATA_DIR}/VERSION
   fi
