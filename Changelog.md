@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- removed app:db:migrate command
 - removed pre-installed plugins
 
 **2.5.2-1**

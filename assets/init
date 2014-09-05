@@ -333,7 +333,6 @@ appRake () {
 appHelp () {
   echo "Available options:"
   echo " app:start          - Starts the redmine server (default)"
-  echo " app:db:migrate     - Migrate the database."
   echo " app:rake <task>    - Execute a rake task."
   echo " app:help           - Displays the help"
   echo " [command]          - Execute the specified linux command eg. bash."
@@ -342,9 +341,6 @@ appHelp () {
 case "$1" in
   app:start)
     appStart
-    ;;
-  app:db:migrate)
-    appDbMigrate
     ;;
   app:rake)
     shift 1
