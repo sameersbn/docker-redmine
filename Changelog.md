@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- removed pre-installed themes
 - added system for users to install plugins
 - removed app:db:migrate command
 - removed pre-installed plugins

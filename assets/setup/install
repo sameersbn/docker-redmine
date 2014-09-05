@@ -4,10 +4,8 @@ set -e
 REDMINE_VERSION=2.5.2
 INSTALL_DIR="/home/redmine/redmine"
 DATA_DIR="/home/redmine/data"
-THEMES_INSTALL_DIR="${INSTALL_DIR}/public/themes"
 
 SETUP_DIR="/app/setup"
-THEMES_SETUP_DIR="${SETUP_DIR}/themes"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
 
 # add redmine user
@@ -51,9 +49,6 @@ bundle install --without development tests --path vendor/bundle
 
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
-
-# install themes
-. ${THEMES_SETUP_DIR}/install
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
