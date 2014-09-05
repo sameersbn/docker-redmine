@@ -3,6 +3,7 @@ set -e
 
 REDMINE_VERSION=2.5.2
 INSTALL_DIR="/home/redmine/redmine"
+DATA_DIR="/home/redmine/data"
 PLUGINS_INSTALL_DIR="${INSTALL_DIR}/plugins"
 THEMES_INSTALL_DIR="${INSTALL_DIR}/public/themes"
 
@@ -61,6 +62,12 @@ cp config/database.yml.example config/database.yml
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
+
+# create link tmp/thumbnails directory
+rm -rf tmp/thumbnails
+ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
+
+# fix permissions
 chmod -R u+rwX files log tmp
 chown -R redmine:redmine ${INSTALL_DIR}
 

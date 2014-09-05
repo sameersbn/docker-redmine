@@ -300,6 +300,9 @@ appStart () {
     sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/
     chmod -R u+rwX ${DATA_DIR}/tmp/
 
+    # create the tmp/thumbnails directory
+    sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/thumbnails
+
     # copy the installed gems to tmp/bundle
     sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
 
