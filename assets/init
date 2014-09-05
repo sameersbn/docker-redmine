@@ -341,6 +341,12 @@ appStart () {
     fi
   fi
 
+  # install user themes
+  if [ -d ${DATA_DIR}/themes ]; then
+    echo "Installing themes..."
+    rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
+  fi
+
   # fix ownership of ${DATA_DIR}/tmp/
   chown -R redmine:redmine ${DATA_DIR}/tmp/
 
