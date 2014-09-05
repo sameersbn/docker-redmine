@@ -309,6 +309,33 @@ appStart () {
   rm -rf vendor/bundle
   ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
 
+  # install user plugins
+  if [ -d ${DATA_DIR}/plugins ]; then
+    echo "Installing plugins..."
+    rsync -avq --chown=redmine:redmine ${DATA_DIR}/plugins/ ${INSTALL_DIR}/plugins/
+
+    # install gems and migrate the plugins when plugins are added/removed
+    CURRENT_SHA1=
+    [ -f ${DATA_DIR}/tmp/plugins.sha1 ] && CURRENT_SHA1=$(cat ${DATA_DIR}/tmp/plugins.sha1)
+    PLUGINS_SHA1=$(find ${DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+    if [ "${CURRENT_SHA1}" != "${PLUGINS_SHA1}" ]; then
+      echo "Installing gems required by plugins..."
+      bundle install --without development tests --path vendor/bundle
+
+      echo "Migrating plugins. Please be patient, this could take a while..."
+      sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production
+
+      # save SHA1
+      echo -n "${PLUGINS_SHA1}" > ${DATA_DIR}/tmp/plugins.sha1
+    fi
+
+    # source plugins init script
+    if [ -f ${DATA_DIR}/plugins/init ]; then
+      echo "Executing plugins startup script..."
+      . ${DATA_DIR}/plugins/init
+    fi
+  fi
+
   echo "Starting unicorn..."
   supervisorctl start unicorn >/dev/null
 
