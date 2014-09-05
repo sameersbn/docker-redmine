@@ -69,6 +69,9 @@ ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
 # create link to tmp/secret_token.rb
 ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
 
+# create production log
+sudo -u redmine -H touch log/production.log
+
 # fix permissions
 chmod -R u+rwX files log tmp
 chown -R redmine:redmine ${INSTALL_DIR}
