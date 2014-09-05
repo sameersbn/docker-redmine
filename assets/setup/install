@@ -67,6 +67,9 @@ mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
 rm -rf tmp/thumbnails
 ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
 
+# create link to tmp/secret_token.rb
+ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
+
 # fix permissions
 chmod -R u+rwX files log tmp
 chown -R redmine:redmine ${INSTALL_DIR}
