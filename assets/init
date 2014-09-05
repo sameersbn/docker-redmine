@@ -287,8 +287,9 @@ appStart () {
     # create the tmp/thumbnails directory
     sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/thumbnails
 
-    # copy the installed gems to tmp/bundle
+    # copy the installed gems to tmp/bundle and move the Gemfile.lock
     sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
+    sudo -u redmine -H cp -a Gemfile.lock ${DATA_DIR}/tmp/
 
     echo "Migrating database. Please be patient, this could take a while..."
     sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production >/dev/null
@@ -306,8 +307,9 @@ appStart () {
   fi
 
   # remove vendor/bundle and symlink to ${DATA_DIR}/tmp/bundle
-  rm -rf vendor/bundle
+  rm -rf vendor/bundle Gemfile.lock
   ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
+  ln -sf ${DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
 
   # install user plugins
   if [ -d ${DATA_DIR}/plugins ]; then
