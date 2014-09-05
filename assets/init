@@ -341,6 +341,9 @@ appStart () {
     fi
   fi
 
+  # fix ownership of ${DATA_DIR}/tmp/
+  chown -R redmine:redmine ${DATA_DIR}/tmp/
+
   echo "Starting unicorn..."
   supervisorctl start unicorn >/dev/null
 
