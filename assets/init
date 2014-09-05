@@ -295,8 +295,8 @@ appStart () {
     sudo -u redmine -H cp -a Gemfile.lock ${DATA_DIR}/tmp/
 
     echo "Migrating database. Please be patient, this could take a while..."
-    sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production >/dev/null
-    sudo -u redmine -H bundle exec rake db:migrate RAILS_ENV=production >/dev/null
+    sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production
+    sudo -u redmine -H bundle exec rake db:migrate RAILS_ENV=production
 
     # clear sessions and application cache
     sudo -u redmine -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
