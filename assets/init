@@ -276,13 +276,8 @@ fi
 appDbMigrate () {
   # isolate the plugins
   echo "Migrating database. Please be patient, this could take a while..."
-  sudo -u redmine -H mv plugins plugins-1
   sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production >/dev/null
   sudo -u redmine -H bundle exec rake db:migrate RAILS_ENV=production >/dev/null
-
-  echo "Migrating plugins. Please be patient, this could take a while..."
-  sudo -u redmine -H mv plugins-1 plugins
-  sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production >/dev/null
   sudo -u redmine -H bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
   sudo -u redmine -H bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
 }

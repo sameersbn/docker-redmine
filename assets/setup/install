@@ -4,12 +4,10 @@ set -e
 REDMINE_VERSION=2.5.2
 INSTALL_DIR="/home/redmine/redmine"
 DATA_DIR="/home/redmine/data"
-PLUGINS_INSTALL_DIR="${INSTALL_DIR}/plugins"
 THEMES_INSTALL_DIR="${INSTALL_DIR}/public/themes"
 
 SETUP_DIR="/app/setup"
 THEMES_SETUP_DIR="${SETUP_DIR}/themes"
-PLUGINS_SETUP_DIR="${SETUP_DIR}/plugins"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
 
 # add redmine user
@@ -56,9 +54,6 @@ cp config/database.yml.example config/database.yml
 
 # install themes
 . ${THEMES_SETUP_DIR}/install
-
-# install plugins
-. ${PLUGINS_SETUP_DIR}/install
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/

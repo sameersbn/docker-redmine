@@ -31,7 +31,7 @@
 - [References](#references)
 
 # Introduction
-Dockerfile to build a Redmine container image (with some additional themes and plugins).
+Dockerfile to build a Redmine container image (with some additional themes).
 
 ## Version
 Current Version: **2.5.2-1**

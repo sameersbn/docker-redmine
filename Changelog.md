@@ -1,6 +1,9 @@
 # Changelog
 
 **latest**
+- removed pre-installed plugins
+
+**2.5.2-1**
 - added app:rake command to execute rake commands
 - added REDMINE_PORT configuration option
 - enabled SPDY support
