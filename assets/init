@@ -287,6 +287,9 @@ appStart () {
     # create the tmp/thumbnails directory
     sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/thumbnails
 
+    # create the plugin_assets directory
+    sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/plugin_assets
+
     # copy the installed gems to tmp/bundle and move the Gemfile.lock
     sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
     sudo -u redmine -H cp -a Gemfile.lock ${DATA_DIR}/tmp/

@@ -56,7 +56,11 @@ cp config/database.yml.example config/database.yml
 . ${THEMES_SETUP_DIR}/install
 
 # finalize redmine installation
-mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
+mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
+
+# create link public/plugin_assets directory
+rm -rf public/plugin_assets
+ln -sf ${DATA_DIR}/tmp/plugin_assets public/plugin_assets
 
 # create link tmp/thumbnails directory
 rm -rf tmp/thumbnails
