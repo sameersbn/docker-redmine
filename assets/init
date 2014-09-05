@@ -306,6 +306,9 @@ appStart () {
     # copy the installed gems to tmp/bundle
     sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
 
+    echo "Generating secure token..."
+    sudo -u redmine -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
+
     # update version file
     echo "${REDMINE_VERSION}" | sudo -u redmine -H tee --append ${DATA_DIR}/tmp/VERSION >/dev/null
   fi
@@ -313,9 +316,6 @@ appStart () {
   # remove vendor/bundle and symlink to ${DATA_DIR}/tmp/bundle
   rm -rf vendor/bundle
   ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
-
-  echo "Generating secure token..."
-  sudo -u redmine -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
 
   echo "Starting unicorn..."
   supervisorctl start unicorn >/dev/null
