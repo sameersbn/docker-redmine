@@ -28,6 +28,9 @@
 - [Plugins](#plugins)
   - [Installing Plugins](#installing-plugins)
   - [Uninstalling Plugins](#uninstalling-plugins)
+- [Themes](#plugins)
+  - [Installing Themes](#installing-themes)
+  - [Uninstalling Themes](#uninstalling-themes)
 - [Shell Access](#shell-access)
 - [Upgrading](#upgrading)
 - [Rake Tasks](#rake-tasks)
@@ -617,6 +620,52 @@ rm -rf /opt/redmine/data/plugins/recurring_tasks
 ```
 
 Now when the image is started the plugin will be gone.
+
+# Themes
+
+Just like plugins, redmine allows users to install additional themes. You can find a list of available plugins in the [Redmine Themes Directory](www.redmine.org/projects/redmine/wiki/Theme_List)
+
+## Installing Themes
+
+Themes should be installed in the `themes` directory at the [data store](#data-store). If you are following the readme verbatim, on the host this location would be `/opt/redmine/data/themes`.
+
+```bash
+mkdir -p /opt/redmine/data/themes
+```
+
+To install a theme, simply copy the theme assets to the `themes` directory. For example, to install the [gitmike](https://github.com/makotokw/redmine-theme-gitmike) theme:
+
+```bash
+cd /opt/redmine/data/themes
+git clone https://github.com/makotokw/redmine-theme-gitmike.git gitmike
+```
+
+With the theme installed you can start the docker image normally and the newly installed theme should be available for use.
+
+Previously this image packaged a couple of themes by default. Existing users would notice that those themes are no longer available. If you want them back, follow these instructions:
+
+```bash
+cd /opt/redmine/data/themes
+wget http://goo.gl/deKDpp -O - | sh
+```
+
+*Please Note: this [theme install script](https://gist.github.com/sameersbn/aaa1b7bb064703c1e23c) is not maintained and you would need to fix it if required (especially broken links)*
+
+## Uninstalling Themes
+
+To uninstall plugins you simply need to remove the theme from the `/opt/redmine/data/themes/` directory and restart the image.
+
+```bash
+rm -rf /opt/redmine/data/themes/theme_name
+```
+
+For example, to remove the gitmike theme:
+
+```bash
+rm -rf /opt/redmine/data/themes/gitmike
+```
+
+Now when the image is started the theme will be not be available anymore.
 
 # Shell Access
 
