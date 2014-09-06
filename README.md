@@ -1,30 +1,31 @@
 # Table of Contents
+
 - [Introduction](#introduction)
-    - [Version](#version)
-    - [Changelog](Changelog.md)
+  - [Version](#version)
+  - [Changelog](Changelog.md)
 - [Reporting Issues](#reporting-issues)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
-    - [Data Store](#data-store)
-    - [Database](#database)
-        - [MySQL](#mysql)
-            - [Internal MySQL Server](#internal-mysql-server)
-            - [External MySQL Server](#external-mysql-server)
-            - [Linking to MySQL Container](#linking-to-mysql-container)
-        - [PostgreSQL](#postgresql)
-            - [External PostgreSQL Server](#external-postgresql-server)
-            - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
-    - [Mail](#mail)
-    - [SSL](#ssl)
-      - [Generation of Self Signed Certificates](#generation-of-self-signed-certificates)
-      - [Strengthening the server security](#strengthening-the-server-security)
-      - [Installation of the Certificates](#installation-of-the-certificates)
-      - [Enabling HTTPS support](#enabling-https-support)
-      - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
-    - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
-    - [Putting it all together](#putting-it-all-together)
-    - [Available Configuration Parameters](#available-configuration-parameters)
+  - [Data Store](#data-store)
+  - [Database](#database)
+    - [MySQL](#mysql)
+      - [Internal MySQL Server](#internal-mysql-server)
+      - [External MySQL Server](#external-mysql-server)
+      - [Linking to MySQL Container](#linking-to-mysql-container)
+    - [PostgreSQL](#postgresql)
+      - [External PostgreSQL Server](#external-postgresql-server)
+      - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
+  - [Mail](#mail)
+  - [SSL](#ssl)
+    - [Generation of Self Signed Certificates](#generation-of-self-signed-certificates)
+    - [Strengthening the server security](#strengthening-the-server-security)
+    - [Installation of the Certificates](#installation-of-the-certificates)
+    - [Enabling HTTPS support](#enabling-https-support)
+    - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
+  - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
+  - [Putting it all together](#putting-it-all-together)
+  - [Available Configuration Parameters](#available-configuration-parameters)
 - [Plugins](#plugins)
   - [Installing Plugins](#installing-plugins)
   - [Uninstalling Plugins](#uninstalling-plugins)
@@ -37,9 +38,11 @@
 - [References](#references)
 
 # Introduction
+
 Dockerfile to build a Redmine container image.
 
 ## Version
+
 Current Version: **2.5.2-1**
 
 # Reporting Issues
