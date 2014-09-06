@@ -1,6 +1,13 @@
 # Changelog
 
 **latest**
+- added system for users to install themes
+- removed pre-installed themes
+- added system for users to install plugins
+- removed app:db:migrate command
+- removed pre-installed plugins
+
+**2.5.2-1**
 - added app:rake command to execute rake commands
 - added REDMINE_PORT configuration option
 - enabled SPDY support

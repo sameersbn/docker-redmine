@@ -3,12 +3,9 @@ set -e
 
 REDMINE_VERSION=2.5.2
 INSTALL_DIR="/home/redmine/redmine"
-PLUGINS_INSTALL_DIR="${INSTALL_DIR}/plugins"
-THEMES_INSTALL_DIR="${INSTALL_DIR}/public/themes"
+DATA_DIR="/home/redmine/data"
 
 SETUP_DIR="/app/setup"
-THEMES_SETUP_DIR="${SETUP_DIR}/themes"
-PLUGINS_SETUP_DIR="${SETUP_DIR}/plugins"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
 
 # add redmine user
@@ -48,19 +45,29 @@ echo 'gem "yard"' >> Gemfile
 if [ -d "${GEM_CACHE_DIR}" ]; then
   mv ${GEM_CACHE_DIR} vendor/
 fi
-bundle install --without development tests
+bundle install --without development tests --path vendor/bundle
 
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
 
-# install themes
-. ${THEMES_SETUP_DIR}/install
-
-# install plugins
-. ${PLUGINS_SETUP_DIR}/install
-
 # finalize redmine installation
-mkdir -p tmp tmp/pdf public/plugin_assets tmp/pids/ tmp/sockets/
+mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
+
+# create link public/plugin_assets directory
+rm -rf public/plugin_assets
+ln -sf ${DATA_DIR}/tmp/plugin_assets public/plugin_assets
+
+# create link tmp/thumbnails directory
+rm -rf tmp/thumbnails
+ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
+
+# create link to tmp/secret_token.rb
+ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
+
+# create production log
+sudo -u redmine -H touch log/production.log
+
+# fix permissions
 chmod -R u+rwX files log tmp
 chown -R redmine:redmine ${INSTALL_DIR}
 
