@@ -555,7 +555,7 @@ cd /opt/redmine/data/plugins
 git clone https://github.com/nutso/redmine-plugin-recurring-tasks.git
 ```
 
-For most plugins this is all you need to do. With the plugin installed you can start the docker image normally. The image will detect that a plugin has been added (or removed) and automatically install the required gems and perform the plugin migrations and ready for usage.
+For most plugins this is all you need to do. With the plugin installed you can start the docker image normally. The image will detect that a plugin has been added (or removed) and automatically install the required gems and perform the plugin migrations and will be ready for use.
 
 ***If the gem installation fails after adding a new plugin, please retry after removing the `/opt/redmine/data/tmp` directory***
 
