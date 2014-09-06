@@ -323,6 +323,10 @@ if [ -d ${DATA_DIR}/plugins ]; then
   [ -f ${DATA_DIR}/tmp/plugins.sha1 ] && CURRENT_SHA1=$(cat ${DATA_DIR}/tmp/plugins.sha1)
   PLUGINS_SHA1=$(find ${DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
   if [ "${CURRENT_SHA1}" != "${PLUGINS_SHA1}" ]; then
+    # remove the existing plugin assets
+    # this ensures there is no cruft when a plugin is removed.
+    rm -rf ${DATA_DIR}/tmp/plugin_assets/*
+
     echo "Installing gems required by plugins..."
     bundle install --without development tests --path vendor/bundle
 
