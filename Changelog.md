@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.5.2-2**
 - added system for users to install themes
 - removed pre-installed themes
 - added system for users to install plugins
