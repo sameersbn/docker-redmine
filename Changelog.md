@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- run a daily cron job to fetch commits
 - fix: run nginx workers as redmine user
 
 **2.5.2-2**

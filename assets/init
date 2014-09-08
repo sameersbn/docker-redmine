@@ -350,6 +350,14 @@ if [ -d ${DATA_DIR}/themes ]; then
   rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
 fi
 
+# create a cronjob to periodically fetch commits
+set +e
+crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
+set -e
+echo '@daily cd /home/redmine/redmine && ./script/rails runner "Repository.fetch_changesets" -e production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
+crontab -u redmine /tmp/cron.redmine 2>/dev/null
+rm -rf /tmp/cron.redmine
+
 # fix ownership of ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 
