@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- fix: run nginx workers as redmine user
+
 **2.5.2-2**
 - added system for users to install themes
 - removed pre-installed themes
