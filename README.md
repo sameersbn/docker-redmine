@@ -16,6 +16,9 @@
     - [PostgreSQL](#postgresql)
       - [External PostgreSQL Server](#external-postgresql-server)
       - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
+  - [Memcached (Optional)](#memcached-optional)
+      - [External Memcached Server](#external-memcached-server)
+      - [Linking to Memcached Container](#linking-to-memcached-container)
   - [Mail](#mail)
   - [SSL](#ssl)
     - [Generation of Self Signed Certificates](#generation-of-self-signed-certificates)
@@ -345,6 +348,41 @@ docker run --name=redmine -it --rm --link postgresql:postgresql \
   sameersbn/redmine:2.5.2-2
 ```
 
+## Memcached (Optional)
+
+This image can (optionally) be configured to use a memcached server to speed up Redmine. This is particularly useful when you have a large number users.
+
+### External Memcached Server
+
+The image can be configured to use an external memcached server. The memcached server host and port configuration should be specified using environment variables `MEMCACHE_HOST` and `MEMCACHE_PORT` like so:
+
+*Assuming that the memcached server host is 192.168.1.100*
+
+```bash
+docker run --name=redmine -it --rm \
+  -e 'MEMCACHE_HOST=192.168.1.100' -e 'MEMCACHE_PORT=11211' \
+  sameersbn/redmine:2.5.2-2
+```
+
+### Linking to Memcached Container
+
+Alternately you can link this image with a memcached container. The alias of the memcached server container should be set to **memcached** while linking with the redmine image.
+
+To illustrate linking with a memcached container, we will use the [sameersbn/memcached](https://github.com/sameersbn/docker-memcached) image. Please refer the [README](https://github.com/sameersbn/docker-memcached/blob/master/README.md) of docker-memcached for details.
+
+First, lets pull and launch the memcached image from the docker index.
+
+```bash
+docker run --name=memcached -d sameersbn/memcached:latest
+```
+
+Now you can link memcached to the redmine image:
+
+```bash
+docker run --name=redmine -it --rm --link memcached:memcached \
+  sameersbn/redmine:2.5.2-2
+```
+
 ### Mail
 
 The mail configuration should be specified using environment variables while starting the redmine image. The configuration defaults to using gmail to send emails and requires the specification of a valid username and password to login to the gmail servers.
@@ -520,6 +558,8 @@ Below is the complete list of parameters that can be set using environment varia
 - **NGINX_X_FORWARDED_PROTO**: Advanced configuration option for the `proxy_set_header X-Forwarded-Proto` setting in the redmine nginx vHost configuration. Defaults to `https` when `REDMINE_HTTPS` is `true`, else defaults to `$scheme`.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to `2`.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
+- **MEMCACHE_HOST**: The host name of the memcached server. No defaults.
+- **MEMCACHE_PORT**: The connection port of the memcached server. Defaults to `11211`.
 - **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/app/setup/certs/redmine.crt`.
 - **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
 - **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.
