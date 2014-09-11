@@ -1,6 +1,8 @@
 # Changelog
 
 **latest**
+- added support for external/linked memcached servers
+- removed internal memcached server
 - run a daily cron job to fetch commits
 - fix: run nginx workers as redmine user
 
