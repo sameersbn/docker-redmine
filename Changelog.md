@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added REDMINE_FETCH_COMMITS configuration option
 - added support for external/linked memcached servers
 - removed internal memcached server
 - run a daily cron job to fetch commits

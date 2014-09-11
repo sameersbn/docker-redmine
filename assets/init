@@ -36,6 +36,7 @@ SMTP_ENABLED=${SMTP_ENABLED:-false}
 REDMINE_PORT=${REDMINE_PORT:-}
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
 REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
+REDMINE_FETCH_COMMITS=${REDMINE_FETCH_COMMITS:-disable}
 
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
@@ -364,12 +365,16 @@ if [ -d ${DATA_DIR}/themes ]; then
 fi
 
 # create a cronjob to periodically fetch commits
-set +e
-crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
-set -e
-echo '@daily cd /home/redmine/redmine && ./script/rails runner "Repository.fetch_changesets" -e production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
-crontab -u redmine /tmp/cron.redmine 2>/dev/null
-rm -rf /tmp/cron.redmine
+case "${REDMINE_FETCH_COMMITS}" in
+  hourly|daily|monthly)
+    set +e
+    crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
+    set -e
+    echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
+    crontab -u redmine /tmp/cron.redmine 2>/dev/null
+    rm -rf /tmp/cron.redmine
+    ;;
+esac
 
 # fix ownership of ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
