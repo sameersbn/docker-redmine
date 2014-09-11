@@ -520,7 +520,6 @@ Below is the complete list of parameters that can be set using environment varia
 - **NGINX_X_FORWARDED_PROTO**: Advanced configuration option for the `proxy_set_header X-Forwarded-Proto` setting in the redmine nginx vHost configuration. Defaults to `https` when `REDMINE_HTTPS` is `true`, else defaults to `$scheme`.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to `2`.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
-- **MEMCACHED_SIZE**: The local memcached size in Mb. Defaults to `64`. Disabled if `0`.
 - **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/app/setup/certs/redmine.crt`.
 - **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
 - **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.

@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- removed internal memcached server
 - run a daily cron job to fetch commits
 - fix: run nginx workers as redmine user
 

@@ -18,8 +18,6 @@ DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
 DB_TYPE=${DB_TYPE:-}
 
-MEMCACHED_SIZE=${MEMCACHED_SIZE:-64}
-
 SMTP_DOMAIN=${SMTP_DOMAIN:-www.gmail.com}
 SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
 SMTP_PORT=${SMTP_PORT:-587}
@@ -143,7 +141,7 @@ case "${REDMINE_HTTPS}" in
     ;;
   *) cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
 esac
-sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
+
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
 [ "${SMTP_ENABLED}" == "true" ] && \
@@ -160,7 +158,6 @@ case "${REDMINE_HTTPS}" in
     ;;
   *) [ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]                && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
 esac
-[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ] && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]              && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]                && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
 [ "${SMTP_ENABLED}" == "true" ] && \
@@ -185,18 +182,6 @@ sudo -u redmine -H sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
-
-# start memcached and install config if ${MEMCACHED_SIZE} is not 0
-if [ "${MEMCACHED_SIZE}" != "0" ]; then
-  sed 's/{{MEMCACHED_SIZE}}/'"${MEMCACHED_SIZE}"'/' -i /etc/supervisor/conf.d/memcached.conf
-  supervisorctl update >/dev/null
-
-  echo "Starting memcached..."
-  supervisorctl start memcached >/dev/null
-  sudo -u redmine -H sed 's/{{ENABLE_CACHE}}/true/' -i config/additional_environment.rb
-else
-  sudo -u redmine -H sed 's/{{ENABLE_CACHE}}/false/' -i config/additional_environment.rb
-fi
 
 # configure nginx
 sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine

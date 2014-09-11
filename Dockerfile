@@ -4,7 +4,7 @@ MAINTAINER sameer@damagehead.com
 RUN add-apt-repository -y ppa:brightbox/ruby-ng \
  && add-apt-repository -y ppa:nginx/stable \
  && apt-get update \
- && apt-get install -y make imagemagick nginx mysql-server memcached \
+ && apt-get install -y make imagemagick nginx mysql-server \
       subversion git cvs bzr mercurial ruby2.1 ruby2.1-dev \
       libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
       libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev \
