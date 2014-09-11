@@ -164,7 +164,7 @@ sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn
 [ "${SMTP_ENABLED}" == "true" ] && \
 sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 [ "${MEMCACHE_ENABLED}" == "true" ] && \
-sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/memcache_settings.rb config/memcache_settings.rb
+sudo -u redmine -H cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 
 # override default configuration templates with user templates
 case "${REDMINE_HTTPS}" in
@@ -182,7 +182,7 @@ esac
 [ "${SMTP_ENABLED}" == "true" ] && \
 [ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]          && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
 [ "${MEMCACHE_ENABLED}" == "true" ] && \
-[ -f ${USERCONF_TEMPLATES_DIR}/redmine/memcache_settings.rb ]      && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/memcache_settings.rb config/memcache_settings.rb
+[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ] && sudo -u redmine -H cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 
 # configure database
 if [ "${DB_TYPE}" == "postgres" ]; then
@@ -207,8 +207,8 @@ sudo -u redmine -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
 # configure memcached
 if [ "${MEMCACHE_ENABLED}" == "true" ]; then
   echo "Enabling memcache..."
-  sed 's/{{MEMCACHE_HOST}}/'"${MEMCACHE_HOST}"'/' -i config/memcache_settings.rb
-  sed 's/{{MEMCACHE_PORT}}/'"${MEMCACHE_PORT}"'/' -i config/memcache_settings.rb
+  sed 's/{{MEMCACHE_HOST}}/'"${MEMCACHE_HOST}"'/' -i config/additional_environment.rb
+  sed 's/{{MEMCACHE_PORT}}/'"${MEMCACHE_PORT}"'/' -i config/additional_environment.rb
 fi
 
 # configure nginx
