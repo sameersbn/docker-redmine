@@ -145,7 +145,10 @@ if [ "${DB_HOST}" == "localhost" ]; then
   fi
 fi
 
-if [ -d /opt/redmine ]; then ln -s ${INSTALL_DIR} /opt/redmine
+if [ -d /opt/redmine ]; 
+then echo "Was There "
+else ln -s ${INSTALL_DIR} /opt/redmine
+fi
 cd ${INSTALL_DIR}
 
 # copy configuration templates
