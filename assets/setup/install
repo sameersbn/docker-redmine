@@ -45,6 +45,13 @@ echo 'gem "yard"' >> Gemfile
 if [ -d "${GEM_CACHE_DIR}" ]; then
   mv ${GEM_CACHE_DIR} vendor/
 fi
+
+# hack for debian:jessie
+if [ ! -f /usr/bin/Magick-config ]; then
+  cp ${SETUP_DIR}/Magick-config /usr/bin/Magick-config
+  chmod +x /usr/bin/Magick-config
+fi
+
 bundle install --without development tests --path vendor/bundle
 
 # some gems complain about missing database.yml, shut them up!
@@ -90,6 +97,19 @@ ${INSTALL_DIR}/log/*.log {
 }
 EOF
 
+# configure supervisord log rotation
+cat > /etc/logrotate.d/supervisord <<EOF
+/var/log/supervisor/*.log {
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}
+EOF
+
 # configure supervisord to start nginx
 echo "daemon off;" >> /etc/nginx/nginx.conf
 cat > /etc/supervisor/conf.d/nginx.conf <<EOF
@@ -125,6 +145,19 @@ directory=/tmp
 command=/usr/bin/mysqld_safe
 user=root
 autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+EOF
+
+# configure supervisord to start crond
+cat > /etc/supervisor/conf.d/cron.conf <<EOF
+[program:cron]
+priority=20
+directory=/tmp
+command=/usr/sbin/cron -f
+user=root
+autostart=true
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
