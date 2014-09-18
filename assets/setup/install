@@ -8,6 +8,14 @@ DATA_DIR="/home/redmine/data"
 SETUP_DIR="/app/setup"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
 
+# rebuild apt cache
+apt-get update
+
+# install build dependencies
+apt-get install -y gcc g++ make patch pkg-config ruby-dev libc6-dev \
+  libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
+
 # add redmine user
 adduser --disabled-login --gecos 'Redmine' redmine
 passwd -d redmine
@@ -162,3 +170,11 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
+
+# purge build dependencies
+apt-get purge -y --auto-remove gcc g++ make patch pkg-config ruby-dev libc6-dev \
+  libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
+
+# cleanup
+rm -rf /var/lib/apt/lists/* # 20140918

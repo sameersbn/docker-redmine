@@ -2,10 +2,9 @@ FROM sameersbn/debian:jessie.20140918
 MAINTAINER sameer@damagehead.com
 
 RUN apt-get update \
- && apt-get install -y gcc g++ make patch pkg-config imagemagick supervisor logrotate nginx \
-      mysql-server subversion git cvs bzr mercurial rsync ruby2.1 ruby2.1-dev rubygems \
-      libc6-dev libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-      libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev \
+ && apt-get install -y supervisor logrotate nginx mysql-server imagemagick \
+      subversion git cvs bzr mercurial rsync ruby rubygems \
+      libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 libxslt1.1 libffi6 zlib1g \
  && gem install --no-ri --no-rdoc bundler \
  && rm -rf /var/lib/apt/lists/* # 20140918
 
