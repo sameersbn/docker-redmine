@@ -5,7 +5,7 @@ RUN apt-get update \
  && apt-get install -y supervisor logrotate nginx mysql-server imagemagick \
       subversion git cvs bzr mercurial rsync ruby rubygems \
       libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 libxslt1.1 libffi6 zlib1g \
- && gem install --no-ri --no-rdoc bundler \
+ && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/* # 20140918
 
 ADD assets/setup/ /app/setup/
