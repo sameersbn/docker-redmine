@@ -380,6 +380,9 @@ esac
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 
 appStart () {
+  echo "Starting cron..."
+  supervisorctl start cron >/dev/null
+
   echo "Starting unicorn..."
   supervisorctl start unicorn >/dev/null
 
