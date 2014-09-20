@@ -546,6 +546,7 @@ docker run --name=redmine -d -h redmine.local.host \
 Below is the complete list of parameters that can be set using environment variables.
 
 - **REDMINE_HTTPS**: Enable HTTPS (SSL/TLS) port on server. Defaults to `false`
+- **REDMINE_HTTPS_HSTS_ENABLED**: Advanced configuration option for turning off the HSTS configuration. Applicable only when SSL is in use. Defaults to `true`. See [#138](https://github.com/sameersbn/docker-gitlab/issues/138) for use case scenario.
 - **REDMINE_HTTPS_HSTS_MAXAGE**: Advanced configuration option for setting the HSTS max-age in the redmine nginx vHost configuration. Applicable only when SSL is in use. Defaults to `31536000`.
 - **REDMINE_PORT**: The port of the Redmine server. Defaults to `80` for plain http and `443` when https is enabled.
 - **REDMINE_RELATIVE_URL_ROOT**: The relative url of the Redmine server, e.g. `/redmine`. No default.
