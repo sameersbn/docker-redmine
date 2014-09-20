@@ -25,6 +25,7 @@
     - [Strengthening the server security](#strengthening-the-server-security)
     - [Installation of the Certificates](#installation-of-the-certificates)
     - [Enabling HTTPS support](#enabling-https-support)
+    - [Configuring HSTS](#configuring-hsts)
     - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
   - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
   - [Putting it all together](#putting-it-all-together)
@@ -484,6 +485,22 @@ docker run --name=redmine -d \
 ```
 
 In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
+
+#### Configuring HSTS
+
+HSTS if supported by the browsers makes sure that your users will only reach your sever via HTTPS. When the user comes for the first time it sees a header from the server which states for how long from now this site should only be reachable via HTTPS - that's the HSTS max-age value.
+
+With `REDMINE_HTTPS_HSTS_MAXAGE` you can configure that value. The default value is `31536000` seconds. If you want to disable a already sent HSTS MAXAGE value, set it to `0`.
+
+```bash
+docker run --name=redmine -d \
+  -e 'REDMINE_HTTPS=true' \
+  -e 'REDMINE_HTTPS_HSTS_MAXAGE=2592000'
+  -v /opt/redmine/data:/home/redmine/data \
+  sameersbn/redmine:2.5.2-2
+```
+
+If you want to completely disable HSTS set `REDMINE_HTTPS_HSTS_ENABLED` to `false`.
 
 #### Using HTTPS with a load balancer
 
