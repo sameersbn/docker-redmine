@@ -25,6 +25,7 @@
     - [Strengthening the server security](#strengthening-the-server-security)
     - [Installation of the Certificates](#installation-of-the-certificates)
     - [Enabling HTTPS support](#enabling-https-support)
+    - [Configuring HSTS](#configuring-hsts)
     - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
   - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
   - [Putting it all together](#putting-it-all-together)
@@ -485,6 +486,22 @@ docker run --name=redmine -d \
 
 In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
 
+#### Configuring HSTS
+
+HSTS if supported by the browsers makes sure that your users will only reach your sever via HTTPS. When the user comes for the first time it sees a header from the server which states for how long from now this site should only be reachable via HTTPS - that's the HSTS max-age value.
+
+With `REDMINE_HTTPS_HSTS_MAXAGE` you can configure that value. The default value is `31536000` seconds. If you want to disable a already sent HSTS MAXAGE value, set it to `0`.
+
+```bash
+docker run --name=redmine -d \
+  -e 'REDMINE_HTTPS=true' \
+  -e 'REDMINE_HTTPS_HSTS_MAXAGE=2592000'
+  -v /opt/redmine/data:/home/redmine/data \
+  sameersbn/redmine:2.5.2-2
+```
+
+If you want to completely disable HSTS set `REDMINE_HTTPS_HSTS_ENABLED` to `false`.
+
 #### Using HTTPS with a load balancer
 
 Load balancers like nginx/haproxy/hipache talk to backend applications over plain http and as such the installation of ssl keys and certificates are not required and should **NOT** be installed in the container. The SSL configuration has to instead be done at the load balancer. Hoewever, when using a load balancer you **MUST** set `REDMINE_HTTPS` to `true`.
@@ -545,7 +562,9 @@ docker run --name=redmine -d -h redmine.local.host \
 
 Below is the complete list of parameters that can be set using environment variables.
 
-- **REDMINE_HTTPS**: Enable HTTPS (SSL/TLS) port on server. Defaults to `false`.
+- **REDMINE_HTTPS**: Enable HTTPS (SSL/TLS) port on server. Defaults to `false`
+- **REDMINE_HTTPS_HSTS_ENABLED**: Advanced configuration option for turning off the HSTS configuration. Applicable only when SSL is in use. Defaults to `true`. See [#138](https://github.com/sameersbn/docker-gitlab/issues/138) for use case scenario.
+- **REDMINE_HTTPS_HSTS_MAXAGE**: Advanced configuration option for setting the HSTS max-age in the redmine nginx vHost configuration. Applicable only when SSL is in use. Defaults to `31536000`.
 - **REDMINE_PORT**: The port of the Redmine server. Defaults to `80` for plain http and `443` when https is enabled.
 - **REDMINE_RELATIVE_URL_ROOT**: The relative url of the Redmine server, e.g. `/redmine`. No default.
 - **REDMINE_FETCH_COMMITS**: Setup cron job to fetch commits. Possible values `disable`, `hourly`, `daily` or `monthly`. Disabled by default.
