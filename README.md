@@ -792,8 +792,8 @@ docker run --name=redmine -d [OPTIONS] \
 Similarly, to remove uploaded files left unattached
 
 ```bash
-docker run --name=gitlab -d [OPTIONS] \
-  sameersbn/gitlab:7.2.1 app:rake redmine:attachments:prune
+docker run --name=redmine -d [OPTIONS] \
+  sameersbn/redmine:2.5.2-2 app:rake redmine:attachments:prune
 ```
 
 For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
