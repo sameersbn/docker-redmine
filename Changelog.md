@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- shutdown container gracefully
 - use sameersbn/debian:jessie.20140918 base image
 - added REDMINE_FETCH_COMMITS configuration option
 - added support for external/linked memcached servers

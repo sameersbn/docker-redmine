@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+trap appStop SIGINT SIGTERM
+
 INSTALL_DIR="/home/redmine/redmine"
 CONFIG_DIR="${INSTALL_DIR}/config"
 DATA_DIR="/home/redmine/data"
@@ -390,6 +392,25 @@ appStart () {
   supervisorctl start nginx >/dev/null
 
   tail -F /var/log/nginx/redmine_access.log
+}
+
+appStop() {
+  echo ""
+  echo "Stopping crond..."
+  supervisorctl stop cron >/dev/null
+
+  echo "Stopping unicorn..."
+  supervisorctl stop unicorn >/dev/null
+
+  echo "Stopping nginx..."
+  supervisorctl stop nginx >/dev/null
+
+  echo "Stopping mysqld..."
+  supervisorctl stop mysqld >/dev/null
+
+  echo "Stopping supervisord..."
+  kill -15 $(cat /var/run/supervisord.pid)
+  exit
 }
 
 appRake () {
