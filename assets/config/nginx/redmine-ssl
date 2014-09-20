@@ -41,7 +41,7 @@ server {
   ##
   ssl_dhparam {{SSL_DHPARAM_PATH}};
 
-  add_header Strict-Transport-Security max-age=63072000;
+  add_header Strict-Transport-Security max-age={{REDMINE_HTTPS_HSTS_MAX_AGE}};
   add_header X-Content-Type-Options nosniff;
 
   # individual nginx logs for this redmine vhost
