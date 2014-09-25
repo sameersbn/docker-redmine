@@ -1,0 +1,17 @@
+postgresql:
+  image: orchardup/postgresql:latest
+  environment:
+    - POSTGRESQL_USER=redmine
+    - POSTGRESQL_PASS=phatiphohsukeuwo
+    - POSTGRESQL_DB=redmine_production
+redmine:
+  image: sameersbn/redmine:latest
+  links:
+    - postgresql:postgresql
+  environment:
+    - DB_USER=redmine
+    - DB_PASS=phatiphohsukeuwo
+    - DB_NAME=redmine_production
+  ports:
+    - "80"
+    - "443"
