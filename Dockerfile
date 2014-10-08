@@ -3,6 +3,8 @@ MAINTAINER sameer@damagehead.com
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
  && echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" >> /etc/apt/sources.list \
+ && apt-key adv --keyserver keyserver.ubuntu.com --recv C300EE8C \
+ && echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu trusty main" >> /etc/apt/sources.list \
  && apt-get update \
  && apt-get install -y supervisor logrotate nginx mysql-server imagemagick \
       subversion git cvs bzr mercurial rsync ruby2.1 locales \
