@@ -1,9 +1,9 @@
-FROM sameersbn/debian:jessie.20141001
+FROM sameersbn/ubuntu:14.04.20141001
 MAINTAINER sameer@damagehead.com
 
 RUN apt-get update \
  && apt-get install -y supervisor logrotate nginx mysql-server imagemagick \
-      subversion git cvs bzr mercurial rsync ruby rubygems locales \
+      subversion git cvs bzr mercurial rsync ruby locales \
       libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 \
       libxslt1.1 libffi6 zlib1g \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \

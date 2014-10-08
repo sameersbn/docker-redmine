@@ -49,12 +49,6 @@ echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
 echo 'gem "fastercsv", "~> 1.5.0"' >> Gemfile
 echo 'gem "yard"' >> Gemfile
 
-# hack for debian:jessie
-if [ ! -f /usr/bin/Magick-config ]; then
-  cp ${SETUP_DIR}/Magick-config /usr/bin/Magick-config
-  chmod +x /usr/bin/Magick-config
-fi
-
 # install gems, use cache if available
 if [ -d "${GEM_CACHE_DIR}" ]; then
   mv ${GEM_CACHE_DIR} vendor/
