@@ -12,7 +12,7 @@ GEM_CACHE_DIR="${SETUP_DIR}/cache"
 apt-get update
 
 # install build dependencies
-apt-get install -y gcc g++ make patch pkg-config ruby-dev libc6-dev \
+apt-get install -y gcc g++ make patch pkg-config ruby2.1-dev libc6-dev \
   libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
   libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
 
@@ -164,7 +164,7 @@ stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
 
 # purge build dependencies
-apt-get purge -y --auto-remove gcc g++ make patch pkg-config ruby-dev libc6-dev \
+apt-get purge -y --auto-remove gcc g++ make patch pkg-config ruby2.1-dev libc6-dev \
   libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
   libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
 

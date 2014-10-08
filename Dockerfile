@@ -1,9 +1,11 @@
 FROM sameersbn/ubuntu:14.04.20141001
 MAINTAINER sameer@damagehead.com
 
-RUN apt-get update \
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
+ && echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" >> /etc/apt/sources.list \
+ && apt-get update \
  && apt-get install -y supervisor logrotate nginx mysql-server imagemagick \
-      subversion git cvs bzr mercurial rsync ruby locales \
+      subversion git cvs bzr mercurial rsync ruby2.1 locales \
       libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 \
       libxslt1.1 libffi6 zlib1g \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
