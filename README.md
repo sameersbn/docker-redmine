@@ -105,6 +105,8 @@ Run the redmine image with the name "redmine".
 
 ```bash
 docker run --name=redmine -it --rm -p 10080:80 \
+-v /var/run/docker.sock:/run/docker.sock \
+-v $(which docker):/bin/docker \
 sameersbn/redmine:2.5.2-3
 ```
 

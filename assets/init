@@ -90,9 +90,38 @@ elif [ -n "${POSTGRESQL_PORT_5432_TCP_ADDR}" ]; then
   DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
 fi
 
-# set the default user and database
-DB_NAME=${DB_NAME:-redmine_production}
-DB_USER=${DB_USER:-root}
+##
+## For the sake of getting the quick start guide to work,
+## we attempt to spin up a postgresql container if possible.
+##
+## NOTE: this is only meant for getting the quick start guide to work .
+##
+if [ -z "${DB_HOST}" -a -n "$(which docker)" -a -S /var/run/docker.sock ]; then
+  echo "Database connection details not specified."
+  echo "Will try to spin up a new postgresql image with the name postgresql-redmine."
+  echo "Please manually configure the database connection in production."
+  case "$(docker inspect --format {{.State.Running}} postgresql-redmine 2>/dev/null)" in
+    true)
+      echo "Using existing postgresql container..."
+      ;;
+    false)
+      echo "Starting up existing postgresql container..."
+      docker start postgresql-redmine >/dev/null 2>/dev/null
+      ;;
+    *)
+      echo "Starting up a new postgresql container..."
+      docker run --name='postgresql-redmine' -d \
+        -e 'DB_USER=redmine' -e 'DB_PASS=password' -e 'DB_NAME=redmine_production' \
+        sameersbn/postgresql:latest >/dev/null 2>/dev/null
+      ;;
+  esac
+  DB_TYPE=postgres
+  DB_HOST=$(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql-redmine 2>/dev/null)
+  DB_PORT=5432
+  DB_USER=redmine
+  DB_PASS=password
+  DB_NAME=redmine_production
+fi
 
 if [ -z "${DB_HOST}" ]; then
   echo "ERROR: "
@@ -113,6 +142,10 @@ case "${DB_TYPE}" in
     exit 1
     ;;
 esac
+
+# set the default user and database
+DB_NAME=${DB_NAME:-redmine_production}
+DB_USER=${DB_USER:-root}
 
 # is a memcached container linked?
 if [ -n "${MEMCACHED_PORT_11211_TCP_ADDR}" ]; then
