@@ -105,6 +105,8 @@ Run the redmine image with the name "redmine".
 
 ```bash
 docker run --name=redmine -it --rm -p 10080:80 \
+-v /var/run/docker.sock:/run/docker.sock \
+-v $(which docker):/bin/docker \
 sameersbn/redmine:2.5.2-3
 ```
 
@@ -156,9 +158,7 @@ Redmine uses a database backend to store its data.
 
 #### Internal MySQL Server
 
-The internal mysql server will soon be removed from the image.
-
-Please use a linked [mysql](#linking-to-mysql-container) or [postgresql](#linking-to-postgresql-container) container instead or connect with an external [mysql](#external-mysql-server) or [postgresql](#external-postgresql-server) server.
+The internal mysql server has been removed from the image. Please use a linked [mysql](#linking-to-mysql-container) or [postgresql](#linking-to-postgresql-container) container instead or connect with an external [mysql](#external-mysql-server) or [postgresql](#external-postgresql-server) server.
 
 If you have been using the internal mysql server follow these instructions to migrate to a linked mysql container:
 

@@ -16,6 +16,8 @@ build:
 quickstart:
 	@echo "Starting redmine..."
 	@docker run --name=redmine-demo -d -p 10080:80 \
+		-v /var/run/docker.sock:/run/docker.sock \
+		-v $(shell which docker):/bin/docker \
 		${USER}/redmine:latest >/dev/null
 	@echo "Please be patient. This could take a while..."
 	@echo "Redmine will be available at http://localhost:10080"
