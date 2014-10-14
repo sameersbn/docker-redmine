@@ -128,8 +128,9 @@ cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
 [program:unicorn]
 priority=20
 directory=${INSTALL_DIR}
+environment=HOME=/home/redmine
 command=bundle exec unicorn_rails -E production -c ${INSTALL_DIR}/config/unicorn.rb
-user=root
+user=redmine
 autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
