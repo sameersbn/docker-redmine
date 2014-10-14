@@ -236,7 +236,7 @@ You should now have the mysql server running. By default the sameersbn/mysql ima
 Now, lets login to the mysql server and create a user and database for the redmine application.
 
 ```bash
-docker run -it --rm sameersbn/mysql:latest mysql -uroot -h$(docker inspect --format {{.NetworkSettings.IPAddress}} mysql)
+docker run -it --rm --volumes-from=mysql sameersbn/mysql mysql -uroot
 ```
 
 ```sql
