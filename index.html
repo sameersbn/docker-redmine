@@ -31,6 +31,8 @@
 <a name="zero-to-redmine-in-5-seconds-or-less" class="anchor" href="#zero-to-redmine-in-5-seconds-or-less"><span class="octicon octicon-link"></span></a>Zero to Redmine in 5 seconds or less*</h1>
 
 <div class="highlight highlight-bash"><pre>docker run --name<span class="o">=</span>redmine -it --rm -p 10080:80 <span class="se">\</span>
+-v /var/run/docker.sock:/run/docker.sock <span class="se">\</span>
+-v <span class="k">$(</span>which docker<span class="k">)</span>:/bin/docker <span class="se">\</span>
 sameersbn/redmine:latest
 </pre></div>
 
@@ -39,7 +41,9 @@ sameersbn/redmine:latest
 <ul>
 <li>username: admin</li>
 <li>password: admin</li>
-</ul><p>* <em>download and start up times not included</em></p>
+</ul>
+
+<p>* <em>download and start up times not included</em></p>
       </section>
     </div>
     <footer>
