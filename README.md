@@ -156,35 +156,25 @@ Redmine uses a database backend to store its data.
 
 #### Internal MySQL Server
 
-> **Warning**
->
-> The internal mysql server will soon be removed from the image.
+The internal mysql server will soon be removed from the image.
 
-> Please use a linked [mysql](#linking-to-mysql-container) or
-> [postgresql](#linking-to-postgresql-container) container instead.
-> Or else connect with an external [mysql](#external-mysql-server) or
-> [postgresql](#external-postgresql-server) server.
+Please use a linked [mysql](#linking-to-mysql-container) or [postgresql](#linking-to-postgresql-container) container instead or connect with an external [mysql](#external-mysql-server) or [postgresql](#external-postgresql-server) server.
 
-> You've been warned.
+If you have been using the internal mysql server follow these instructions to migrate to a linked mysql container:
 
-This docker image is configured to use a MySQL database backend. The database connection can be configured using environment variables. If not specified, the image will start a mysql server internally and use it. However in this case, the data stored in the mysql database will be lost if the container is stopped/deleted. To avoid this you should mount a volume at `/var/lib/mysql`.
-
-SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
+Assuming that your mysql data is available at `/opt/redmine/mysql`
 
 ```bash
-mkdir -p /opt/redmine/mysql
-sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/mysql
+docker run --name=mysql -d \
+  -v /opt/redmine/mysql:/var/lib/mysql \
+  sameersbn/mysql:latest
 ```
 
-The updated run command looks like this.
+This will start a mysql container with your existing mysql data. Now login to the mysql container and create a user for the existing `redmine_production` database.
 
-```bash
-docker run --name=redmine -it --rm \
-  -v /opt/redmine/data:/home/redmine/data \
-  -v /opt/redmine/mysql:/var/lib/mysql sameersbn/redmine:2.5.2-3
-```
+All you need to do now is link this mysql container to the redmine container using the `--link mysql:mysql` option and provide the `DB_NAME`, `DB_USER` and `DB_PASS` parameters.
 
-This will make sure that the data stored in the database is not lost when the image is stopped and started again.
+Refer to [Linking to MySQL Container](#linking-to-mysql-container) for more information.
 
 #### External MySQL Server
 
