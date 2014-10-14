@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added support for fetching `DB_NAME`, `DB_USER` and `DB_PASS` from the mysql linkage
 - keep development and build packages
 
 **2.5.2-3**
