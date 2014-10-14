@@ -133,6 +133,7 @@ command=bundle exec unicorn_rails -E production -c ${INSTALL_DIR}/config/unicorn
 user=redmine
 autostart=false
 autorestart=true
+stopsignal=QUIT
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 EOF
