@@ -156,9 +156,7 @@ Redmine uses a database backend to store its data.
 
 #### Internal MySQL Server
 
-The internal mysql server will soon be removed from the image.
-
-Please use a linked [mysql](#linking-to-mysql-container) or [postgresql](#linking-to-postgresql-container) container instead or connect with an external [mysql](#external-mysql-server) or [postgresql](#external-postgresql-server) server.
+The internal mysql server has been removed from the image. Please use a linked [mysql](#linking-to-mysql-container) or [postgresql](#linking-to-postgresql-container) container instead or connect with an external [mysql](#external-mysql-server) or [postgresql](#external-postgresql-server) server.
 
 If you have been using the internal mysql server follow these instructions to migrate to a linked mysql container:
 
