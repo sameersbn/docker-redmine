@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-trap appStop SIGINT SIGTERM
-
 INSTALL_DIR="/home/redmine/redmine"
 CONFIG_DIR="${INSTALL_DIR}/config"
 DATA_DIR="/home/redmine/data"
@@ -172,9 +170,6 @@ case "${REDMINE_HTTPS}" in
     NGINX_X_FORWARDED_PROTO=${NGINX_X_FORWARDED_PROTO:-\$scheme}
     ;;
 esac
-
-# start supervisord
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
 # fix permission and ownership of ${DATA_DIR}
 chmod 755 ${DATA_DIR}
@@ -448,32 +443,8 @@ esac
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 
 appStart () {
-  echo "Starting cron..."
-  supervisorctl start cron >/dev/null
-
-  echo "Starting unicorn..."
-  supervisorctl start unicorn >/dev/null
-
-  echo "Starting nginx..."
-  supervisorctl start nginx >/dev/null
-
-  tail -F /var/log/nginx/redmine_access.log
-}
-
-appStop() {
-  echo ""
-  echo "Stopping crond..."
-  supervisorctl stop cron >/dev/null
-
-  echo "Stopping unicorn..."
-  supervisorctl stop unicorn >/dev/null
-
-  echo "Stopping nginx..."
-  supervisorctl stop nginx >/dev/null
-
-  echo "Stopping supervisord..."
-  kill -15 $(cat /var/run/supervisord.pid)
-  exit
+  # start supervisord
+  exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }
 
 appRake () {
