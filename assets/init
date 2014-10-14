@@ -332,6 +332,29 @@ else
   ln -sf ${DATA_DIR}/files
 fi
 
+# due to the nature of docker and its use cases, we allow some time
+# for the database server to come online.
+case "${DB_TYPE}" in
+  mysql)
+    prog="mysqladmin -h ${DB_HOST} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"
+    ;;
+  postgres)
+    prog=$(find /usr/lib/postgresql/ -name pg_isready)
+    prog="${prog} -h ${DB_HOST} -U ${DB_USER} -d ${DB_NAME} -t 1"
+    ;;
+esac
+timeout=60
+while ! ${prog} >/dev/null 2>&1
+do
+  timeout=$(expr $timeout - 1)
+  if [ $timeout -eq 0 ]; then
+    echo "Could not connect to mysql server. Aborting..."
+    exit 1
+  fi
+  echo "Waiting for database server to accept connections..."
+  sleep 1
+done
+
 # migrate database if the redmine version has changed.
 CURRENT_VERSION=
 REDMINE_VERSION=$(cat ${INSTALL_DIR}/VERSION)

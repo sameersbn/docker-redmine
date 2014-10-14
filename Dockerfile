@@ -6,8 +6,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv C300EE8C \
  && echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu trusty main" >> /etc/apt/sources.list \
  && apt-get update \
- && apt-get install -y supervisor logrotate nginx mysql-client imagemagick \
-      subversion git cvs bzr mercurial rsync ruby2.1 locales \
+ && apt-get install -y supervisor logrotate nginx mysql-client postgresql-client \
+      imagemagick subversion git cvs bzr mercurial rsync ruby2.1 locales \
       gcc g++ make patch pkg-config ruby2.1-dev libc6-dev \
       libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 \
       libxslt1.1 libffi6 zlib1g \
