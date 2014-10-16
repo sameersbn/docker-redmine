@@ -52,10 +52,11 @@ echo 'gem "yard"' >> Gemfile
 if [ -d "${GEM_CACHE_DIR}" ]; then
   mv ${GEM_CACHE_DIR} vendor/
 fi
-bundle install --without development tests --path vendor/bundle
 
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
+
+bundle install --without development tests --path vendor/bundle
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
