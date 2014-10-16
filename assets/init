@@ -446,6 +446,9 @@ appStart () {
   # remove stale unicorn pid if it exists.
   rm -rf tmp/pids/unicorn.pid
 
+  # remove state unicorn socket if it exists
+  rm -rf tmp/sockets/redmine.socket
+
   # start supervisord
   exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }
