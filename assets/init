@@ -443,6 +443,9 @@ esac
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 
 appStart () {
+  # remove stale unicorn pid if it exists.
+  rm -rf tmp/pids/unicorn.pid
+
   # start supervisord
   exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }
