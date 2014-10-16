@@ -35,9 +35,15 @@ cd ${INSTALL_DIR}
 # create version file
 echo "${REDMINE_VERSION}" > ${INSTALL_DIR}/VERSION
 
-# add support for mysql and postgresql databases
-echo 'gem "mysql2", "~> 0.3.11"' >> Gemfile
-echo 'gem "pg", ">= 0.11.0"' >> Gemfile
+# HACK: we want both the pg and mysql2 gems installed, so we remove the
+#       respective lines and add them at the end of the Gemfile so that they
+#       are both installed.
+PG_GEM=$(grep 'gem "pg"' Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+MYSQL2_GEM=$(grep 'gem "mysql2"' Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+sed '/gem "pg"/d' -i Gemfile
+sed '/gem "mysql2"/d' -i Gemfile
+echo "${PG_GEM}" >> Gemfile
+echo "${MYSQL2_GEM}" >> Gemfile
 
 # add gems for app server and memcache support
 echo 'gem "unicorn"' >> Gemfile
