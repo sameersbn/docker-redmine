@@ -385,6 +385,15 @@ if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
   echo "${REDMINE_VERSION}" | sudo -u redmine -H tee --append ${DATA_DIR}/tmp/VERSION >/dev/null
 fi
 
+# create a cronjob to periodically fetch commits
+case "${REDMINE_FETCH_COMMITS}" in
+  hourly|daily|monthly)
+    echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >/tmp/cron.redmine
+    crontab -u redmine /tmp/cron.redmine 2>/dev/null
+    rm -rf /tmp/cron.redmine
+    ;;
+esac
+
 # remove vendor/bundle and symlink to ${DATA_DIR}/tmp/bundle
 rm -rf vendor/bundle Gemfile.lock
 ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
@@ -426,18 +435,6 @@ if [ -d ${DATA_DIR}/themes ]; then
   echo "Installing themes..."
   rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
 fi
-
-# create a cronjob to periodically fetch commits
-case "${REDMINE_FETCH_COMMITS}" in
-  hourly|daily|monthly)
-    set +e
-    crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
-    set -e
-    echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
-    crontab -u redmine /tmp/cron.redmine 2>/dev/null
-    rm -rf /tmp/cron.redmine
-    ;;
-esac
 
 # fix ownership of ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
