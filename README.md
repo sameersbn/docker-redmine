@@ -3,6 +3,7 @@
 - [Introduction](#introduction)
   - [Version](#version)
   - [Changelog](Changelog.md)
+- [Contributing](#contributing)
 - [Reporting Issues](#reporting-issues)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
@@ -48,6 +49,14 @@ Dockerfile to build a Redmine container image.
 ## Version
 
 Current Version: **2.5.2-3**
+
+# Contributing
+
+If you find this image useful here's how you can help:
+
+- Send a Pull Request with your awesome new features and bug fixes
+- Help new users with [Issues](https://github.com/sameersbn/docker-redmine/issues) they may encounter
+- Send me a tip on [Gittip](https://gittip.com/sameersbn/) or using Bitcoin at **16rDxVqJPyYAFYPLduTaSiwe7ZiY1hHqKM**
 
 # Reporting Issues
 
