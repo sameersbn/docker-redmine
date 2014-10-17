@@ -87,16 +87,16 @@ rm -f /etc/nginx/sites-enabled/default
 # run nginx as redmine user
 sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 
-# setup log rotation for redmine
+# setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
 /var/log/redmine/redmine/*.log {
-    weekly
-    missingok
-    rotate 52
-    compress
-    delaycompress
-    notifempty
-    copytruncate
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  copytruncate
 }
 EOF
 
