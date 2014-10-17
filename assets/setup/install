@@ -73,11 +73,12 @@ ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
 # create link to tmp/secret_token.rb
 ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
 
-# create production log
-sudo -u redmine -H touch log/production.log
+# symlink log -> /var/log/redmine/redmine
+rm -rf log
+ln -sf /var/log/redmine/redmine log
 
 # fix permissions
-chmod -R u+rwX files log tmp
+chmod -R u+rwX files tmp
 chown -R redmine:redmine ${INSTALL_DIR}
 
 # disable default nginx configuration
@@ -86,22 +87,35 @@ rm -f /etc/nginx/sites-enabled/default
 # run nginx as redmine user
 sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 
-# setup log rotation for redmine
+# setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
-${INSTALL_DIR}/log/*.log {
-    weekly
-    missingok
-    rotate 52
-    compress
-    delaycompress
-    notifempty
-    copytruncate
+/var/log/redmine/redmine/*.log {
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}
+EOF
+
+# setup log rotation for redmine vhost logs
+cat > /etc/logrotate.d/redmine-vhost <<EOF
+/var/log/redmine/nginx/*.log {
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  copytruncate
 }
 EOF
 
 # configure supervisord log rotation
 cat > /etc/logrotate.d/supervisord <<EOF
-/var/log/supervisor/*.log {
+/var/log/redmine/supervisor/*.log {
   weekly
   missingok
   rotate 52
@@ -121,8 +135,8 @@ command=/usr/sbin/nginx -g "daemon off;"
 user=root
 autostart=true
 autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
+stdout_logfile=/var/log/redmine/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/redmine/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start unicorn
@@ -136,8 +150,8 @@ user=redmine
 autostart=true
 autorestart=true
 stopsignal=QUIT
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
+stdout_logfile=/var/log/redmine/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/redmine/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start crond
@@ -149,8 +163,8 @@ command=/usr/sbin/cron -f
 user=root
 autostart=true
 autorestart=true
-stdout_logfile=/var/log/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/supervisor/%(program_name)s.log
+stdout_logfile=/var/log/redmine/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/redmine/supervisor/%(program_name)s.log
 EOF
 
 # purge build dependencies

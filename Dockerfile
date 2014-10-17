@@ -27,6 +27,7 @@ EXPOSE 80
 EXPOSE 443
 
 VOLUME ["/home/redmine/data"]
+VOLUME ["/var/log/redmine"]
 
 ENTRYPOINT ["/app/init"]
 CMD ["app:start"]

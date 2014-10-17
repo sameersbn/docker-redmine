@@ -15,8 +15,8 @@ server {
   client_max_body_size {{NGINX_MAX_UPLOAD_SIZE}};
 
   ## Individual nginx logs for this GitLab vhost
-  access_log  /var/log/nginx/redmine_access.log;
-  error_log   /var/log/nginx/redmine_error.log;
+  access_log  /var/log/redmine/nginx/redmine_access.log;
+  error_log   /var/log/redmine/nginx/redmine_error.log;
 
   location {{REDMINE_RELATIVE_URL_ROOT}} {
     # alias {{INSTALL_DIR}}/public;
