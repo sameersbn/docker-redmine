@@ -171,6 +171,9 @@ case "${REDMINE_HTTPS}" in
     ;;
 esac
 
+# populate /var/log/redmine
+mkdir -m 0755 -p /var/log/redmine/redmine     && chown -R redmine:redmine /var/log/redmine/redmine
+
 # fix permission and ownership of ${DATA_DIR}
 chmod 755 ${DATA_DIR}
 chown redmine:redmine ${DATA_DIR}

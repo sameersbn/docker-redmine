@@ -73,11 +73,12 @@ ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
 # create link to tmp/secret_token.rb
 ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
 
-# create production log
-sudo -u redmine -H touch log/production.log
+# symlink log -> /var/log/redmine/redmine
+rm -rf log
+ln -sf /var/log/redmine/redmine log
 
 # fix permissions
-chmod -R u+rwX files log tmp
+chmod -R u+rwX files tmp
 chown -R redmine:redmine ${INSTALL_DIR}
 
 # disable default nginx configuration
@@ -88,7 +89,7 @@ sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 
 # setup log rotation for redmine
 cat > /etc/logrotate.d/redmine <<EOF
-${INSTALL_DIR}/log/*.log {
+/var/log/redmine/redmine/*.log {
     weekly
     missingok
     rotate 52
