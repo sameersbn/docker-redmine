@@ -448,6 +448,10 @@ if [ -d ${DATA_DIR}/themes ]; then
   rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
 fi
 
+# create the .subversion directory
+sudo -u redmine -H mkdir -p ${DATA_DIR}/.subversion/
+chown -R redmine:redmine ${DATA_DIR}/.subversion
+
 # fix ownership of ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 

@@ -19,6 +19,10 @@ apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwa
 adduser --disabled-login --gecos 'Redmine' redmine
 passwd -d redmine
 
+# create symlink to ${DATA_DIR}/.subversion
+rm -rf /home/redmine/.subversion
+sudo -u redmine -H ln -s ${DATA_DIR}/.subversion /home/redmine/.subversion
+
 # create the data store
 sudo -u redmine -H mkdir -p /home/redmine/data
 
