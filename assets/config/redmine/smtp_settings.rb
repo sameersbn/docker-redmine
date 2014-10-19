@@ -9,6 +9,7 @@ if Rails.env.production?
     :user_name            => "{{SMTP_USER}}",
     :password             => "{{SMTP_PASS}}",
     :authentication       => {{SMTP_AUTHENTICATION}},
+    :openssl_verify_mode  => "{{SMTP_OPENSSL_VERIFY_MODE}}",
     :enable_starttls_auto => {{SMTP_STARTTLS}}
   }
 end

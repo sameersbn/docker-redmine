@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- added SMTP_OPENSSL_VERIFY_MODE configuration option
 - feature: redmine logs volume
 - autostart all daemons when supervisord is started
 - removed internal mysql server
