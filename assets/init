@@ -174,7 +174,18 @@ esac
 
 # create the .ssh directory
 mkdir -p ${DATA_DIR}/dotfiles/.ssh/
-chmod 0700 ${DATA_DIR}/dotfiles/.ssh
+chown -R redmine:redmine ${DATA_DIR}/dotfiles/.ssh/
+
+# generate ssh keys
+if [ ! -e ${DATA_DIR}/dotfiles/.ssh/id_rsa -o ! -e ${DATA_DIR}/dotfiles/.ssh/id_rsa.pub ]; then
+  echo "Generating SSH keys..."
+  rm -rf ${DATA_DIR}/dotfiles/.ssh/id_rsa ${DATA_DIR}/dotfiles/.ssh/id_rsa.pub
+  sudo -u redmine -H ssh-keygen -t rsa -N "" -f ${DATA_DIR}/dotfiles/.ssh/id_rsa
+fi
+
+# make sure the ssh keys have the right ownership and permissions
+chmod 600 ${DATA_DIR}/dotfiles/.ssh/id_rsa ${DATA_DIR}/dotfiles/.ssh/id_rsa.pub
+chmod 700 ${DATA_DIR}/dotfiles/.ssh
 
 # create the .subversion directory
 mkdir -p ${DATA_DIR}/dotfiles/.subversion/
