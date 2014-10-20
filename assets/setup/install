@@ -27,9 +27,6 @@ sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.ssh /home/redmine/.ssh
 rm -rf /home/redmine/.subversion
 sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.subversion /home/redmine/.subversion
 
-# create the data store
-sudo -u redmine -H mkdir -p /home/redmine/data
-
 # install redmine, use local copy if available
 mkdir -p ${INSTALL_DIR}
 if [ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]; then
