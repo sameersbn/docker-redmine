@@ -449,13 +449,14 @@ if [ -d ${DATA_DIR}/themes ]; then
 fi
 
 # create the .ssh directory
-sudo -u redmine -H mkdir -p ${DATA_DIR}/.ssh/
-chown -R redmine:redmine ${DATA_DIR}/.ssh
-chmod 0700 ${DATA_DIR}/.ssh
+mkdir -p ${DATA_DIR}/dotfiles/.ssh/
+chmod 0700 ${DATA_DIR}/dotfiles/.ssh
 
 # create the .subversion directory
-sudo -u redmine -H mkdir -p ${DATA_DIR}/.subversion/
-chown -R redmine:redmine ${DATA_DIR}/.subversion
+mkdir -p ${DATA_DIR}/dotfiles/.subversion/
+
+# fix ownership of the ${DATA_DIR}dotfiles/ directory
+chown -R redmine:redmine ${DATA_DIR}/dotfiles
 
 # fix ownership of ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
