@@ -98,6 +98,10 @@ sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 # move supervisord.log file to /var/log/redmine/supervisor/
 sed 's|^logfile=.*|logfile=/var/log/redmine/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
 
+# move nginx logs to /var/log/redmine/nginx
+sed 's|access_log /var/log/nginx/access.log;|access_log /var/log/redmine/nginx/access.log;|' -i /etc/nginx/nginx.conf
+sed 's|error_log /var/log/nginx/error.log;|error_log /var/log/redmine/nginx/error.log;|' -i /etc/nginx/nginx.conf
+
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
 /var/log/redmine/redmine/*.log {
