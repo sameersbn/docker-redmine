@@ -95,6 +95,9 @@ rm -f /etc/nginx/sites-enabled/default
 # run nginx as redmine user
 sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 
+# move supervisord.log file to /var/log/redmine/supervisor/
+sed 's|^logfile=.*|logfile=/var/log/redmine/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
 /var/log/redmine/redmine/*.log {
