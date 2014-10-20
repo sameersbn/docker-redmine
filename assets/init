@@ -172,6 +172,19 @@ case "${REDMINE_HTTPS}" in
     ;;
 esac
 
+# create the .ssh directory
+mkdir -p ${DATA_DIR}/dotfiles/.ssh/
+chmod 0700 ${DATA_DIR}/dotfiles/.ssh
+
+# create the .subversion directory
+mkdir -p ${DATA_DIR}/dotfiles/.subversion/
+
+# fix ownership of the ${DATA_DIR}dotfiles/ directory
+chown -R redmine:redmine ${DATA_DIR}/dotfiles
+
+# fix ownership of ${DATA_DIR}/tmp/
+chown -R redmine:redmine ${DATA_DIR}/tmp/
+
 # populate /var/log/redmine
 mkdir -m 0755 -p /var/log/redmine/supervisor  && chown -R root:root /var/log/redmine/supervisor
 mkdir -m 0755 -p /var/log/redmine/nginx       && chown -R redmine:redmine /var/log/redmine/nginx
@@ -447,19 +460,6 @@ if [ -d ${DATA_DIR}/themes ]; then
   echo "Installing themes..."
   rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
 fi
-
-# create the .ssh directory
-mkdir -p ${DATA_DIR}/dotfiles/.ssh/
-chmod 0700 ${DATA_DIR}/dotfiles/.ssh
-
-# create the .subversion directory
-mkdir -p ${DATA_DIR}/dotfiles/.subversion/
-
-# fix ownership of the ${DATA_DIR}dotfiles/ directory
-chown -R redmine:redmine ${DATA_DIR}/dotfiles
-
-# fix ownership of ${DATA_DIR}/tmp/
-chown -R redmine:redmine ${DATA_DIR}/tmp/
 
 appStart () {
   # remove stale unicorn pid if it exists.
