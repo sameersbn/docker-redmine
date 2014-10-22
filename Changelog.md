@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.5.3**
 - redmine: upgrade to v.2.5.3
 - added SMTP_OPENSSL_VERIFY_MODE configuration option
 - feature: redmine logs volume
