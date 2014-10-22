@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- fix: create the `${DATA_DIR}/tmp/` directory at startup
+
 **2.6.0**
 - redmine: upgrade to v.2.6.0
 
