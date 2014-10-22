@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- fix: create the `${DATA_DIR}/tmp/` directory at startup
+
 **2.5.3**
 - redmine: upgrade to v.2.5.3
 - added SMTP_OPENSSL_VERIFY_MODE configuration option

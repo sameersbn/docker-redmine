@@ -194,6 +194,7 @@ mkdir -p ${DATA_DIR}/dotfiles/.subversion/
 chown -R redmine:redmine ${DATA_DIR}/dotfiles
 
 # fix ownership of ${DATA_DIR}/tmp/
+mkdir -p ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 
 # populate /var/log/redmine
