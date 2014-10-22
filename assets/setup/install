@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REDMINE_VERSION=2.5.2
+REDMINE_VERSION=2.5.3
 INSTALL_DIR="/home/redmine/redmine"
 DATA_DIR="/home/redmine/data"
 

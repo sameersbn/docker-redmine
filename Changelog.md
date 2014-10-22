@@ -1,6 +1,7 @@
 # Changelog
 
 **latest**
+- redmine: upgrade to v.2.5.3
 - added SMTP_OPENSSL_VERIFY_MODE configuration option
 - feature: redmine logs volume
 - autostart all daemons when supervisord is started
