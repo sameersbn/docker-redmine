@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.6.0-1**
 - fix: create the `${DATA_DIR}/tmp/` directory at startup
 
 **2.6.0**
