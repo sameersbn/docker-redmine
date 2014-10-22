@@ -48,7 +48,7 @@ Dockerfile to build a Redmine container image.
 
 ## Version
 
-Current Version: **2.5.3**
+Current Version: **2.6.0**
 
 # Contributing
 

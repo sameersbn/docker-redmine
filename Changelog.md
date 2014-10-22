@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- redmine: upgrade to v.2.6.0
+
 **2.5.3**
 - redmine: upgrade to v.2.5.3
 - added SMTP_OPENSSL_VERIFY_MODE configuration option
