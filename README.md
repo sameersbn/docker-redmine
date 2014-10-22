@@ -232,38 +232,29 @@ mkdir -p /opt/mysql/data
 sudo chcon -Rt svirt_sandbox_file_t /opt/mysql/data
 ```
 
-The updated run command looks like this.
+The run command looks like this.
 
 ```bash
-docker run --name mysql -it --rm \
+docker run --name=mysql -d \
+  -e 'DB_NAME=redmine_production' -e 'DB_USER=redmine' -e 'DB_PASS=password' \
   -v /opt/mysql/data:/var/lib/mysql \
   sameersbn/mysql:latest
 ```
 
-You should now have the mysql server running. By default the sameersbn/mysql image does not assign a password for the root user and allows remote connections for the root user from the `172.17.%.%` address space. This means you can login to the mysql server from the host as the root user.
-
-Now, lets login to the mysql server and create a user and database for the redmine application.
-
-```bash
-docker run -it --rm --volumes-from=mysql sameersbn/mysql mysql -uroot
-```
-
-```sql
-CREATE USER 'redmine'@'172.17.%.%' IDENTIFIED BY 'password';
-CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
-GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'172.17.%.%';
-FLUSH PRIVILEGES;
-```
+The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with full/remote access to the `redmine_production` database.
 
 We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm --link mysql:mysql \
-  -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -e "DB_NAME=redmine_production" \
   -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2-3
 ```
+
+The image will automatically fetch the `DB_NAME`, `DB_USER` and `DB_PASS` variables from the mysql container using the magic of docker links and works with the following images:
+ - [sameersbn/mysql](https://registry.hub.docker.com/u/sameersbn/mysql/)
+ - [centurylink/mysql](https://registry.hub.docker.com/u/centurylink/mysql/)
+ - [orchardup/mysql](https://registry.hub.docker.com/u/orchardup/mysql/)
 
 ### PostgreSQL
 
@@ -312,41 +303,29 @@ mkdir -p /opt/postgresql/data
 sudo chcon -Rt svirt_sandbox_file_t /opt/postgresql/data
 ```
 
-The updated run command looks like this.
+The run command looks like this.
 
 ```bash
-docker run --name postgresql -it --rm \
+docker run --name=postgresql -d \
+  -e 'DB_NAME=redmine_production' -e 'DB_USER=redmine' -e 'DB_PASS=password' \
   -v /opt/postgresql/data:/var/lib/postgresql \
   sameersbn/postgresql:latest
 ```
 
-You should now have the postgresql server running. The password for the postgres user can be found in the logs of the postgresql image.
-
-```bash
-docker logs postgresql
-```
-
-Now, lets login to the postgresql server and create a user and database for the redmine application.
-
-```bash
-docker run -it --rm sameersbn/postgresql:latest psql -U postgres -h $(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql)
-```
-
-```sql
-CREATE ROLE redmine with LOGIN CREATEDB PASSWORD 'password';
-CREATE DATABASE redmine_production;
-GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
-```
+The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with access to the `redmine_production` database.
 
 We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm --link postgresql:postgresql \
-  -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -e "DB_NAME=redmine_production" \
   -v /opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:2.5.2-3
 ```
+
+The image will automatically fetch the `DB_NAME`, `DB_USER` and `DB_PASS` variables from the postgresql container using the magic of docker links and works with the following images:
+ - [sameersbn/postgresql](https://registry.hub.docker.com/u/sameersbn/postgresql/)
+ - [orchardup/postgresql](https://registry.hub.docker.com/u/orchardup/postgresql/)
+ - [paintedfox/postgresql](https://registry.hub.docker.com/u/paintedfox/postgresql/)
 
 ## Memcached (Optional)
 
