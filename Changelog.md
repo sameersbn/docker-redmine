@@ -19,7 +19,7 @@
 **2.5.2-3**
 - upgrade to sameersbn/debian:jessie.20141001
 - added REDMINE_HTTPS_HSTS_ENABLED configuration option (advanced config)
-- added REDMINE_HTTPS_HSTS_MAX_AGE configuration option (advanced config)
+- added REDMINE_HTTPS_HSTS_MAXAGE configuration option (advanced config)
 - shutdown container gracefully
 - use sameersbn/debian:jessie.20140918 base image
 - added REDMINE_FETCH_COMMITS configuration option
