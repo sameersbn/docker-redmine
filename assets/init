@@ -425,8 +425,9 @@ fi
 # create a cronjob to periodically fetch commits
 case "${REDMINE_FETCH_COMMITS}" in
   hourly|daily|monthly)
-    echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >/tmp/cron.redmine
-    crontab -u redmine /tmp/cron.redmine 2>/dev/null
+    crontab -u redmine -l >/tmp/cron.redmine
+    echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
+    crontab -u redmine /tmp/cron.redmine
     rm -rf /tmp/cron.redmine
     ;;
 esac

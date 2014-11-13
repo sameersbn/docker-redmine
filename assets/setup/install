@@ -19,6 +19,13 @@ apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwa
 adduser --disabled-login --gecos 'Redmine' redmine
 passwd -d redmine
 
+# set PATH for redmine cron jobs
+cat > /tmp/cron.redmine <<EOF
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+EOF
+crontab -u redmine /tmp/cron.redmine
+rm -rf /tmp/cron.redmine
+
 # create symlink to ${DATA_DIR}/dotfiles/.ssh
 rm -rf /home/redmine/.ssh
 sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.ssh /home/redmine/.ssh
