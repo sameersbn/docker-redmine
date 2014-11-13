@@ -595,9 +595,7 @@ For example, the recurring tasks plugin requires that you create a cron job to p
 ```bash
 ## Recurring Tasks Configuration
 # get the list existing cron jobs for the redmine user
-set +e
 crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
-set -e
 
 # add new job for recurring tasks
 echo '@hourly cd /home/redmine/redmine && bundle exec rake redmine:recur_tasks RAILS_ENV=production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
