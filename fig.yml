@@ -13,5 +13,4 @@ redmine:
     - DB_PASS=phatiphohsukeuwo
     - DB_NAME=redmine_production
   ports:
-    - "80"
-    - "443"
+    - "10080:80"
