@@ -110,7 +110,7 @@ docker build --tag="$USER/redmine" .
 
 # Quick Start
 
-Run the redmine image with the name "redmine".
+You can launch the image using the docker command line,
 
 ```bash
 docker run --name=redmine -it --rm -p 10080:80 \
@@ -118,6 +118,15 @@ docker run --name=redmine -it --rm -p 10080:80 \
 -v $(which docker):/bin/docker \
 sameersbn/redmine:2.6.0-1
 ```
+
+Or you can use [fig](http://www.fig.sh/). Assuming you have fig installed,
+
+```bash
+wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/fig.yml
+fig up
+```
+
+*The rest of the document will use the docker command line. You can quite simply adapt your configuration into a fig.yml file if you wish to do so.*
 
 **NOTE**: Please allow a minute or two for the Redmine application to start.
 
