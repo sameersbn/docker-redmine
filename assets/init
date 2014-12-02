@@ -291,7 +291,7 @@ sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-enabled/redmin
 if [ -r "${SSL_DHPARAM_PATH}" ]; then
   sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i /etc/nginx/sites-enabled/redmine
 else
-  sed '/ssl_dhparam: {{SSL_DHPARAM_PATH}};/d' -i /etc/nginx/sites-enabled/redmine
+  sed '/ssl_dhparam {{SSL_DHPARAM_PATH}};/d' -i /etc/nginx/sites-enabled/redmine
 fi
 
 if [ "${REDMINE_HTTPS_HSTS_ENABLED}" == "true" ]; then
