@@ -604,14 +604,15 @@ For example, the recurring tasks plugin requires that you create a cron job to p
 
 ```bash
 ## Recurring Tasks Configuration
+
 # get the list existing cron jobs for the redmine user
 crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
 
-# add new job for recurring tasks
-echo '@hourly cd /home/redmine/redmine && bundle exec rake redmine:recur_tasks RAILS_ENV=production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
-
-# install the new jobs
-crontab -u redmine /tmp/cron.redmine 2>/dev/null
+# add new job for recurring tasks if it does not exist
+if ! grep -q redmine:recur_tasks /tmp/cron.redmine; then
+  echo '@hourly cd /home/redmine/redmine && bundle exec rake redmine:recur_tasks RAILS_ENV=production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
+  crontab -u redmine /tmp/cron.redmine 2>/dev/null
+fi
 
 # remove the temporary file
 rm -rf /tmp/cron.redmine
