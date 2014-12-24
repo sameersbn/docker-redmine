@@ -13,7 +13,7 @@ apt-get update
 
 # install build dependencies
 apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
+  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
 
 # add redmine user
 adduser --disabled-login --gecos 'Redmine' redmine
@@ -189,7 +189,7 @@ EOF
 # purge build dependencies
 apt-get purge -y --auto-remove \
   libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
+  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
 
 # cleanup
 rm -rf /var/lib/apt/lists/* # 20140918

@@ -8,7 +8,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
  && apt-get update \
  && apt-get install -y supervisor logrotate nginx mysql-client postgresql-client \
       imagemagick subversion git cvs bzr mercurial rsync ruby2.1 locales openssh-client \
-      gcc g++ make patch pkg-config ruby2.1-dev libc6-dev \
+      gcc g++ make patch pkg-config ruby2.1-dev libc6-dev zlib1g-dev libxml2-dev \
       libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 \
       libxslt1.1 libffi6 zlib1g \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
