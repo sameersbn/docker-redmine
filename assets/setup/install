@@ -4,6 +4,7 @@ set -e
 REDMINE_VERSION=2.6.0
 INSTALL_DIR="/home/redmine/redmine"
 DATA_DIR="/home/redmine/data"
+LOG_DIR="/var/log/redmine"
 
 SETUP_DIR="/app/setup"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
@@ -85,9 +86,9 @@ ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
 # create link to tmp/secret_token.rb
 ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
 
-# symlink log -> /var/log/redmine/redmine
+# symlink log -> ${LOG_DIR}/redmine
 rm -rf log
-ln -sf /var/log/redmine/redmine log
+ln -sf ${LOG_DIR}/redmine log
 
 # fix permissions
 chmod -R u+rwX files tmp
@@ -99,16 +100,16 @@ rm -f /etc/nginx/sites-enabled/default
 # run nginx as redmine user
 sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 
-# move supervisord.log file to /var/log/redmine/supervisor/
-sed 's|^logfile=.*|logfile=/var/log/redmine/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+# move supervisord.log file to ${LOG_DIR}/supervisor/
+sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
 
-# move nginx logs to /var/log/redmine/nginx
-sed 's|access_log /var/log/nginx/access.log;|access_log /var/log/redmine/nginx/access.log;|' -i /etc/nginx/nginx.conf
-sed 's|error_log /var/log/nginx/error.log;|error_log /var/log/redmine/nginx/error.log;|' -i /etc/nginx/nginx.conf
+# move nginx logs to ${LOG_DIR}/nginx
+sed 's|access_log /var/log/nginx/access.log;|access_log '"${LOG_DIR}"'/nginx/access.log;|' -i /etc/nginx/nginx.conf
+sed 's|error_log /var/log/nginx/error.log;|error_log '"${LOG_DIR}"'/nginx/error.log;|' -i /etc/nginx/nginx.conf
 
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
-/var/log/redmine/redmine/*.log {
+${LOG_DIR}/redmine/*.log {
   weekly
   missingok
   rotate 52
@@ -121,7 +122,7 @@ EOF
 
 # setup log rotation for redmine vhost logs
 cat > /etc/logrotate.d/redmine-vhost <<EOF
-/var/log/redmine/nginx/*.log {
+${LOG_DIR}/nginx/*.log {
   weekly
   missingok
   rotate 52
@@ -134,7 +135,7 @@ EOF
 
 # configure supervisord log rotation
 cat > /etc/logrotate.d/supervisord <<EOF
-/var/log/redmine/supervisor/*.log {
+${LOG_DIR}/supervisor/*.log {
   weekly
   missingok
   rotate 52
@@ -154,8 +155,8 @@ command=/usr/sbin/nginx -g "daemon off;"
 user=root
 autostart=true
 autorestart=true
-stdout_logfile=/var/log/redmine/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/redmine/supervisor/%(program_name)s.log
+stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start unicorn
@@ -169,8 +170,8 @@ user=redmine
 autostart=true
 autorestart=true
 stopsignal=QUIT
-stdout_logfile=/var/log/redmine/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/redmine/supervisor/%(program_name)s.log
+stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start crond
@@ -182,8 +183,8 @@ command=/usr/sbin/cron -f
 user=root
 autostart=true
 autorestart=true
-stdout_logfile=/var/log/redmine/supervisor/%(program_name)s.log
-stderr_logfile=/var/log/redmine/supervisor/%(program_name)s.log
+stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
 # purge build dependencies

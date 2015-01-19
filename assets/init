@@ -4,6 +4,7 @@ set -e
 INSTALL_DIR="/home/redmine/redmine"
 CONFIG_DIR="${INSTALL_DIR}/config"
 DATA_DIR="/home/redmine/data"
+LOG_DIR="/var/log/redmine"
 SSL_CERTIFICATES_DIR="${DATA_DIR}/certs"
 
 SETUP_DIR="/app/setup"
@@ -198,10 +199,10 @@ chown -R redmine:redmine ${DATA_DIR}/dotfiles
 mkdir -p ${DATA_DIR}/tmp/
 chown -R redmine:redmine ${DATA_DIR}/tmp/
 
-# populate /var/log/redmine
-mkdir -m 0755 -p /var/log/redmine/supervisor  && chown -R root:root /var/log/redmine/supervisor
-mkdir -m 0755 -p /var/log/redmine/nginx       && chown -R redmine:redmine /var/log/redmine/nginx
-mkdir -m 0755 -p /var/log/redmine/redmine     && chown -R redmine:redmine /var/log/redmine/redmine
+# populate ${LOG_DIR}
+mkdir -m 0755 -p ${LOG_DIR}/supervisor  && chown -R root:root ${LOG_DIR}/supervisor
+mkdir -m 0755 -p ${LOG_DIR}/nginx       && chown -R redmine:redmine ${LOG_DIR}/nginx
+mkdir -m 0755 -p ${LOG_DIR}/redmine     && chown -R redmine:redmine ${LOG_DIR}/redmine
 
 # fix permission and ownership of ${DATA_DIR}
 chmod 755 ${DATA_DIR}
