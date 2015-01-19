@@ -383,17 +383,20 @@ case "${DB_TYPE}" in
     prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
     ;;
 esac
+
 timeout=60
+echo -n "Waiting for database server to accept connections"
 while ! ${prog} >/dev/null 2>&1
 do
   timeout=$(expr $timeout - 1)
   if [ $timeout -eq 0 ]; then
-    echo "Could not connect to database server. Aborting..."
+    echo -e "\nCould not connect to database server. Aborting..."
     exit 1
   fi
-  echo "Waiting for database server to accept connections..."
+  echo -n "."
   sleep 1
 done
+echo
 
 # migrate database if the redmine version has changed.
 CURRENT_VERSION=
