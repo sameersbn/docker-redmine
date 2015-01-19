@@ -4,7 +4,7 @@
   - [Version](#version)
   - [Changelog](Changelog.md)
 - [Contributing](#contributing)
-- [Reporting Issues](#reporting-issues)
+- [Issues](#issues)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
@@ -58,7 +58,7 @@ If you find this image useful here's how you can help:
 - Help new users with [Issues](https://github.com/sameersbn/docker-redmine/issues) they may encounter
 - Send me a tip via [Bitcoin](https://www.coinbase.com/sameersbn) or using [Gratipay](https://gratipay.com/sameersbn/)
 
-# Reporting Issues
+# Issues
 
 Docker is a relatively new project and is active being developed and tested by a thriving community of developers and testers and every release of docker features many enhancements and bugfixes.
 
