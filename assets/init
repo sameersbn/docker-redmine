@@ -322,6 +322,12 @@ else
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-enabled/redmine
 fi
 
+# disable ipv6 support
+if [ ! -f /proc/net/if_inet6 ]; then
+  sed -e '/listen \[::\]:80/ s/^#*/#/' -i /etc/nginx/sites-enabled/redmine
+  sed -e '/listen \[::\]:443/ s/^#*/#/' -i /etc/nginx/sites-enabled/redmine
+fi
+
 if [ "${SMTP_ENABLED}" == "true" ]; then
   # configure mail delivery
   sudo -u redmine -H sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb

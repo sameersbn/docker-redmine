@@ -2,6 +2,7 @@
 
 **latest**
 - added `NGINX_WORKERS` configuration option
+- enable IPv6 support
 
 **2.6.0-1**
 - fix: create the `${DATA_DIR}/tmp/` directory at startup
