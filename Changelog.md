@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.6.1**
 - added `NGINX_WORKERS` configuration option
 - enable IPv6 support
 - added `SSL_VERIFY_CLIENT` configuration option
