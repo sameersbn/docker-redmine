@@ -4,6 +4,7 @@
 - added `NGINX_WORKERS` configuration option
 - enable IPv6 support
 - added `SSL_VERIFY_CLIENT` configuration option
+- redmine: upgrade to v.2.6.1
 
 **2.6.0-1**
 - fix: create the `${DATA_DIR}/tmp/` directory at startup
