@@ -564,6 +564,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/app/setup/certs/redmine.crt`.
 - **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
 - **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.
+- **SSL_VERIFY_CLIENT**: Enable verification of client certificates using the `CA_CERTIFICATES_PATH` file. Defaults to `false`
 - **SMTP_ENABLED**: Enable mail delivery via SMTP. Defaults to `true` if `SMTP_USER` is defined, else defaults to `false`.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to `www.gmail.com`
 - **SMTP_HOST**: SMTP server host. Defaults to `smtp.gmail.com`

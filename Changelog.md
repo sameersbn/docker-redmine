@@ -3,6 +3,7 @@
 **latest**
 - added `NGINX_WORKERS` configuration option
 - enable IPv6 support
+- added `SSL_VERIFY_CLIENT` configuration option
 
 **2.6.0-1**
 - fix: create the `${DATA_DIR}/tmp/` directory at startup
