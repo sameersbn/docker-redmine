@@ -7,7 +7,8 @@ upstream redmine {
 
 ## Normal HTTP host
 server {
-  listen *:80 default_server;
+  listen 0.0.0.0:80;
+  listen [::]:80 default_server;
   server_name _;
   server_tokens off;
   
@@ -18,7 +19,8 @@ server {
 
 ## HTTPS host
 server {
-  listen 443 ssl spdy;
+  listen 0.0.0.0:443 ssl spdy;
+  listen [::]:443 ssl spdy default_server;
   server_tokens off;
   root {{INSTALL_DIR}}/public;
 
