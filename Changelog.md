@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- update postgresql client to the latest version
+
 **2.6.1**
 - added `NGINX_WORKERS` configuration option
 - enable IPv6 support
