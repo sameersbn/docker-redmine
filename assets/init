@@ -400,7 +400,7 @@ esac
 
 timeout=60
 echo -n "Waiting for database server to accept connections"
-while ! ${prog} >/dev/null 2>&1
+while ! ${prog} >/dev/null
 do
   timeout=$(expr $timeout - 1)
   if [ $timeout -eq 0 ]; then
