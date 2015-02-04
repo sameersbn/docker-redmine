@@ -107,23 +107,23 @@ if [ -z "${DB_HOST}" -a -n "$(which docker)" -a -S /var/run/docker.sock ]; then
   echo "Database connection details not specified."
   echo "Will try to spin up a new postgresql image with the name postgresql-redmine."
   echo "Please manually configure the database connection in production."
-  case "$(docker inspect --format {{.State.Running}} postgresql-redmine 2>/dev/null)" in
+  case "$(docker inspect --format {{.State.Running}} postgresql-redmine)" in
     true)
       echo "Using existing postgresql container..."
       ;;
     false)
       echo "Starting up existing postgresql container..."
-      docker start postgresql-redmine >/dev/null 2>/dev/null
+      docker start postgresql-redmine >/dev/null
       ;;
     *)
       echo "Starting up a new postgresql container..."
       docker run --name='postgresql-redmine' -d \
         -e 'DB_USER=redmine' -e 'DB_PASS=password' -e 'DB_NAME=redmine_production' \
-        sameersbn/postgresql:latest >/dev/null 2>/dev/null
+        sameersbn/postgresql:latest >/dev/null
       ;;
   esac
   DB_TYPE=postgres
-  DB_HOST=$(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql-redmine 2>/dev/null)
+  DB_HOST=$(docker inspect --format {{.NetworkSettings.IPAddress}} postgresql-redmine)
   DB_PORT=5432
   DB_USER=redmine
   DB_PASS=password
@@ -400,7 +400,7 @@ esac
 
 timeout=60
 echo -n "Waiting for database server to accept connections"
-while ! ${prog} >/dev/null
+while ! ${prog} >/dev/null 2>&1
 do
   timeout=$(expr $timeout - 1)
   if [ $timeout -eq 0 ]; then
