@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.6.2**
 - update postgresql client to the latest version
 - redmine: upgrade to v.2.6.2
 
