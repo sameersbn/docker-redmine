@@ -278,6 +278,11 @@ sudo -u redmine -H sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i config/database.yml
 sudo -u redmine -H sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
 
+# configure secure-cookie if using SSL/TLS
+if [ "${REDMINE_HTTPS}" == "true" ]; then
+  sed '/^\s*config\.session_store\s/s/$/, :secure => true/' -i config/application.rb
+fi
+
 # configure memcached
 if [ "${MEMCACHE_ENABLED}" == "true" ]; then
   echo "Enabling memcache..."
