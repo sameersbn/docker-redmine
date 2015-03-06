@@ -22,6 +22,7 @@ DB_TYPE=${DB_TYPE:-}
 MEMCACHED_HOST=${MEMCACHED_HOST:-}
 MEMCACHED_PORT=${MEMCACHED_PORT:-}
 
+SMTP_METHOD=${SMTP_METHOD:-smtp}
 SMTP_DOMAIN=${SMTP_DOMAIN:-www.gmail.com}
 SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
 SMTP_PORT=${SMTP_PORT:-587}
@@ -369,6 +370,12 @@ if [ "${SMTP_ENABLED}" == "true" ]; then
     "") sudo -u redmine -H sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
     *) sudo -u redmine -H sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
   esac
+
+  case "${SMTP_METHOD}" in
+    "") sudo -u redmine -H sed '/{{SMTP_METHOD}}/d' -i config/initializers/smtp_settings.rb ;;
+    *) sudo -u redmine -H sed 's/{{SMTP_METHOD}}/'"${SMTP_METHOD}"'/' -i config/initializers/smtp_settings.rb ;;
+  esac
+
 fi
 
 # create file uploads directory
