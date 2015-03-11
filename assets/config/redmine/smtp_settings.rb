@@ -1,8 +1,8 @@
 if Rails.env.production?
-  ActionMailer::Base.delivery_method = :smtp
+  ActionMailer::Base.delivery_method = :{{SMTP_METHOD}}
   ActionMailer::Base.perform_deliveries = true
   ActionMailer::Base.raise_delivery_errors = true
-  ActionMailer::Base.smtp_settings = {
+  ActionMailer::Base.{{SMTP_METHOD}}_settings = {
     :address              => "{{SMTP_HOST}}",
     :port                 => {{SMTP_PORT}},
     :domain               => "{{SMTP_DOMAIN}}",
