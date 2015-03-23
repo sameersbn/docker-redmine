@@ -1,4 +1,4 @@
-FROM sameersbn/ubuntu:14.04.20141001
+FROM sameersbn/ubuntu:14.04.20150323
 MAINTAINER sameer@damagehead.com
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
@@ -13,7 +13,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
       libxslt1.1 libffi6 zlib1g \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
  && gem install --no-document bundler \
- && rm -rf /var/lib/apt/lists/* # 20140918
+ && rm -rf /var/lib/apt/lists/* # 20150323
 
 ADD assets/setup/ /app/setup/
 RUN chmod 755 /app/setup/install
