@@ -775,11 +775,23 @@ docker run --name=redmine -d [OPTIONS] \
   sameersbn/redmine:2.6.3 app:rake redmine:email:test[admin]
 ```
 
+You can also use `docker exec` to run rake tasks on running redmine instance. For example,
+
+```bash
+docker exec -it redmine sudo -u redmine -H bundle exec rake redmine:email:test[admin] RAILS_ENV=production
+```
+
 Similarly, to remove uploaded files left unattached
 
 ```bash
 docker run --name=redmine -d [OPTIONS] \
   sameersbn/redmine:2.6.3 app:rake redmine:attachments:prune
+```
+
+Or,
+
+```bash
+docker exec -it redmine sudo -u redmine -H bundle exec rake redmine:attachments:prune RAILS_ENV=production
 ```
 
 For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
