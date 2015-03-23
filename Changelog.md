@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.6.3**
 - fix: avoid duplicate cron entries for 'Repository.fetch_changesets'
 - redmine: upgrade to v.2.6.3
 
