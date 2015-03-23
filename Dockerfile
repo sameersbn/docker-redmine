@@ -31,5 +31,6 @@ EXPOSE 443
 VOLUME ["/home/redmine/data"]
 VOLUME ["/var/log/redmine"]
 
+WORKDIR /home/redmine/redmine
 ENTRYPOINT ["/app/init"]
 CMD ["app:start"]
