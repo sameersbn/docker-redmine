@@ -460,7 +460,7 @@ case "${REDMINE_FETCH_COMMITS}" in
   hourly|daily|monthly)
     crontab -u redmine -l >/tmp/cron.redmine
     if ! grep -q 'Repository.fetch_changesets' /tmp/cron.redmine; then
-      echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
+      echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
       crontab -u redmine /tmp/cron.redmine
     fi
     rm -rf /tmp/cron.redmine

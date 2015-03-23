@@ -2,6 +2,7 @@
 
 **latest**
 - fix: avoid duplicate cron entries for 'Repository.fetch_changesets'
+- fix: update the path of 'script/rails' script to 'bin/rails' in v.3.0.0
 
 **3.0.0**
 - redmine: upgrade to v.3.0.0
