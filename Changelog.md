@@ -2,6 +2,7 @@
 
 **latest**
 - fix: avoid duplicate cron entries for 'Repository.fetch_changesets'
+- redmine: upgrade to v.2.6.3
 
 **2.6.2**
 - update postgresql client to the latest version
