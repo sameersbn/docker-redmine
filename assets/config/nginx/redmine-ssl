@@ -63,7 +63,7 @@ server {
   ##
   ssl_dhparam {{SSL_DHPARAM_PATH}};
 
-  ## Individual nginx logs for this GitLab vhost
+  ## Individual nginx logs for this Redmine vhost
   access_log  /var/log/redmine/nginx/redmine_access.log;
   error_log   /var/log/redmine/nginx/redmine_error.log;
 
