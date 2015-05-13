@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- install: fix typo in `bundle install` command :facepalm:
+
 **2.6.5**
 - redmine: upgrade to v.2.6.5
 
