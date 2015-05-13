@@ -456,7 +456,7 @@ if [ -d ${DATA_DIR}/plugins ]; then
     rm -rf ${DATA_DIR}/tmp/plugin_assets/*
 
     echo "Installing gems required by plugins..."
-    bundle install --without development test --path vendor/bundle
+    sudo -u redmine -H bundle install --without development test --path vendor/bundle
 
     echo "Migrating plugins. Please be patient, this could take a while..."
     sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production
