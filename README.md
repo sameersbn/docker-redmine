@@ -121,11 +121,11 @@ docker run --name=redmine -it --rm -p 10080:80 \
 sameersbn/redmine:3.0.2
 ```
 
-Or you can use [fig](http://www.fig.sh/). Assuming you have fig installed,
+Or you can use [docker-compose](https://docs.docker.com/compose/install/#install-compose). It's [fig](http://www.fig.sh/) but fig is now deprecrated and it got renamed to docker-compose. It is for installation available since docker version 1.3.
 
 ```bash
-wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/fig.yml
-fig up
+wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/docker-compose.yml
+docker-compose up
 ```
 
 *The rest of the document will use the docker command line. You can quite simply adapt your configuration into a fig.yml file if you wish to do so.*
