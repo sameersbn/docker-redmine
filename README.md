@@ -44,7 +44,7 @@
 
 # Introduction
 
-Dockerfile to build a Redmine container image.
+Dockerfile to build a [Redmine](http://www.redmine.org/) container image.
 
 ## Version
 
