@@ -112,23 +112,34 @@ docker build --tag="$USER/redmine" .
 
 # Quick Start
 
-You can launch the image using the docker command line,
-
-```bash
-docker run --name=redmine -it --rm --publish=10080:80 \
-  --volume=/var/run/docker.sock:/run/docker.sock \
-  --volume=$(which docker):/bin/docker \
-  sameersbn/redmine:3.0.2
-```
-
-Or you can use [docker-compose](https://docs.docker.com/compose/install/#install-compose). It's [fig](http://www.fig.sh/) but fig is now deprecrated and it got renamed to docker-compose. It is for installation available since docker version 1.3.
+The quickest way to get started is using [docker-compose](https://docs.docker.com/compose/).
 
 ```bash
 wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/docker-compose.yml
 docker-compose up
 ```
 
-*The rest of the document will use the docker command line. You can quite simply adapt your configuration into a fig.yml file if you wish to do so.*
+Alternately, you can manually launch the `redmine` container and the supporting `postgresql` container by following this two step guide.
+
+Step 1. Launch a postgresql container
+
+```bash
+docker run --name=postgresql-redmine -d \
+  --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
+  sameersbn/postgresql:9.4
+```
+
+Step 2. Launch the redmine container
+
+```bash
+docker run --name=redmine -d \
+  --link=postgresql-redmine:postgresql --publish=10080:80 \
+  --env='REDMINE_PORT=10080' \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  sameersbn/redmine:3.0.2
+```
 
 **NOTE**: Please allow a minute or two for the Redmine application to start.
 
@@ -138,6 +149,8 @@ Point your browser to `http://localhost:10080` and login using the default usern
 * password: **admin**
 
 You should now have the Redmine application up and ready for testing. If you want to use this image in production the please read on.
+
+*The rest of the document will use the docker command line. You can quite simply adapt your configuration into a `docker-compose.yml` file if you wish to do so.*
 
 # Configuration
 
