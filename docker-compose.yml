@@ -2,7 +2,7 @@ postgresql:
   image: sameersbn/postgresql:9.4
   environment:
     - DB_USER=redmine
-    - DB_PASS=phatiphohsukeuwo
+    - DB_PASS=secretpassword
     - DB_NAME=redmine_production
   volumes:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
@@ -11,7 +11,16 @@ redmine:
   links:
     - postgresql:postgresql
   environment:
+    - TZ=Asia/Kolkata
     - REDMINE_PORT=10080
+    - SMTP_ENABLED=false
+    - SMTP_DOMAIN=www.example.com
+    - SMTP_HOST=smtp.gmail.com
+    - SMTP_PORT=587
+    - SMTP_USER=mailer@example.com
+    - SMTP_PASS=password
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=:login
   ports:
     - "10080:80"
   volumes:
