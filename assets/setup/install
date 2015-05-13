@@ -72,7 +72,7 @@ fi
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
 
-bundle install -j$(nproc) --without development tests --path vendor/bundle
+bundle install -j$(nproc) --without development test --path vendor/bundle
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
