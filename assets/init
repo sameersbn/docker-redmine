@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e
 
-INSTALL_DIR="/home/redmine/redmine"
+HOME_DIR="/home/redmine"
+INSTALL_DIR="${HOME_DIR}/redmine"
 CONFIG_DIR="${INSTALL_DIR}/config"
-DATA_DIR="/home/redmine/data"
+DATA_DIR="${HOME_DIR}/data"
 LOG_DIR="/var/log/redmine"
 SSL_CERTIFICATES_DIR="${DATA_DIR}/certs"
 
@@ -461,7 +462,7 @@ case "${REDMINE_FETCH_COMMITS}" in
   hourly|daily|monthly)
     crontab -u redmine -l >/tmp/cron.redmine
     if ! grep -q 'Repository.fetch_changesets' /tmp/cron.redmine; then
-      echo "@${REDMINE_FETCH_COMMITS} cd /home/redmine/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
+      echo "@${REDMINE_FETCH_COMMITS} cd ${HOME_DIR}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
       crontab -u redmine /tmp/cron.redmine
     fi
     rm -rf /tmp/cron.redmine
