@@ -145,7 +145,9 @@ Point your browser to `http://localhost:10083` and login using the default usern
 * username: **admin**
 * password: **admin**
 
-You should now have the Redmine application up and ready for testing. If you want to use this image in production the please read on.
+Make sure you visit the `Administration` link and `Load the default configuration` before creating any projects.
+
+You now have the Redmine application up and ready for testing. If you want to use this image in production the please read on.
 
 *The rest of the document will use the docker command line. You can quite simply adapt your configuration into a `docker-compose.yml` file if you wish to do so.*
 
