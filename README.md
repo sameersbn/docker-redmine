@@ -147,25 +147,25 @@ For the file storage we need to mount a volume at the following location.
 
 > **NOTE**
 >
-> Existing users **need to move** the existing files directory inside `/opt/redmine/data/`.
+> Existing users **need to move** the existing files directory inside `/srv/docker/redmine/redmine/`.
 >
 > ```bash
-> mkdir -p /opt/redmine/data
-> mv /opt/redmine/files /opt/redmine/data
+> mkdir -p /srv/docker/redmine/redmine
+> mv /opt/redmine/files /srv/docker/redmine/redmine
 > ```
 
 SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
 
 ```bash
-mkdir -p /opt/redmine/data
-sudo chcon -Rt svirt_sandbox_file_t /opt/redmine/data
+mkdir -p /srv/docker/redmine/redmine
+sudo chcon -Rt svirt_sandbox_file_t /srv/docker/redmine/redmine
 ```
 
 Volumes can be mounted in docker by specifying the **'-v'** option in the docker run command.
 
 ```bash
 docker run --name=redmine -it --rm \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -181,11 +181,11 @@ The internal mysql server has been removed from the image. Please use a linked [
 
 If you have been using the internal mysql server follow these instructions to migrate to a linked mysql container:
 
-Assuming that your mysql data is available at `/opt/redmine/mysql`
+Assuming that your mysql data is available at `/srv/docker/redmine/mysql`
 
 ```bash
 docker run --name=mysql -d \
-  --volume=/opt/redmine/mysql:/var/lib/mysql \
+  --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
   sameersbn/mysql:latest
 ```
 
@@ -214,7 +214,7 @@ We are now ready to start the redmine application.
 docker run --name=redmine -it --rm \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -239,8 +239,8 @@ For data persistence lets create a store for the mysql and start the container.
 SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
 
 ```bash
-mkdir -p /opt/mysql/data
-sudo chcon -Rt svirt_sandbox_file_t /opt/mysql/data
+mkdir -p /srv/docker/redmine/mysql
+sudo chcon -Rt svirt_sandbox_file_t /srv/docker/redmine/mysql
 ```
 
 The run command looks like this.
@@ -249,7 +249,7 @@ The run command looks like this.
 docker run --name=mysql -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/opt/mysql/data:/var/lib/mysql \
+  --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
   sameersbn/mysql:latest
 ```
 
@@ -259,7 +259,7 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm --link mysql:mysql \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -289,7 +289,7 @@ docker run --name=redmine -it --rm \
   --env='DB_TYPE=postgres' \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -314,8 +314,8 @@ For data persistence lets create a store for the postgresql and start the contai
 SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
 
 ```bash
-mkdir -p /opt/postgresql/data
-sudo chcon -Rt svirt_sandbox_file_t /opt/postgresql/data
+mkdir -p /srv/docker/redmine/postgresql
+sudo chcon -Rt svirt_sandbox_file_t /srv/docker/redmine/postgresql
 ```
 
 The run command looks like this.
@@ -324,7 +324,7 @@ The run command looks like this.
 docker run --name=postgresql -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/opt/postgresql/data:/var/lib/postgresql \
+  --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
   sameersbn/postgresql:latest
 ```
 
@@ -334,7 +334,7 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm --link postgresql:postgresql \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -389,7 +389,7 @@ Please refer the [Available Configuration Parameters](#available-configuration-p
 ```bash
 docker run --name=redmine -it --rm \
   --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -449,14 +449,14 @@ Out of the four files generated above, we need to install the `redmine.key`, `re
 
 The default path that the redmine application is configured to look for the SSL certificates is at `/home/redmine/data/certs`, this can however be changed using the `SSL_KEY_PATH`, `SSL_CERTIFICATE_PATH` and `SSL_DHPARAM_PATH` configuration options.
 
-If you remember from above, the `/home/redmine/data` path is the path of the [data store](#data-store), which means that we have to create a folder named certs inside `/opt/redmine/data/` and copy the files into it and as a measure of security we will update the permission on the `redmine.key` file to only be readable by the owner.
+If you remember from above, the `/home/redmine/data` path is the path of the [data store](#data-store), which means that we have to create a folder named certs inside `/srv/docker/redmine/redmine/` and copy the files into it and as a measure of security we will update the permission on the `redmine.key` file to only be readable by the owner.
 
 ```bash
-mkdir -p /opt/redmine/data/certs
-cp redmine.key /opt/redmine/data/certs/
-cp redmine.crt /opt/redmine/data/certs/
-cp dhparam.pem /opt/redmine/data/certs/
-chmod 400 /opt/redmine/data/certs/redmine.key
+mkdir -p /srv/docker/redmine/redmine/certs
+cp redmine.key /srv/docker/redmine/redmine/certs/
+cp redmine.crt /srv/docker/redmine/redmine/certs/
+cp dhparam.pem /srv/docker/redmine/redmine/certs/
+chmod 400 /srv/docker/redmine/redmine/certs/redmine.key
 ```
 
 Great! we are now just one step away from having our application secured.
@@ -468,7 +468,7 @@ HTTPS support can be enabled by setting the `REDMINE_HTTPS` option to `true`.
 ```bash
 docker run --name=redmine -d \
   --env='REDMINE_HTTPS=true' \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -484,7 +484,7 @@ With `REDMINE_HTTPS_HSTS_MAXAGE` you can configure that value. The default value
 docker run --name=redmine -d \
   --env='REDMINE_HTTPS=true' \
   --env='REDMINE_HTTPS_HSTS_MAXAGE=2592000'
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -503,7 +503,7 @@ In summation, when using a load balancer, the docker command would look for the 
 ```bash
 docker run --name=redmine -d --publish=10080:80 \
   --env='REDMINE_HTTPS=true' \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -516,7 +516,7 @@ Let's assume we want to deploy our application to '/redmine'. Redmine needs to k
 ```bash
 docker run --name=redmine -d --publish=10080:80 \
   --env='REDMINE_RELATIVE_URL_ROOT=/redmine' \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
@@ -528,8 +528,8 @@ Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.
 
 ```bash
 docker run --name=redmine -d \
-  --volume=/opt/redmine/data:/home/redmine/data \
-  --volume=/opt/redmine/mysql:/var/lib/mysql \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
   --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
   sameersbn/redmine:2.6.4
 ```
@@ -538,7 +538,7 @@ If you are using an external mysql database
 
 ```bash
 docker run --name=redmine -d \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
@@ -594,26 +594,26 @@ The functionality of redmine can be extended using plugins developed by the comm
 
 ## Installing Plugins
 
-Plugins should be installed in the `plugins` directory at the [data store](#data-store). If you are following the readme verbatim, on the host this location would be `/opt/redmine/data/plugins`.
+Plugins should be installed in the `plugins` directory at the [data store](#data-store). If you are following the readme verbatim, on the host this location would be `/srv/docker/redmine/redmine/plugins`.
 
 ```bash
-mkdir -p /opt/redmine/data/plugins
+mkdir -p /srv/docker/redmine/redmine/plugins
 ```
 
 To install a plugin, simply copy the plugin assets to the `plugins` directory. For example, to install the [recurring tasks](https://github.com/nutso/redmine-plugin-recurring-tasks) plugin:
 
 ```bash
-cd /opt/redmine/data/plugins
+cd /srv/docker/redmine/redmine/plugins
 git clone https://github.com/nutso/redmine-plugin-recurring-tasks.git
 ```
 
 For most plugins this is all you need to do. With the plugin installed you can start the docker image normally. The image will detect that a plugin has been added (or removed) and automatically install the required gems and perform the plugin migrations and will be ready for use.
 
-***If the gem installation fails after adding a new plugin, please retry after removing the `/opt/redmine/data/tmp` directory***
+***If the gem installation fails after adding a new plugin, please retry after removing the `/srv/docker/redmine/redmine/tmp` directory***
 
-Some plugins however, require you to perform additional configurations to function correctly. You can add these steps in a `init` script at the `/opt/redmine/data/plugins` directory that will executed everytime the image is started.
+Some plugins however, require you to perform additional configurations to function correctly. You can add these steps in a `init` script at the `/srv/docker/redmine/redmine/plugins` directory that will executed everytime the image is started.
 
-For example, the recurring tasks plugin requires that you create a cron job to periodically execute a rake task. To achieve this, create the `/opt/redmine/data/plugins/init` file with the following content:
+For example, the recurring tasks plugin requires that you create a cron job to periodically execute a rake task. To achieve this, create the `/srv/docker/redmine/redmine/plugins/init` file with the following content:
 
 ```bash
 ## Recurring Tasks Configuration
@@ -638,7 +638,7 @@ Now whenever the image is started the above init script will be executed and the
 Previously this image packaged a couple of plugins by default. Existing users would notice that those plugins are no longer available. If you want them back, follow these instructions:
 
 ```bash
-cd /opt/redmine/data/plugins
+cd /srv/docker/redmine/redmine/plugins
 wget http://goo.gl/iJcvCP -O - | sh
 ```
 
@@ -650,27 +650,27 @@ To uninstall plugins you need to first tell redmine about the plugin you need to
 
 ```bash
 docker run --name=redmine -it --rm \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4 \
   app:rake redmine:plugins:migrate NAME=plugin_name VERSION=0
 ```
 
-Once the rake task has been executed, the plugin should be removed from the `/opt/redmine/data/plugins/` directory.
+Once the rake task has been executed, the plugin should be removed from the `/srv/docker/redmine/redmine/plugins/` directory.
 
 ```bash
-rm -rf /opt/redmine/data/plugins/plugin_name
+rm -rf /srv/docker/redmine/redmine/plugins/plugin_name
 ```
 
-Any configuration that you may have added in the `/opt/redmine/data/plugins/init` script for the plugin should also be removed.
+Any configuration that you may have added in the `/srv/docker/redmine/redmine/plugins/init` script for the plugin should also be removed.
 
 For example, to remove the recurring tasks plugin:
 
 ```bash
 docker run --name=redmine -it --rm \
-  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4 \
   app:rake redmine:plugins:migrate NAME=recurring_tasks VERSION=0
-rm -rf /opt/redmine/data/plugins/recurring_tasks
+rm -rf /srv/docker/redmine/redmine/plugins/recurring_tasks
 ```
 
 Now when the image is started the plugin will be gone.
@@ -681,16 +681,16 @@ Just like plugins, redmine allows users to install additional themes. You can fi
 
 ## Installing Themes
 
-Themes should be installed in the `themes` directory at the [data store](#data-store). If you are following the readme verbatim, on the host this location would be `/opt/redmine/data/themes`.
+Themes should be installed in the `themes` directory at the [data store](#data-store). If you are following the readme verbatim, on the host this location would be `/srv/docker/redmine/redmine/themes`.
 
 ```bash
-mkdir -p /opt/redmine/data/themes
+mkdir -p /srv/docker/redmine/redmine/themes
 ```
 
 To install a theme, simply copy the theme assets to the `themes` directory. For example, to install the [gitmike](https://github.com/makotokw/redmine-theme-gitmike) theme:
 
 ```bash
-cd /opt/redmine/data/themes
+cd /srv/docker/redmine/redmine/themes
 git clone https://github.com/makotokw/redmine-theme-gitmike.git gitmike
 ```
 
@@ -699,7 +699,7 @@ With the theme installed you can start the docker image normally and the newly i
 Previously this image packaged a couple of themes by default. Existing users would notice that those themes are no longer available. If you want them back, follow these instructions:
 
 ```bash
-cd /opt/redmine/data/themes
+cd /srv/docker/redmine/redmine/themes
 wget http://goo.gl/deKDpp -O - | sh
 ```
 
@@ -707,16 +707,16 @@ wget http://goo.gl/deKDpp -O - | sh
 
 ## Uninstalling Themes
 
-To uninstall plugins you simply need to remove the theme from the `/opt/redmine/data/themes/` directory and restart the image.
+To uninstall plugins you simply need to remove the theme from the `/srv/docker/redmine/redmine/themes/` directory and restart the image.
 
 ```bash
-rm -rf /opt/redmine/data/themes/theme_name
+rm -rf /srv/docker/redmine/redmine/themes/theme_name
 ```
 
 For example, to remove the gitmike theme:
 
 ```bash
-rm -rf /opt/redmine/data/themes/gitmike
+rm -rf /srv/docker/redmine/redmine/themes/gitmike
 ```
 
 Now when the image is started the theme will be not be available anymore.
