@@ -29,7 +29,6 @@
     - [Configuring HSTS](#configuring-hsts)
     - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
   - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
-  - [Putting it all together](#putting-it-all-together)
   - [Available Configuration Parameters](#available-configuration-parameters)
 - [Plugins](#plugins)
   - [Installing Plugins](#installing-plugins)
@@ -538,27 +537,6 @@ docker run --name=redmine -d --publish=10080:80 \
 Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.com/redmine`.
 
 **Note**: *The `REDMINE_RELATIVE_URL_ROOT` parameter should always begin with a slash and **SHOULD NOT** have any trailing slashes.*
-
-### Putting it all together
-
-```bash
-docker run --name=redmine -d \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
-  sameersbn/redmine:3.0.2
-```
-
-If you are using an external mysql database
-
-```bash
-docker run --name=redmine -d \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
-  sameersbn/redmine:3.0.2
-```
 
 ### Available Configuration Parameters
 
