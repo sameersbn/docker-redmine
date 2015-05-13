@@ -115,10 +115,10 @@ docker build --tag="$USER/redmine" .
 You can launch the image using the docker command line,
 
 ```bash
-docker run --name=redmine -it --rm -p 10080:80 \
--v /var/run/docker.sock:/run/docker.sock \
--v $(which docker):/bin/docker \
-sameersbn/redmine:3.0.2
+docker run --name=redmine -it --rm --publish=10080:80 \
+  --volume=/var/run/docker.sock:/run/docker.sock \
+  --volume=$(which docker):/bin/docker \
+  sameersbn/redmine:3.0.2
 ```
 
 Or you can use [docker-compose](https://docs.docker.com/compose/install/#install-compose). It's [fig](http://www.fig.sh/) but fig is now deprecrated and it got renamed to docker-compose. It is for installation available since docker version 1.3.
@@ -167,7 +167,8 @@ Volumes can be mounted in docker by specifying the **'-v'** option in the docker
 
 ```bash
 docker run --name=redmine -it --rm \
-  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:3.0.2
+  --volume=/opt/redmine/data:/home/redmine/data \
+  sameersbn/redmine:3.0.2
 ```
 
 ## Database
@@ -186,7 +187,7 @@ Assuming that your mysql data is available at `/opt/redmine/mysql`
 
 ```bash
 docker run --name=mysql -d \
-  -v /opt/redmine/mysql:/var/lib/mysql \
+  --volume=/opt/redmine/mysql:/var/lib/mysql \
   sameersbn/mysql:latest
 ```
 
@@ -213,9 +214,10 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm \
-  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" \
-  -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:3.0.2
+  --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/opt/redmine/data:/home/redmine/data \
+  sameersbn/redmine:3.0.2
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
@@ -247,8 +249,9 @@ The run command looks like this.
 
 ```bash
 docker run --name=mysql -d \
-  -e 'DB_NAME=redmine_production' -e 'DB_USER=redmine' -e 'DB_PASS=password' \
-  -v /opt/mysql/data:/var/lib/mysql \
+  --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/opt/mysql/data:/var/lib/mysql \
   sameersbn/mysql:latest
 ```
 
@@ -258,7 +261,7 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm --link mysql:mysql \
-  -v /opt/redmine/data:/home/redmine/data \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -285,9 +288,10 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm \
-  -e "DB_TYPE=postgres" -e "DB_HOST=192.168.1.100" \
-  -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -v /opt/redmine/data:/home/redmine/data \
+  --env='DB_TYPE=postgres' \
+  --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -320,8 +324,9 @@ The run command looks like this.
 
 ```bash
 docker run --name=postgresql -d \
-  -e 'DB_NAME=redmine_production' -e 'DB_USER=redmine' -e 'DB_PASS=password' \
-  -v /opt/postgresql/data:/var/lib/postgresql \
+  --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/opt/postgresql/data:/var/lib/postgresql \
   sameersbn/postgresql:latest
 ```
 
@@ -331,7 +336,7 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm --link postgresql:postgresql \
-  -v /opt/redmine/data:/home/redmine/data \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -354,7 +359,7 @@ The image can be configured to use an external memcached server. The memcached s
 
 ```bash
 docker run --name=redmine -it --rm \
-  -e 'MEMCACHE_HOST=192.168.1.100' -e 'MEMCACHE_PORT=11211' \
+  --env='MEMCACHE_HOST=192.168.1.100' --env='MEMCACHE_PORT=11211' \
   sameersbn/redmine:3.0.2
 ```
 
@@ -385,8 +390,9 @@ Please refer the [Available Configuration Parameters](#available-configuration-p
 
 ```bash
 docker run --name=redmine -it --rm \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
-  -v /opt/redmine/data:/home/redmine/data sameersbn/redmine:3.0.2
+  --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
+  --volume=/opt/redmine/data:/home/redmine/data \
+  sameersbn/redmine:3.0.2
 ```
 
 If you are not using google mail, then please configure the SMTP host and port using the `SMTP_HOST` and `SMTP_PORT` configuration parameters.
@@ -463,8 +469,8 @@ HTTPS support can be enabled by setting the `REDMINE_HTTPS` option to `true`.
 
 ```bash
 docker run --name=redmine -d \
-  -e 'REDMINE_HTTPS=true' \
-  -v /opt/redmine/data:/home/redmine/data \
+  --env='REDMINE_HTTPS=true' \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -478,9 +484,9 @@ With `REDMINE_HTTPS_HSTS_MAXAGE` you can configure that value. The default value
 
 ```bash
 docker run --name=redmine -d \
-  -e 'REDMINE_HTTPS=true' \
-  -e 'REDMINE_HTTPS_HSTS_MAXAGE=2592000'
-  -v /opt/redmine/data:/home/redmine/data \
+  --env='REDMINE_HTTPS=true' \
+  --env='REDMINE_HTTPS_HSTS_MAXAGE=2592000'
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -497,9 +503,9 @@ When using a load balancer, you probably want to make sure the load balancer per
 In summation, when using a load balancer, the docker command would look for the most part something like this:
 
 ```bash
-docker run --name=redmine -d -p 10080:80 \
-  -e 'REDMINE_HTTPS=true' \
-  -v /opt/redmine/data:/home/redmine/data \
+docker run --name=redmine -d --publish=10080:80 \
+  --env='REDMINE_HTTPS=true' \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -510,9 +516,9 @@ By default redmine expects that your application is running at the root (eg. /).
 Let's assume we want to deploy our application to '/redmine'. Redmine needs to know this directory to generate the appropriate routes. This can be specified using the `REDMINE_RELATIVE_URL_ROOT` configuration option like so:
 
 ```bash
-docker run --name=redmine -d -p 10080:80 \
-  -e 'REDMINE_RELATIVE_URL_ROOT=/redmine' \
-  -v /opt/redmine/data:/home/redmine/data \
+docker run --name=redmine -d --publish=10080:80 \
+  --env='REDMINE_RELATIVE_URL_ROOT=/redmine' \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2
 ```
 
@@ -523,20 +529,21 @@ Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.
 ### Putting it all together
 
 ```bash
-docker run --name=redmine -d -h redmine.local.host \
-  -v /opt/redmine/data:/home/redmine/data \
-  -v /opt/redmine/mysql:/var/lib/mysql \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+docker run --name=redmine -d \
+  --volume=/opt/redmine/data:/home/redmine/data \
+  --volume=/opt/redmine/mysql:/var/lib/mysql \
+  --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
   sameersbn/redmine:3.0.2
 ```
 
 If you are using an external mysql database
 
 ```bash
-docker run --name=redmine -d -h redmine.local.host \
-  -v /opt/redmine/data:/home/redmine/data \
-  -e "DB_HOST=192.168.1.100" -e "DB_NAME=redmine_production" -e "DB_USER=redmine" -e "DB_PASS=password" \
-  -e "SMTP_USER=USER@gmail.com" -e "SMTP_PASS=PASSWORD" \
+docker run --name=redmine -d \
+  --volume=/opt/redmine/data:/home/redmine/data \
+  --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
   sameersbn/redmine:3.0.2
 ```
 
@@ -645,7 +652,7 @@ To uninstall plugins you need to first tell redmine about the plugin you need to
 
 ```bash
 docker run --name=redmine -it --rm \
-  -v /opt/redmine/data:/home/redmine/data \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2 \
   app:rake redmine:plugins:migrate NAME=plugin_name VERSION=0
 ```
@@ -662,7 +669,7 @@ For example, to remove the recurring tasks plugin:
 
 ```bash
 docker run --name=redmine -it --rm \
-  -v /opt/redmine/data:/home/redmine/data \
+  --volume=/opt/redmine/data:/home/redmine/data \
   sameersbn/redmine:3.0.2 \
   app:rake redmine:plugins:migrate NAME=recurring_tasks VERSION=0
 rm -rf /opt/redmine/data/plugins/recurring_tasks
@@ -731,7 +738,7 @@ Some linux distros (e.g. ubuntu) use older versions of the util-linux which do n
 To install `nsenter` execute the following command on your host,
 
 ```bash
-docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
+docker run --rm --volume=/usr/local/bin:/target jpetazzo/nsenter
 ```
 
 Now you can access the container shell using the command
