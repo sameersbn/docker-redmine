@@ -12,7 +12,7 @@ redmine:
     - postgresql:postgresql
   environment:
     - TZ=Asia/Kolkata
-    - REDMINE_PORT=10080
+    - REDMINE_PORT=10083
     - SMTP_ENABLED=false
     - SMTP_DOMAIN=www.example.com
     - SMTP_HOST=smtp.gmail.com
@@ -22,6 +22,6 @@ redmine:
     - SMTP_STARTTLS=true
     - SMTP_AUTHENTICATION=:login
   ports:
-    - "10080:80"
+    - "10083:80"
   volumes:
     - /srv/docker/redmine/redmine:/home/redmine/data

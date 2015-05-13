@@ -132,15 +132,15 @@ Step 2. Launch the redmine container
 
 ```bash
 docker run --name=redmine -d \
-  --link=postgresql-redmine:postgresql --publish=10080:80 \
-  --env='REDMINE_PORT=10080' \
+  --link=postgresql-redmine:postgresql --publish=10083:80 \
+  --env='REDMINE_PORT=10083' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
 ```
 
 **NOTE**: Please allow a minute or two for the Redmine application to start.
 
-Point your browser to `http://localhost:10080` and login using the default username and password:
+Point your browser to `http://localhost:10083` and login using the default username and password:
 
 * username: **admin**
 * password: **admin**
@@ -513,7 +513,7 @@ When using a load balancer, you probably want to make sure the load balancer per
 In summation, when using a load balancer, the docker command would look for the most part something like this:
 
 ```bash
-docker run --name=redmine -d --publish=10080:80 \
+docker run --name=redmine -d --publish=10083:80 \
   --env='REDMINE_HTTPS=true' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
@@ -526,7 +526,7 @@ By default redmine expects that your application is running at the root (eg. /).
 Let's assume we want to deploy our application to '/redmine'. Redmine needs to know this directory to generate the appropriate routes. This can be specified using the `REDMINE_RELATIVE_URL_ROOT` configuration option like so:
 
 ```bash
-docker run --name=redmine -d --publish=10080:80 \
+docker run --name=redmine -d --publish=10083:80 \
   --env='REDMINE_RELATIVE_URL_ROOT=/redmine' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:2.6.4
