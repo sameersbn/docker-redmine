@@ -4,6 +4,8 @@ postgresql:
     - DB_USER=redmine
     - DB_PASS=phatiphohsukeuwo
     - DB_NAME=redmine_production
+  volumes:
+    - /srv/docker/redmine/postgresql:/var/lib/postgresql
 redmine:
   image: sameersbn/redmine:3.0.2
   links:
@@ -14,3 +16,5 @@ redmine:
     - DB_NAME=redmine_production
   ports:
     - "10080:80"
+  volumes:
+    - /srv/docker/redmine/redmine:/home/redmine/data
