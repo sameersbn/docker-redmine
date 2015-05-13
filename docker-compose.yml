@@ -11,9 +11,7 @@ redmine:
   links:
     - postgresql:postgresql
   environment:
-    - DB_USER=redmine
-    - DB_PASS=phatiphohsukeuwo
-    - DB_NAME=redmine_production
+    - REDMINE_PORT=10080
   ports:
     - "10080:80"
   volumes:
