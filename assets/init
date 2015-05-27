@@ -1,6 +1,25 @@
 #!/bin/bash
 set -e
 
+appHelp () {
+  echo "Available options:"
+  echo " app:start          - Starts the redmine server (default)"
+  echo " app:rake <task>    - Execute a rake task."
+  echo " app:help           - Displays the help"
+  echo " [command]          - Execute the specified linux command eg. bash."
+}
+
+case "$1" in
+  app:help)
+    appHelp
+    exit 0
+    ;;
+  app:volume)
+    echo "Create Redmine data volume."
+    exit 0
+    ;;
+esac
+
 HOME_DIR="/home/redmine"
 INSTALL_DIR="${HOME_DIR}/redmine"
 CONFIG_DIR="${INSTALL_DIR}/config"
@@ -498,14 +517,6 @@ appRake () {
   sudo -u redmine -H bundle exec rake $@ RAILS_ENV=production
 }
 
-appHelp () {
-  echo "Available options:"
-  echo " app:start          - Starts the redmine server (default)"
-  echo " app:rake <task>    - Execute a rake task."
-  echo " app:help           - Displays the help"
-  echo " [command]          - Execute the specified linux command eg. bash."
-}
-
 case "$1" in
   app:start)
     appStart
@@ -513,9 +524,6 @@ case "$1" in
   app:rake)
     shift 1
     appRake $@
-    ;;
-  app:help)
-    appHelp
     ;;
   *)
     if [ -x $1 ]; then
