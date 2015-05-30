@@ -670,7 +670,7 @@ Now when the image is started the plugin will be gone.
 
 # Themes
 
-Just like plugins, redmine allows users to install additional themes. You can find a list of available plugins in the [Redmine Themes Directory](www.redmine.org/projects/redmine/wiki/Theme_List)
+Just like plugins, redmine allows users to install additional themes. You can find a list of available themes in the [Redmine Themes Directory](http://www.redmine.org/projects/redmine/wiki/Theme_List)
 
 ## Installing Themes
 
