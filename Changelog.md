@@ -1,7 +1,8 @@
 # Changelog
 
-**latest**
+**2.6.5-1**
 - install: fix typo in `bundle install` command :facepalm:
+- base image update to fix SSL vulnerability
 
 **2.6.5**
 - redmine: upgrade to v.2.6.5
