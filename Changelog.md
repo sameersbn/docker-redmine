@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- added `SMTP_TLS` configuration parameter
+
 **3.0.3-1**
 - install: fix typo in `bundle install` command :facepalm:
 - base image update to fix SSL vulnerability
