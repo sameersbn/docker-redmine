@@ -36,6 +36,7 @@
 - [Themes](#plugins)
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
+- [Database Backup](#database-backup)
 - [Shell Access](#shell-access)
 - [Upgrading](#upgrading)
 - [Rake Tasks](#rake-tasks)
@@ -716,6 +717,19 @@ rm -rf /srv/docker/redmine/redmine/themes/gitmike
 ```
 
 Now when the image is started the theme will be not be available anymore.
+
+# Database Backup
+
+To perform a dump from the docker-based database run (docker>=1.3.0):
+```bash
+docker exec -it redmine /app/backup/run.sh
+```
+
+This creates a dump in /home/redmine/data/dbbackup/ that is mapped to some location on the docker host
+
+You may want to include this script and related log compression & cleanup in your regular schedule.
+
+
 
 # Shell Access
 
