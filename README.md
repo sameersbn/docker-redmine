@@ -730,7 +730,7 @@ This creates a dump in /home/redmine/data/dbbackup/ that is mapped to some locat
 You may want to include this script and related log compression & cleanup in your regular schedule.
 
 How to restore, just in case:
-```
+```bash
 # create fresh database container
 docker rm postgresql-redmine
 docker run [.. your options fo here ..] sameersbn/postgresql:9.4
