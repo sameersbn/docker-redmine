@@ -721,7 +721,7 @@ Now when the image is started the theme will be not be available anymore.
 # Database Backup
 
 To perform a dump from the docker-based database run (docker>=1.3.0):
-cbash
+```bash
 docker exec -it redmine /app/backup/run.sh
 ```
 
