@@ -36,6 +36,7 @@
 - [Themes](#plugins)
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
+- [Database Backup](#database-backup)
 - [Shell Access](#shell-access)
 - [Upgrading](#upgrading)
 - [Rake Tasks](#rake-tasks)
@@ -716,6 +717,38 @@ rm -rf /srv/docker/redmine/redmine/themes/gitmike
 ```
 
 Now when the image is started the theme will be not be available anymore.
+
+# Database Backup
+
+To perform a dump from the docker-based database run (docker>=1.3.0):
+```bash
+docker exec -it redmine /app/backup/run.sh
+```
+
+This creates a dump in /home/redmine/data/dbbackup/ that is mapped to some location on the docker host
+
+You may want to include this script and related log compression & cleanup in your regular schedule.
+
+How to restore, just in case:
+```bash
+# create fresh database container
+docker rm postgresql-redmine
+docker run [.. your options fo here ..] sameersbn/postgresql:9.4
+# create empty database (needs privileges in the postgres container)
+docker exec -it postgresql-redmine /bin/bash
+su - postgres
+psql
+DROP DATABASE redmine_production;
+CREATE DATABASE redmine_production;
+GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
+\q
+exit
+# load schema and data from backup
+docker exec -it redmine /bin/bash
+cd /home/redmine/data/dbbackup/
+psql -h postgresql -U redmine redmine_production < insertnameofdump.sql
+exit
+```
 
 # Shell Access
 

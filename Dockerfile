@@ -27,6 +27,12 @@ ADD assets/config/ /app/setup/config/
 ADD assets/init /app/init
 RUN chmod 755 /app/init
 
+ADD assets/backup/ /app/backup/
+RUN chmod 755 /app/backup/setup.sh
+RUN /app/backup/setup.sh
+ADD assets/backup/run.sh /app/backup/run.sh
+RUN chmod 755 /app/backup/run.sh
+
 EXPOSE 80
 EXPOSE 443
 
