@@ -791,7 +791,7 @@ docker run --name=redmine -d [OPTIONS] sameersbn/redmine:2.6.6
 **Step 5**: Restore database from before
 
 ```bash
-docker exec -i mysql mysql -h localhost redmine_production < redmine.sql
+docker exec -i mysql-redmine mysql -h localhost redmine_production < redmine.sql
 ```
 
 ## Rake Tasks
