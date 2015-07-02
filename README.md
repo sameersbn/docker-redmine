@@ -766,10 +766,21 @@ docker rm redmine
 mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
 ```
 
+With docker
+```bash
+docker exec mysql-redmine mysqldump -h localhost --add-drop-table redmine_production > redmine.sql
+```
+
 **Step 4**: Start the image
 
 ```bash
 docker run --name=redmine -d [OPTIONS] sameersbn/redmine:3.0.3-1
+```
+
+**Step 5**: Restore database from before
+
+```bash
+docker exec -i mysql mysql -h localhost redmine_production < redmine.sql
 ```
 
 ## Rake Tasks
