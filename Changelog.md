@@ -2,6 +2,7 @@
 
 **latest**
 - added `SMTP_TLS` configuration parameter
+- redmine: upgrade to v.2.6.6
 
 **2.6.5-1**
 - install: fix typo in `bundle install` command :facepalm:
