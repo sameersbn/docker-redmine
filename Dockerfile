@@ -19,11 +19,11 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45F
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
-ADD assets/setup/ /app/setup/
+COPY assets/setup/ /app/setup/
 RUN bash /app/setup/install.sh
 
-ADD assets/config/ /app/setup/config/
-ADD entrypoint.sh /sbin/entrypoint.sh
+COPY assets/config/ /app/setup/config/
+COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 
 EXPOSE 80/tcp 443/tcp
