@@ -23,11 +23,11 @@ rm -rf /tmp/cron.redmine
 
 # create symlink to ${REDMINE_DATA_DIR}/dotfiles/.ssh
 rm -rf ${REDMINE_HOME}/.ssh
-sudo -Hu redmine ln -s ${REDMINE_DATA_DIR}/dotfiles/.ssh ${REDMINE_HOME}/.ssh
+sudo -HEu redmine ln -s ${REDMINE_DATA_DIR}/dotfiles/.ssh ${REDMINE_HOME}/.ssh
 
 # create symlink to ${REDMINE_DATA_DIR}/dotfiles/.subversion
 rm -rf ${REDMINE_HOME}/.subversion
-sudo -Hu redmine ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMINE_HOME}/.subversion
+sudo -HEu redmine ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMINE_HOME}/.subversion
 
 # install redmine, use local copy if available
 mkdir -p ${REDMINE_INSTALL_DIR}
