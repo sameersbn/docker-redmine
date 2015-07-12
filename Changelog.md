@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**3.0.4**
 - added `SMTP_TLS` configuration parameter
 - redmine: upgrade to v.3.0.4
 
