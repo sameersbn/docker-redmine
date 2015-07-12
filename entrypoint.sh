@@ -388,7 +388,6 @@ echo
 
 # migrate database if the redmine version has changed.
 CURRENT_VERSION=
-REDMINE_VERSION=$(cat ${REDMINE_INSTALL_DIR}/VERSION)
 [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CURRENT_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
 if [[ ${REDMINE_VERSION} != ${CURRENT_VERSION} ]]; then
   # recreate the tmp directory
