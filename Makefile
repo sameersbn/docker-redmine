@@ -1,4 +1,4 @@
-all: help
+all: build
 
 help:
 	@echo ""
@@ -12,6 +12,9 @@ help:
 
 build:
 	@docker build --tag=${USER}/redmine .
+
+release:
+	@docker build --tag=${USER}/redmine:$(shell cat VERSION) .
 
 quickstart:
 	@echo "Starting redmine..."
