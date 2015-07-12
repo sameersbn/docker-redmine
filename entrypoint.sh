@@ -471,6 +471,9 @@ if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
     echo "Executing plugins startup script..."
     . ${REDMINE_DATA_DIR}/plugins/init
   fi
+else
+  # make sure the plugins.sha1 is not present
+  rm -rf ${REDMINE_DATA_DIR}/tmp/plugins.sha1
 fi
 
 # install user themes
