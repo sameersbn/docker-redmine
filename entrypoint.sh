@@ -407,15 +407,15 @@ if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
   sudo -HEu ${REDMINE_USER} cp -a Gemfile.lock ${REDMINE_DATA_DIR}/tmp/
 
   echo "Migrating database. Please be patient, this could take a while..."
-  sudo -HEu ${REDMINE_USER} bundle exec rake db:create RAILS_ENV=production
-  sudo -HEu ${REDMINE_USER} bundle exec rake db:migrate RAILS_ENV=production
+  sudo -HEu ${REDMINE_USER} bundle exec rake db:create
+  sudo -HEu ${REDMINE_USER} bundle exec rake db:migrate
 
   # clear sessions and application cache
-  sudo -HEu ${REDMINE_USER} bundle exec rake tmp:cache:clear RAILS_ENV=production >/dev/null
-  sudo -HEu ${REDMINE_USER} bundle exec rake tmp:sessions:clear RAILS_ENV=production >/dev/null
+  sudo -HEu ${REDMINE_USER} bundle exec rake tmp:cache:clear >/dev/null
+  sudo -HEu ${REDMINE_USER} bundle exec rake tmp:sessions:clear >/dev/null
 
   echo "Generating secure token..."
-  sudo -HEu ${REDMINE_USER} bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
+  sudo -HEu ${REDMINE_USER} bundle exec rake generate_secret_token >/dev/null
 
   # update version file
   echo "${REDMINE_VERSION}" | sudo -HEu ${REDMINE_USER} tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
@@ -426,7 +426,7 @@ case "${REDMINE_FETCH_COMMITS}" in
   hourly|daily|monthly)
     crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
     if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
-      echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+      echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
       crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
     fi
     rm -rf /tmp/cron.${REDMINE_USER}
@@ -456,7 +456,7 @@ if [ -d ${REDMINE_DATA_DIR}/plugins ]; then
     sudo -HEu ${REDMINE_USER} bundle install --without development test --path vendor/bundle
 
     echo "Migrating plugins. Please be patient, this could take a while..."
-    sudo -HEu ${REDMINE_USER} bundle exec rake redmine:plugins:migrate RAILS_ENV=production
+    sudo -HEu ${REDMINE_USER} bundle exec rake redmine:plugins:migrate
 
     # save SHA1
     echo -n "${PLUGINS_SHA1}" > ${REDMINE_DATA_DIR}/tmp/plugins.sha1
@@ -492,7 +492,7 @@ appRake () {
     return 1
   fi
   echo "Running redmine rake task..."
-  sudo -HEu ${REDMINE_USER} bundle exec rake $@ RAILS_ENV=production
+  sudo -HEu ${REDMINE_USER} bundle exec rake $@
 }
 
 appHelp () {

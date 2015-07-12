@@ -159,7 +159,7 @@ cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
 priority=10
 directory=${REDMINE_INSTALL_DIR}
 environment=HOME=${REDMINE_HOME}
-command=bundle exec unicorn_rails -E production -c ${REDMINE_INSTALL_DIR}/config/unicorn.rb
+command=bundle exec unicorn_rails -E ${RAILS_ENV} -c ${REDMINE_INSTALL_DIR}/config/unicorn.rb
 user=${REDMINE_USER}
 autostart=true
 autorestart=true
