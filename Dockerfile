@@ -28,8 +28,7 @@ RUN chmod 755 /app/init
 
 EXPOSE 80/tcp 443/tcp
 
-VOLUME ["/home/redmine/data"]
-VOLUME ["/var/log/redmine"]
+VOLUME ["/home/redmine/data", "/var/log/redmine"]
 
 WORKDIR /home/redmine/redmine
 ENTRYPOINT ["/app/init"]
