@@ -23,7 +23,7 @@ ADD assets/setup/ /app/setup/
 RUN bash /app/setup/install.sh
 
 ADD assets/config/ /app/setup/config/
-ADD assets/init /app/init
+ADD init /app/init
 RUN chmod 755 /app/init
 
 EXPOSE 80/tcp 443/tcp
