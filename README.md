@@ -29,6 +29,7 @@
     - [Configuring HSTS](#configuring-hsts)
     - [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
   - [Deploy to a subdirectory (relative url root)](#deploy-to-a-subdirectory-relative-url-root)
+  - [Mapping host user and group](#mapping-host-user-and-group)
   - [Available Configuration Parameters](#available-configuration-parameters)
 - [Plugins](#plugins)
   - [Installing Plugins](#installing-plugins)
@@ -537,6 +538,18 @@ docker run --name=redmine -d --publish=10083:80 \
 Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.com/redmine`.
 
 **Note**: *The `REDMINE_RELATIVE_URL_ROOT` parameter should always begin with a slash and **SHOULD NOT** have any trailing slashes.*
+
+### Mapping host user and group
+
+Per default the container is configured to run redmine as user and group `redmine` with `uid` and `gid` `1000`. The host possibly uses this ids for different purposes leading to unfavorable effects. From the host it appears as if the mounted data volumes are owned by the host's user/group `1000`.
+
+Also the container processes seem to be executed as the host's user/group `1000`. The container can be configured to map the `uid` and `gid` of `redmine` user to different ids on host by passing the environment variables `USERMAP_UID` and `USERMAP_GID`. The following command maps the ids to user and group `redmine` on the host.
+
+```bash
+docker run --name=redmine -it --rm [options] \
+  --env="USERMAP_UID=500" --env="USERMAP_GID=500" \
+  sameersbn/redmine:2.6.5-1
+```
 
 ### Available Configuration Parameters
 

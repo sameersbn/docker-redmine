@@ -1,5 +1,15 @@
-FROM sameersbn/ubuntu:14.04.20150613
+FROM sameersbn/ubuntu:14.04.20150712
 MAINTAINER sameer@damagehead.com
+
+ENV REDMINE_VERSION=2.6.5 \
+    REDMINE_USER="redmine" \
+    REDMINE_HOME="/home/redmine" \
+    REDMINE_LOG_DIR="/var/log/redmine" \
+    SETUP_DIR="/var/cache/redmine" \
+    RAILS_ENV=production
+
+ENV REDMINE_INSTALL_DIR="${REDMINE_HOME}/redmine" \
+    REDMINE_DATA_DIR="${REDMINE_HOME}/data"
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45FA1715D88E1DF1F24 \
  && echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" >> /etc/apt/sources.list \
@@ -17,22 +27,18 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45F
       libxslt1.1 libffi6 zlib1g gsfonts \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
  && gem install --no-document bundler \
- && rm -rf /var/lib/apt/lists/* # 20150613
+ && rm -rf /var/lib/apt/lists/*
 
-ADD assets/setup/ /app/setup/
-RUN chmod 755 /app/setup/install
-RUN /app/setup/install
+COPY assets/setup/ ${SETUP_DIR}/
+RUN bash ${SETUP_DIR}/install.sh
 
-ADD assets/config/ /app/setup/config/
-ADD assets/init /app/init
-RUN chmod 755 /app/init
+COPY assets/config/ ${SETUP_DIR}/config/
+COPY entrypoint.sh /sbin/entrypoint.sh
+RUN chmod 755 /sbin/entrypoint.sh
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 80/tcp 443/tcp
 
-VOLUME ["/home/redmine/data"]
-VOLUME ["/var/log/redmine"]
-
-WORKDIR /home/redmine/redmine
-ENTRYPOINT ["/app/init"]
+VOLUME ["${REDMINE_DATA_DIR}", "${REDMINE_LOG_DIR}"]
+WORKDIR ${REDMINE_INSTALL_DIR}
+ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:start"]

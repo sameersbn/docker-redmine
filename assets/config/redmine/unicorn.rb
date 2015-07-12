@@ -20,28 +20,28 @@ worker_processes {{UNICORN_WORKERS}}
 # as root unless it's from system init scripts.
 # If running the master process as root and the workers as an unprivileged
 # user, do this to switch euid/egid in the workers (also chowns logs):
-user "redmine", "redmine"
+user "{{REDMINE_USER}}", "{{REDMINE_USER}}"
 
 # Help ensure your application will always spawn in the symlinked
 # "current" directory that Capistrano sets up.
-working_directory "{{INSTALL_DIR}}" # available in 0.94.0+
+working_directory "{{REDMINE_INSTALL_DIR}}" # available in 0.94.0+
 
 # listen on both a Unix domain socket and a TCP port,
 # we use a shorter backlog for quicker failover when busy
-listen "{{INSTALL_DIR}}/tmp/sockets/redmine.socket", :backlog => 64
+listen "{{REDMINE_INSTALL_DIR}}/tmp/sockets/redmine.socket", :backlog => 64
 listen "127.0.0.1:8080", :tcp_nopush => true
 
 # nuke workers after 30 seconds instead of 60 seconds (the default)
 timeout {{UNICORN_TIMEOUT}}
 
 # feel free to point this anywhere accessible on the filesystem
-pid "{{INSTALL_DIR}}/tmp/pids/unicorn.pid"
+pid "{{REDMINE_INSTALL_DIR}}/tmp/pids/unicorn.pid"
 
 # By default, the Unicorn logger will write to stderr.
 # Additionally, some applications/frameworks log to stderr or stdout,
 # so prevent them from going to /dev/null when daemonized here:
-stderr_path "{{INSTALL_DIR}}/log/unicorn.stderr.log"
-stdout_path "{{INSTALL_DIR}}/log/unicorn.stdout.log"
+stderr_path "{{REDMINE_INSTALL_DIR}}/log/unicorn.stderr.log"
+stdout_path "{{REDMINE_INSTALL_DIR}}/log/unicorn.stdout.log"
 
 # combine Ruby 2.0.0dev or REE with "preload_app true" for memory savings
 # http://rubyenterpriseedition.com/faq.html#adapt_apps_for_cow
