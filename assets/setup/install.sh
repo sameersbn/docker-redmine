@@ -31,7 +31,7 @@ sudo -HEu ${REDMINE_USER} ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMI
 
 # install redmine, use local copy if available
 mkdir -p ${REDMINE_INSTALL_DIR}
-if [ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]; then
+if [[ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
   tar -zvxf ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
   wget -nv "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${REDMINE_INSTALL_DIR}
@@ -57,7 +57,7 @@ echo 'gem "unicorn"' >> Gemfile
 echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
 
 # install gems, use cache if available
-if [ -d "${GEM_CACHE_DIR}" ]; then
+if [[ -d ${GEM_CACHE_DIR} ]]; then
   mv ${GEM_CACHE_DIR} vendor/
 fi
 
@@ -187,4 +187,4 @@ apt-get purge -y --auto-remove \
   libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
 
 # cleanup
-rm -rf /var/lib/apt/lists/* # 20140918
+rm -rf /var/lib/apt/lists/*
