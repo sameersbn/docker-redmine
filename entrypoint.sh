@@ -426,7 +426,11 @@ case ${REDMINE_FETCH_COMMITS} in
   hourly|daily|monthly)
     crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
     if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
-      echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+      case ${REDMINE_VERSION} in
+        2.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
+        3.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
+        *) echo "ERROR: Unsupported Redmine version (${REDMINE_VERSION})" && exit 1 ;;
+      esac
       crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
     fi
     rm -rf /tmp/cron.${REDMINE_USER}
