@@ -20,8 +20,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45F
  && rm -rf /var/lib/apt/lists/* # 20150712
 
 ADD assets/setup/ /app/setup/
-RUN chmod 755 /app/setup/install.sh
-RUN /app/setup/install.sh
+RUN bash /app/setup/install.sh
 
 ADD assets/config/ /app/setup/config/
 ADD assets/init /app/init
