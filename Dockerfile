@@ -5,7 +5,7 @@ ENV REDMINE_VERSION=3.0.3 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
-    SETUP_DIR="/app/setup" \
+    SETUP_DIR="/var/cache/redmine" \
     RAILS_ENV=production
 
 ENV REDMINE_INSTALL_DIR="${REDMINE_HOME}/redmine" \
