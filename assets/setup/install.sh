@@ -21,26 +21,26 @@ EOF
 crontab -u redmine /tmp/cron.redmine
 rm -rf /tmp/cron.redmine
 
-# create symlink to ${DATA_DIR}/dotfiles/.ssh
-rm -rf ${HOME_DIR}/.ssh
-sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.ssh ${HOME_DIR}/.ssh
+# create symlink to ${REDMINE_DATA_DIR}/dotfiles/.ssh
+rm -rf ${REDMINE_HOME}/.ssh
+sudo -u redmine -H ln -s ${REDMINE_DATA_DIR}/dotfiles/.ssh ${REDMINE_HOME}/.ssh
 
-# create symlink to ${DATA_DIR}/dotfiles/.subversion
-rm -rf ${HOME_DIR}/.subversion
-sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.subversion ${HOME_DIR}/.subversion
+# create symlink to ${REDMINE_DATA_DIR}/dotfiles/.subversion
+rm -rf ${REDMINE_HOME}/.subversion
+sudo -u redmine -H ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMINE_HOME}/.subversion
 
 # install redmine, use local copy if available
-mkdir -p ${INSTALL_DIR}
+mkdir -p ${REDMINE_INSTALL_DIR}
 if [ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]; then
-  tar -zvxf ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${INSTALL_DIR}
+  tar -zvxf ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
-  wget -nv "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${INSTALL_DIR}
+  wget -nv "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${REDMINE_INSTALL_DIR}
 fi
 
-cd ${INSTALL_DIR}
+cd ${REDMINE_INSTALL_DIR}
 
 # create version file
-echo "${REDMINE_VERSION}" > ${INSTALL_DIR}/VERSION
+echo "${REDMINE_VERSION}" > ${REDMINE_INSTALL_DIR}/VERSION
 
 # HACK: we want both the pg and mysql2 gems installed, so we remove the
 #       respective lines and add them at the end of the Gemfile so that they
@@ -71,22 +71,22 @@ mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
 
 # create link public/plugin_assets directory
 rm -rf public/plugin_assets
-ln -sf ${DATA_DIR}/tmp/plugin_assets public/plugin_assets
+ln -sf ${REDMINE_DATA_DIR}/tmp/plugin_assets public/plugin_assets
 
 # create link tmp/thumbnails directory
 rm -rf tmp/thumbnails
-ln -sf ${DATA_DIR}/tmp/thumbnails tmp/thumbnails
+ln -sf ${REDMINE_DATA_DIR}/tmp/thumbnails tmp/thumbnails
 
 # create link to tmp/secret_token.rb
-ln -sf ${DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
+ln -sf ${REDMINE_DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
 
-# symlink log -> ${LOG_DIR}/redmine
+# symlink log -> ${REDMINE_LOG_DIR}/redmine
 rm -rf log
-ln -sf ${LOG_DIR}/redmine log
+ln -sf ${REDMINE_LOG_DIR}/redmine log
 
 # fix permissions
 chmod -R u+rwX files tmp
-chown -R redmine:redmine ${INSTALL_DIR}
+chown -R redmine:redmine ${REDMINE_INSTALL_DIR}
 
 # disable default nginx configuration
 rm -f /etc/nginx/sites-enabled/default
@@ -94,16 +94,16 @@ rm -f /etc/nginx/sites-enabled/default
 # run nginx as redmine user
 sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
 
-# move supervisord.log file to ${LOG_DIR}/supervisor/
-sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+# move supervisord.log file to ${REDMINE_LOG_DIR}/supervisor/
+sed 's|^logfile=.*|logfile='"${REDMINE_LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
 
-# move nginx logs to ${LOG_DIR}/nginx
-sed 's|access_log /var/log/nginx/access.log;|access_log '"${LOG_DIR}"'/nginx/access.log;|' -i /etc/nginx/nginx.conf
-sed 's|error_log /var/log/nginx/error.log;|error_log '"${LOG_DIR}"'/nginx/error.log;|' -i /etc/nginx/nginx.conf
+# move nginx logs to ${REDMINE_LOG_DIR}/nginx
+sed 's|access_log /var/log/nginx/access.log;|access_log '"${REDMINE_LOG_DIR}"'/nginx/access.log;|' -i /etc/nginx/nginx.conf
+sed 's|error_log /var/log/nginx/error.log;|error_log '"${REDMINE_LOG_DIR}"'/nginx/error.log;|' -i /etc/nginx/nginx.conf
 
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
-${LOG_DIR}/redmine/*.log {
+${REDMINE_LOG_DIR}/redmine/*.log {
   weekly
   missingok
   rotate 52
@@ -116,7 +116,7 @@ EOF
 
 # setup log rotation for redmine vhost logs
 cat > /etc/logrotate.d/redmine-vhost <<EOF
-${LOG_DIR}/nginx/*.log {
+${REDMINE_LOG_DIR}/nginx/*.log {
   weekly
   missingok
   rotate 52
@@ -129,7 +129,7 @@ EOF
 
 # configure supervisord log rotation
 cat > /etc/logrotate.d/supervisord <<EOF
-${LOG_DIR}/supervisor/*.log {
+${REDMINE_LOG_DIR}/supervisor/*.log {
   weekly
   missingok
   rotate 52
@@ -149,23 +149,23 @@ command=/usr/sbin/nginx -g "daemon off;"
 user=root
 autostart=true
 autorestart=true
-stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
-stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start unicorn
 cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
 [program:unicorn]
 priority=10
-directory=${INSTALL_DIR}
-environment=HOME=${HOME_DIR}
-command=bundle exec unicorn_rails -E production -c ${INSTALL_DIR}/config/unicorn.rb
+directory=${REDMINE_INSTALL_DIR}
+environment=HOME=${REDMINE_HOME}
+command=bundle exec unicorn_rails -E production -c ${REDMINE_INSTALL_DIR}/config/unicorn.rb
 user=redmine
 autostart=true
 autorestart=true
 stopsignal=QUIT
-stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
-stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
 # configure supervisord to start crond
@@ -177,8 +177,8 @@ command=/usr/sbin/cron -f
 user=root
 autostart=true
 autorestart=true
-stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
-stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
 # purge build dependencies

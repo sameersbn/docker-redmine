@@ -10,17 +10,17 @@ server {
   listen 0.0.0.0:80 default_server;
   listen [::]:80 default_server;
   server_tokens off;
-  root {{INSTALL_DIR}}/public;
+  root {{REDMINE_INSTALL_DIR}}/public;
 
   ## Increase this if you want to upload large attachments
   client_max_body_size {{NGINX_MAX_UPLOAD_SIZE}};
 
   ## Individual nginx logs for this Redmine vhost
-  access_log  /var/log/redmine/nginx/redmine_access.log;
-  error_log   /var/log/redmine/nginx/redmine_error.log;
+  access_log  {{REDMINE_LOG_DIR}}/nginx/redmine_access.log;
+  error_log   {{REDMINE_LOG_DIR}}/nginx/redmine_error.log;
 
   location {{REDMINE_RELATIVE_URL_ROOT}} {
-    # alias {{INSTALL_DIR}}/public;
+    # alias {{REDMINE_INSTALL_DIR}}/public;
     ## Serve static files from defined root folder.
     ## @redmine is a named location for the upstream fallback, see below.
     try_files $uri $uri/index.html $uri.html @redmine;

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-SSL_CERTIFICATES_DIR="${DATA_DIR}/certs"
+SSL_CERTIFICATES_DIR="${REDMINE_DATA_DIR}/certs"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
-USERCONF_TEMPLATES_DIR="${DATA_DIR}/config"
+USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
 
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
@@ -145,44 +145,44 @@ case "${REDMINE_HTTPS}" in
 esac
 
 # create the .ssh directory
-mkdir -p ${DATA_DIR}/dotfiles/.ssh/
-chown -R redmine:redmine ${DATA_DIR}/dotfiles/.ssh/
+mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.ssh/
+chown -R redmine:redmine ${REDMINE_DATA_DIR}/dotfiles/.ssh/
 
 # generate ssh keys
-if [ ! -e ${DATA_DIR}/dotfiles/.ssh/id_rsa -o ! -e ${DATA_DIR}/dotfiles/.ssh/id_rsa.pub ]; then
+if [ ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa -o ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub ]; then
   echo "Generating SSH keys..."
-  rm -rf ${DATA_DIR}/dotfiles/.ssh/id_rsa ${DATA_DIR}/dotfiles/.ssh/id_rsa.pub
-  sudo -u redmine -H ssh-keygen -t rsa -N "" -f ${DATA_DIR}/dotfiles/.ssh/id_rsa
+  rm -rf ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub
+  sudo -u redmine -H ssh-keygen -t rsa -N "" -f ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa
 fi
 
 # make sure the ssh keys have the right ownership and permissions
-chmod 600 ${DATA_DIR}/dotfiles/.ssh/id_rsa ${DATA_DIR}/dotfiles/.ssh/id_rsa.pub
-chmod 700 ${DATA_DIR}/dotfiles/.ssh
+chmod 600 ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub
+chmod 700 ${REDMINE_DATA_DIR}/dotfiles/.ssh
 
 # create the .subversion directory
-mkdir -p ${DATA_DIR}/dotfiles/.subversion/
+mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.subversion/
 
-# fix ownership of the ${DATA_DIR}dotfiles/ directory
-chown -R redmine:redmine ${DATA_DIR}/dotfiles
+# fix ownership of the ${REDMINE_DATA_DIR}dotfiles/ directory
+chown -R redmine:redmine ${REDMINE_DATA_DIR}/dotfiles
 
-# fix ownership of ${DATA_DIR}/tmp/
-mkdir -p ${DATA_DIR}/tmp/
-chown -R redmine:redmine ${DATA_DIR}/tmp/
+# fix ownership of ${REDMINE_DATA_DIR}/tmp/
+mkdir -p ${REDMINE_DATA_DIR}/tmp/
+chown -R redmine:redmine ${REDMINE_DATA_DIR}/tmp/
 
-# populate ${LOG_DIR}
-mkdir -m 0755 -p ${LOG_DIR}/supervisor  && chown -R root:root ${LOG_DIR}/supervisor
-mkdir -m 0755 -p ${LOG_DIR}/nginx       && chown -R redmine:redmine ${LOG_DIR}/nginx
-mkdir -m 0755 -p ${LOG_DIR}/redmine     && chown -R redmine:redmine ${LOG_DIR}/redmine
+# populate ${REDMINE_LOG_DIR}
+mkdir -m 0755 -p ${REDMINE_LOG_DIR}/supervisor  && chown -R root:root ${REDMINE_LOG_DIR}/supervisor
+mkdir -m 0755 -p ${REDMINE_LOG_DIR}/nginx       && chown -R redmine:redmine ${REDMINE_LOG_DIR}/nginx
+mkdir -m 0755 -p ${REDMINE_LOG_DIR}/redmine     && chown -R redmine:redmine ${REDMINE_LOG_DIR}/redmine
 
-# fix permission and ownership of ${DATA_DIR}
-chmod 755 ${DATA_DIR}
-chown redmine:redmine ${DATA_DIR}
+# fix permission and ownership of ${REDMINE_DATA_DIR}
+chmod 755 ${REDMINE_DATA_DIR}
+chown redmine:redmine ${REDMINE_DATA_DIR}
 
-# set executable flags on ${DATA_DIR} (needed if mounted from a data-only
+# set executable flags on ${REDMINE_DATA_DIR} (needed if mounted from a data-only
 # container using --volumes-from)
-chmod +x ${DATA_DIR}
+chmod +x ${REDMINE_DATA_DIR}
 
-cd ${INSTALL_DIR}
+cd ${REDMINE_INSTALL_DIR}
 
 # copy configuration templates
 case "${REDMINE_HTTPS}" in
@@ -256,7 +256,8 @@ fi
 
 # configure nginx
 sed 's/worker_processes .*/worker_processes '"${NGINX_WORKERS}"';/' -i /etc/nginx/nginx.conf
-sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
+sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
+sed 's,{{REDMINE_LOG_DIR}},'"${REDMINE_LOG_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
 sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i /etc/nginx/sites-enabled/redmine
 sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-enabled/redmine
 sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
@@ -284,7 +285,7 @@ else
 fi
 
 # configure unicorn
-sudo -u redmine -H sed 's,{{INSTALL_DIR}},'"${INSTALL_DIR}"',g' -i config/unicorn.rb
+sudo -u redmine -H sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i config/unicorn.rb
 sudo -u redmine -H sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
 sudo -u redmine -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
 
@@ -292,7 +293,7 @@ sudo -u redmine -H sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config
 if [ -n "${REDMINE_RELATIVE_URL_ROOT}" ]; then
   sudo -u redmine -H cp -f ${SYSCONF_TEMPLATES_DIR}/redmine/config.ru config.ru
   sudo -u redmine -H sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
-  sed 's,# alias '"${INSTALL_DIR}"'/public,alias '"${INSTALL_DIR}"'/public,' -i /etc/nginx/sites-enabled/redmine
+  sed 's,# alias '"${REDMINE_INSTALL_DIR}"'/public,alias '"${REDMINE_INSTALL_DIR}"'/public,' -i /etc/nginx/sites-enabled/redmine
   sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-enabled/redmine
 else
   sudo -u redmine -H sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
@@ -339,23 +340,23 @@ if [ "${SMTP_ENABLED}" == "true" ]; then
 fi
 
 # create file uploads directory
-mkdir -p ${DATA_DIR}/files
-chmod 755 ${DATA_DIR}/files
-chown redmine:redmine ${DATA_DIR}/files
+mkdir -p ${REDMINE_DATA_DIR}/files
+chmod 755 ${REDMINE_DATA_DIR}/files
+chown redmine:redmine ${REDMINE_DATA_DIR}/files
 
 # symlink file store
 rm -rf files
 if [ -d /redmine/files ]; then
-  # for backward compatibility, user should mount the volume at ${DATA_DIR}
+  # for backward compatibility, user should mount the volume at ${REDMINE_DATA_DIR}
   echo "WARNING: "
-  echo "  The data volume path has now been changed to ${DATA_DIR}/files."
+  echo "  The data volume path has now been changed to ${REDMINE_DATA_DIR}/files."
   echo "  Refer http://git.io/H59-lg for migration information."
   echo "  Setting up backward compatibility..."
   chmod 755 /redmine/files
   chown redmine:redmine /redmine/files
   ln -sf /redmine/files
 else
-  ln -sf ${DATA_DIR}/files
+  ln -sf ${REDMINE_DATA_DIR}/files
 fi
 
 # due to the nature of docker and its use cases, we allow some time
@@ -386,23 +387,23 @@ echo
 
 # migrate database if the redmine version has changed.
 CURRENT_VERSION=
-REDMINE_VERSION=$(cat ${INSTALL_DIR}/VERSION)
-[ -f ${DATA_DIR}/tmp/VERSION ] && CURRENT_VERSION=$(cat ${DATA_DIR}/tmp/VERSION)
+REDMINE_VERSION=$(cat ${REDMINE_INSTALL_DIR}/VERSION)
+[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ] && CURRENT_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
 if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
   # recreate the tmp directory
-  rm -rf ${DATA_DIR}/tmp
-  sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/
-  chmod -R u+rwX ${DATA_DIR}/tmp/
+  rm -rf ${REDMINE_DATA_DIR}/tmp
+  sudo -u redmine -H mkdir -p ${REDMINE_DATA_DIR}/tmp/
+  chmod -R u+rwX ${REDMINE_DATA_DIR}/tmp/
 
   # create the tmp/thumbnails directory
-  sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/thumbnails
+  sudo -u redmine -H mkdir -p ${REDMINE_DATA_DIR}/tmp/thumbnails
 
   # create the plugin_assets directory
-  sudo -u redmine -H mkdir -p ${DATA_DIR}/tmp/plugin_assets
+  sudo -u redmine -H mkdir -p ${REDMINE_DATA_DIR}/tmp/plugin_assets
 
   # copy the installed gems to tmp/bundle and move the Gemfile.lock
-  sudo -u redmine -H cp -a vendor/bundle ${DATA_DIR}/tmp/
-  sudo -u redmine -H cp -a Gemfile.lock ${DATA_DIR}/tmp/
+  sudo -u redmine -H cp -a vendor/bundle ${REDMINE_DATA_DIR}/tmp/
+  sudo -u redmine -H cp -a Gemfile.lock ${REDMINE_DATA_DIR}/tmp/
 
   echo "Migrating database. Please be patient, this could take a while..."
   sudo -u redmine -H bundle exec rake db:create RAILS_ENV=production
@@ -416,7 +417,7 @@ if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
   sudo -u redmine -H bundle exec rake generate_secret_token RAILS_ENV=production >/dev/null
 
   # update version file
-  echo "${REDMINE_VERSION}" | sudo -u redmine -H tee --append ${DATA_DIR}/tmp/VERSION >/dev/null
+  echo "${REDMINE_VERSION}" | sudo -u redmine -H tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
 fi
 
 # create a cronjob to periodically fetch commits
@@ -424,31 +425,31 @@ case "${REDMINE_FETCH_COMMITS}" in
   hourly|daily|monthly)
     crontab -u redmine -l >/tmp/cron.redmine
     if ! grep -q 'Repository.fetch_changesets' /tmp/cron.redmine; then
-      echo "@${REDMINE_FETCH_COMMITS} cd ${HOME_DIR}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
+      echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e production >> log/cron_rake.log 2>&1" >>/tmp/cron.redmine
       crontab -u redmine /tmp/cron.redmine
     fi
     rm -rf /tmp/cron.redmine
     ;;
 esac
 
-# remove vendor/bundle and symlink to ${DATA_DIR}/tmp/bundle
+# remove vendor/bundle and symlink to ${REDMINE_DATA_DIR}/tmp/bundle
 rm -rf vendor/bundle Gemfile.lock
-ln -sf ${DATA_DIR}/tmp/bundle vendor/bundle
-ln -sf ${DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
+ln -sf ${REDMINE_DATA_DIR}/tmp/bundle vendor/bundle
+ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
 
 # install user plugins
-if [ -d ${DATA_DIR}/plugins ]; then
+if [ -d ${REDMINE_DATA_DIR}/plugins ]; then
   echo "Installing plugins..."
-  rsync -avq --chown=redmine:redmine ${DATA_DIR}/plugins/ ${INSTALL_DIR}/plugins/
+  rsync -avq --chown=redmine:redmine ${REDMINE_DATA_DIR}/plugins/ ${REDMINE_INSTALL_DIR}/plugins/
 
   # install gems and migrate the plugins when plugins are added/removed
   CURRENT_SHA1=
-  [ -f ${DATA_DIR}/tmp/plugins.sha1 ] && CURRENT_SHA1=$(cat ${DATA_DIR}/tmp/plugins.sha1)
-  PLUGINS_SHA1=$(find ${DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+  [ -f ${REDMINE_DATA_DIR}/tmp/plugins.sha1 ] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/plugins.sha1)
+  PLUGINS_SHA1=$(find ${REDMINE_DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
   if [ "${CURRENT_SHA1}" != "${PLUGINS_SHA1}" ]; then
     # remove the existing plugin assets
     # this ensures there is no cruft when a plugin is removed.
-    rm -rf ${DATA_DIR}/tmp/plugin_assets/*
+    rm -rf ${REDMINE_DATA_DIR}/tmp/plugin_assets/*
 
     echo "Installing gems required by plugins..."
     sudo -u redmine -H bundle install --without development test --path vendor/bundle
@@ -457,20 +458,20 @@ if [ -d ${DATA_DIR}/plugins ]; then
     sudo -u redmine -H bundle exec rake redmine:plugins:migrate RAILS_ENV=production
 
     # save SHA1
-    echo -n "${PLUGINS_SHA1}" > ${DATA_DIR}/tmp/plugins.sha1
+    echo -n "${PLUGINS_SHA1}" > ${REDMINE_DATA_DIR}/tmp/plugins.sha1
   fi
 
   # source plugins init script
-  if [ -f ${DATA_DIR}/plugins/init ]; then
+  if [ -f ${REDMINE_DATA_DIR}/plugins/init ]; then
     echo "Executing plugins startup script..."
-    . ${DATA_DIR}/plugins/init
+    . ${REDMINE_DATA_DIR}/plugins/init
   fi
 fi
 
 # install user themes
-if [ -d ${DATA_DIR}/themes ]; then
+if [ -d ${REDMINE_DATA_DIR}/themes ]; then
   echo "Installing themes..."
-  rsync -avq --chown=redmine:redmine ${DATA_DIR}/themes/ ${INSTALL_DIR}/public/themes/
+  rsync -avq --chown=redmine:redmine ${REDMINE_DATA_DIR}/themes/ ${REDMINE_INSTALL_DIR}/public/themes/
 fi
 
 appStart () {
