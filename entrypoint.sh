@@ -144,9 +144,23 @@ case ${REDMINE_HTTPS} in
     ;;
 esac
 
+## Adapt uid and gid for ${REDMINE_USER}:${REDMINE_USER}
+USERMAP_ORIG_UID=$(id -u ${REDMINE_USER})
+USERMAP_ORIG_GID=$(id -g ${REDMINE_USER})
+USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
+USERMAP_UID=${USERMAP_UID:-$USERMAP_ORIG_UID}
+if [[ ${USERMAP_UID} != ${USERMAP_ORIG_UID} ]] || [[ ${USERMAP_GID} != ${USERMAP_ORIG_GID} ]]; then
+  echo "Adapting uid and gid for ${REDMINE_USER}:${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
+  groupmod -g ${USERMAP_GID} ${REDMINE_USER}
+  sed -i -e "s/:${USERMAP_ORIG_UID}:${USERMAP_GID}:/:${USERMAP_UID}:${USERMAP_GID}:/" /etc/passwd
+  find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${REDMINE_USER}:${REDMINE_USER}
+fi
+
+# take ownership of entire data directory
+chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}
+
 # create the .ssh directory
-mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.ssh/
-chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles/.ssh/
+sudo -HEu ${REDMINE_USER} mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.ssh/
 
 # generate ssh keys
 if [[ ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa || ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub ]]; then
