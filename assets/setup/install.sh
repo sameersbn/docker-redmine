@@ -10,24 +10,24 @@ apt-get update
 apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
   libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
 
-# add redmine user
-adduser --disabled-login --gecos 'Redmine' redmine
-passwd -d redmine
+# add ${REDMINE_USER} user
+adduser --disabled-login --gecos 'Redmine' ${REDMINE_USER}
+passwd -d ${REDMINE_USER}
 
-# set PATH for redmine cron jobs
-cat > /tmp/cron.redmine <<EOF
+# set PATH for ${REDMINE_USER} cron jobs
+cat > /tmp/cron.${REDMINE_USER} <<EOF
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 EOF
-crontab -u redmine /tmp/cron.redmine
-rm -rf /tmp/cron.redmine
+crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+rm -rf /tmp/cron.${REDMINE_USER}
 
 # create symlink to ${REDMINE_DATA_DIR}/dotfiles/.ssh
 rm -rf ${REDMINE_HOME}/.ssh
-sudo -HEu redmine ln -s ${REDMINE_DATA_DIR}/dotfiles/.ssh ${REDMINE_HOME}/.ssh
+sudo -HEu ${REDMINE_USER} ln -s ${REDMINE_DATA_DIR}/dotfiles/.ssh ${REDMINE_HOME}/.ssh
 
 # create symlink to ${REDMINE_DATA_DIR}/dotfiles/.subversion
 rm -rf ${REDMINE_HOME}/.subversion
-sudo -HEu redmine ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMINE_HOME}/.subversion
+sudo -HEu ${REDMINE_USER} ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMINE_HOME}/.subversion
 
 # install redmine, use local copy if available
 mkdir -p ${REDMINE_INSTALL_DIR}
@@ -86,13 +86,13 @@ ln -sf ${REDMINE_LOG_DIR}/redmine log
 
 # fix permissions
 chmod -R u+rwX files tmp
-chown -R redmine:redmine ${REDMINE_INSTALL_DIR}
+chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_INSTALL_DIR}
 
 # disable default nginx configuration
 rm -f /etc/nginx/sites-enabled/default
 
-# run nginx as redmine user
-sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
+# run nginx as ${REDMINE_USER} user
+sed 's/user www-data/user '"${REDMINE_USER}"'/' -i /etc/nginx/nginx.conf
 
 # move supervisord.log file to ${REDMINE_LOG_DIR}/supervisor/
 sed 's|^logfile=.*|logfile='"${REDMINE_LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
@@ -160,7 +160,7 @@ priority=10
 directory=${REDMINE_INSTALL_DIR}
 environment=HOME=${REDMINE_HOME}
 command=bundle exec unicorn_rails -E production -c ${REDMINE_INSTALL_DIR}/config/unicorn.rb
-user=redmine
+user=${REDMINE_USER}
 autostart=true
 autorestart=true
 stopsignal=QUIT
