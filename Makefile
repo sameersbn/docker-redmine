@@ -13,6 +13,9 @@ help:
 build:
 	@docker build --tag=${USER}/redmine .
 
+release:
+	@docker build --tag=${USER}/redmine:$(shell cat VERSION) .
+
 quickstart:
 	@echo "Starting redmine..."
 	@docker run --name=redmine-demo -d -p 10080:80 \
