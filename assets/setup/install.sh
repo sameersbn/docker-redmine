@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-REDMINE_VERSION=3.0.3
-
 HOME_DIR="/home/redmine"
 INSTALL_DIR="${HOME_DIR}/redmine"
 DATA_DIR="${HOME_DIR}/data"
