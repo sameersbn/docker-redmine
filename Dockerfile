@@ -23,13 +23,13 @@ ADD assets/setup/ /app/setup/
 RUN bash /app/setup/install.sh
 
 ADD assets/config/ /app/setup/config/
-ADD init /app/init
-RUN chmod 755 /app/init
+ADD entrypoint.sh /app/entrypoint.sh
+RUN chmod 755 /app/entrypoint.sh
 
 EXPOSE 80/tcp 443/tcp
 
 VOLUME ["/home/redmine/data", "/var/log/redmine"]
 
 WORKDIR /home/redmine/redmine
-ENTRYPOINT ["/app/init"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["app:start"]
