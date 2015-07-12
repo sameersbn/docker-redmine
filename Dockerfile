@@ -1,7 +1,13 @@
 FROM sameersbn/ubuntu:14.04.20150712
 MAINTAINER sameer@damagehead.com
 
-ENV REDMINE_VERSION=3.0.3
+ENV REDMINE_VERSION=3.0.3 \
+    HOME_DIR="/home/redmine" \
+    LOG_DIR="/var/log/redmine" \
+    SETUP_DIR="/app/setup"
+
+ENV INSTALL_DIR="${HOME_DIR}/redmine" \
+    DATA_DIR="${HOME_DIR}/data"
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45FA1715D88E1DF1F24 \
  && echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" >> /etc/apt/sources.list \
@@ -21,17 +27,16 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45F
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
-COPY assets/setup/ /app/setup/
-RUN bash /app/setup/install.sh
+COPY assets/setup/ ${SETUP_DIR}/
+RUN bash ${SETUP_DIR}/install.sh
 
-COPY assets/config/ /app/setup/config/
+COPY assets/config/ ${SETUP_DIR}/config/
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 
 EXPOSE 80/tcp 443/tcp
 
-VOLUME ["/home/redmine/data", "/var/log/redmine"]
-
-WORKDIR /home/redmine/redmine
+VOLUME ["${DATA_DIR}", "${LOG_DIR}"]
+WORKDIR ${INSTALL_DIR}
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:start"]

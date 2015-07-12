@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-HOME_DIR="/home/redmine"
-INSTALL_DIR="${HOME_DIR}/redmine"
-DATA_DIR="${HOME_DIR}/data"
-LOG_DIR="/var/log/redmine"
-
-SETUP_DIR="/app/setup"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
 
 # rebuild apt cache

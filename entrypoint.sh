@@ -1,14 +1,7 @@
 #!/bin/bash
 set -e
 
-HOME_DIR="/home/redmine"
-INSTALL_DIR="${HOME_DIR}/redmine"
-CONFIG_DIR="${INSTALL_DIR}/config"
-DATA_DIR="${HOME_DIR}/data"
-LOG_DIR="/var/log/redmine"
 SSL_CERTIFICATES_DIR="${DATA_DIR}/certs"
-
-SETUP_DIR="/app/setup"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
 USERCONF_TEMPLATES_DIR="${DATA_DIR}/config"
 
