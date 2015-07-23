@@ -484,7 +484,8 @@ HTTPS support can be enabled by setting the `REDMINE_HTTPS` option to `true`.
 
 ```bash
 docker run --name=redmine -d \
-  --env='REDMINE_HTTPS=true' \
+  --publish=10083:80 --publish 10445:443 \
+  --env='REDMINE_PORT=10445' --env='REDMINE_HTTPS=true' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:3.0.4
 ```
