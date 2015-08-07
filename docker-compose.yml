@@ -7,7 +7,7 @@ postgresql:
   volumes:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 redmine:
-  image: sameersbn/redmine:2.6.6
+  image: sameersbn/redmine:2.6.6-1
   links:
     - postgresql:postgresql
   environment:
