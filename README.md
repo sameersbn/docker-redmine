@@ -412,6 +412,8 @@ docker run --name=redmine -it --rm \
 
 If you are not using google mail, then please configure the SMTP host and port using the `SMTP_HOST` and `SMTP_PORT` configuration parameters.
 
+If you are using a google apps account with a custom domain (other than google.com), you need to set the `SMTP_DOMAIN` parameters or else you will get internal server error when doing an action that would normally send a mail.
+
 __NOTE:__
 
 I have only tested standard gmail and google apps login. I expect that the currently provided configuration parameters should be sufficient for most users. If this is not the case, then please let me know.
