@@ -1,5 +1,7 @@
 # Table of Contents
 
+[![Join the chat at https://gitter.im/sameersbn/docker-redmine](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sameersbn/docker-redmine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 - [Introduction](#introduction)
   - [Version](#version)
   - [Changelog](Changelog.md)
