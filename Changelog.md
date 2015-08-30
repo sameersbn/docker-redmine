@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.6.6-2**
 - added support for receiving emails via IMAP
 
 **2.6.6**
