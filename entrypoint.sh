@@ -530,18 +530,18 @@ if [[ -d ${REDMINE_DATA_DIR}/themes ]]; then
   rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/themes/ ${REDMINE_INSTALL_DIR}/public/themes/
 fi
 
+# execute entrypoint customization script
+if [[ -f ${REDMINE_DATA_DIR}/entrypoint.custom.sh ]]; then
+  echo "Executing entrypoint.custom.sh..."
+  . ${REDMINE_DATA_DIR}/entrypoint.custom.sh
+fi
+
 appStart () {
   # remove stale unicorn pid if it exists.
   rm -rf tmp/pids/unicorn.pid
 
   # remove state unicorn socket if it exists
   rm -rf tmp/sockets/redmine.socket
-
-  # execute entrypoint customization script
-  if [[ -f ${REDMINE_DATA_DIR}/entrypoint.custom.sh ]]; then
-    echo "Executing entrypoint.custom.sh..."
-    . ${REDMINE_DATA_DIR}/entrypoint.custom.sh
-  fi
 
   # start supervisord
   exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
