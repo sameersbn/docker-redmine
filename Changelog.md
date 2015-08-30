@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- added support for receiving emails via IMAP
+
 **2.6.6**
 - added `SMTP_TLS` configuration parameter
 - redmine: upgrade to v.2.6.6

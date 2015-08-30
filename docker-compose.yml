@@ -21,6 +21,13 @@ redmine:
     - SMTP_PASS=password
     - SMTP_STARTTLS=true
     - SMTP_AUTHENTICATION=:login
+    - IMAP_ENABLED=false
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
+    - IMAP_HOST=imap.gmail.com
+    - IMAP_PORT=993
+    - IMAP_SSL=true
+    - IMAP_INTERVAL=30
   ports:
     - "10083:80"
   volumes:
