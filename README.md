@@ -416,7 +416,7 @@ If you are using a google apps account with a custom domain (other than google.c
 
 Similary you can configure receiving emails using the `IMAP_` configuration options. Please refer [Available Configuration Parameters](#available-configuration-parameters) for details. When receiving emails is enabled users can comment on issues by replying to emails.
 
-*P.S. The receiving emails feature is only available in versions greater than `2.6.6`, `3.0.4` and `3.1.0-1`. Refer the [Changelog](Changelog.md) for details.*
+*P.S. The receiving emails feature is only available since versions `2.6.6-2`, `3.0.4-2` and `3.1.0-2`. Refer the [Changelog](Changelog.md) for details.*
 
 ### SSL
 
