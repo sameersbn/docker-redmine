@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- added support for receiving emails via IMAP
+
 **3.1.0**
 - redmine: upgrade to v.3.1.0
 

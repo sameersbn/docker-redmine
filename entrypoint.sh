@@ -34,6 +34,14 @@ if [[ -n ${SMTP_USER} ]]; then
 fi
 SMTP_ENABLED=${SMTP_ENABLED:-false}
 
+IMAP_ENABLED=${IMAP_ENABLED:-false}
+IMAP_USER=${IMAP_USER:-${SMTP_USER}}
+IMAP_PASS=${IMAP_PASS:-${SMTP_PASS}}
+IMAP_HOST=${IMAP_HOST:-imap.gmail.com}
+IMAP_PORT=${IMAP_PORT:-993}
+IMAP_SSL=${IMAP_SSL:-true}
+IMAP_INTERVAL=${IMAP_INTERVAL:-30}
+
 REDMINE_PORT=${REDMINE_PORT:-}
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
 REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
@@ -450,21 +458,32 @@ if [[ ${REDMINE_VERSION} != ${CURRENT_VERSION} ]]; then
   echo ${REDMINE_VERSION} | sudo -HEu ${REDMINE_USER} tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
 fi
 
+# setup cronjobs
+crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+
 # create a cronjob to periodically fetch commits
 case ${REDMINE_FETCH_COMMITS} in
   hourly|daily|monthly)
-    crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
     if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
       case ${REDMINE_VERSION} in
         2.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
         3.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
         *) echo "ERROR: Unsupported Redmine version (${REDMINE_VERSION})" && exit 1 ;;
       esac
-      crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
     fi
-    rm -rf /tmp/cron.${REDMINE_USER}
     ;;
 esac
+
+# create a cronjob for receiving emails (comments, etc.)
+if [[ ${IMAP_ENABLED} == true ]]; then
+  if ! grep -q 'redmine:email:receive_imap' /tmp/cron.${REDMINE_USER}; then
+    echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} username=${IMAP_USER} password=${IMAP_PASS} RAILS_ENV=${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+  fi
+fi
+
+# install the cronjobs
+crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+rm -rf /tmp/cron.${REDMINE_USER}
 
 # remove vendor/bundle and symlink to ${REDMINE_DATA_DIR}/tmp/bundle
 rm -rf vendor/bundle Gemfile.lock

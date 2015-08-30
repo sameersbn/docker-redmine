@@ -418,6 +418,10 @@ __NOTE:__
 
 I have only tested standard gmail and google apps login. I expect that the currently provided configuration parameters should be sufficient for most users. If this is not the case, then please let me know.
 
+Similary you can configure receiving emails using the `IMAP_` configuration options. Please refer [Available Configuration Parameters](#available-configuration-parameters) for details. When receiving emails is enabled users can comment on issues by replying to emails.
+
+*P.S. The receiving emails feature is only available in versions greater than `2.6.6`, `3.0.4` and `3.1.0`. Refer the [Changelog](Changelog.md) for details.*
+
 ### SSL
 
 Access to the redmine application can be secured using SSL so as to prevent unauthorized access. While a CA certified SSL certificate allows for verification of trust via the CA, a self signed certificates can also provide an equal level of trust verification as long as each client takes some additional steps to verify the identity of your website. I will provide instructions on achieving this towards the end of this section.
@@ -600,6 +604,13 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_CA_ENABLED**: Enable custom CA certificates for SMTP email configuration. Defaults to `false`.
 - **SMTP_CA_PATH**: Specify the `ca_path` parameter for SMTP email configuration. Defaults to `/home/redmine/data/certs`.
 - **SMTP_CA_FILE**: Specify the `ca_file` parameter for SMTP email configuration. Defaults to `/home/redmine/data/certs/ca.crt`.
+- **IMAP_ENABLED**: Enable receiving email via IMAP. Defaults to `false`.
+- **IMAP_USER**: IMAP username. Defaults to value of `SMTP_USER`.
+- **IMAP_PASS**: IMAP password. Defaults to value of `SMTP_PASS`.
+- **IMAP_HOST**: IMAP server host. Defaults to `imap.gmail.com`.
+- **IMAP_PORT**: IMAP server port. Defaults to `993`.
+- **IMAP_SSL**: IMAP enable SSL. Defaults to `true`.
+- **IMAP_INTERVAL**: The interval in minutes between checking emails. Defaults to `30`. Values allowed in the range `1 - 60`.
 
 # Plugins
 
