@@ -537,6 +537,12 @@ appStart () {
   # remove state unicorn socket if it exists
   rm -rf tmp/sockets/redmine.socket
 
+  # execute entrypoint customization script
+  if [[ -f ${REDMINE_DATA_DIR}/entrypoint.custom.sh ]]; then
+    echo "Executing entrypoint.custom.sh..."
+    . ${REDMINE_DATA_DIR}/entrypoint.custom.sh
+  fi
+
   # start supervisord
   exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }
