@@ -495,6 +495,11 @@ if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
   echo "Installing plugins..."
   rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/plugins/ ${REDMINE_INSTALL_DIR}/plugins/
 
+  # plugins/init script is renamed to plugins/post-install.sh
+  if [[ -f ${REDMINE_DATA_DIR}/plugins/init ]]; then
+    mv ${REDMINE_DATA_DIR}/plugins/init ${REDMINE_DATA_DIR}/plugins/post-install.sh
+  fi
+
   # install gems and migrate the plugins when plugins are added/removed
   CURRENT_SHA1=
   [[ -f ${REDMINE_DATA_DIR}/tmp/plugins.sha1 ]] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/plugins.sha1)
@@ -514,10 +519,10 @@ if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
     echo -n ${PLUGINS_SHA1} > ${REDMINE_DATA_DIR}/tmp/plugins.sha1
   fi
 
-  # source plugins init script
-  if [[ -f ${REDMINE_DATA_DIR}/plugins/init ]]; then
-    echo "Executing plugins startup script..."
-    . ${REDMINE_DATA_DIR}/plugins/init
+  # execute plugins post-install.sh script
+  if [[ -f ${REDMINE_DATA_DIR}/plugins/post-install.sh ]]; then
+    echo "Executing plugins/post-install.sh script..."
+    . ${REDMINE_DATA_DIR}/plugins/post-install.sh
   fi
 else
   # make sure the plugins.sha1 is not present
