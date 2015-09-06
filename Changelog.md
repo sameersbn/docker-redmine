@@ -1,5 +1,9 @@
 # Changelog
 
+**latest**
+- renamed `plugins/init` script to `plugins/post-install.sh`
+- added `plugins/pre-install.sh` script to execute commands before plugin installation
+
 **3.1.0-2**
 - added support for receiving emails via IMAP
 

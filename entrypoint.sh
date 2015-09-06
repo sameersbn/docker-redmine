@@ -500,6 +500,12 @@ if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
     mv ${REDMINE_DATA_DIR}/plugins/init ${REDMINE_DATA_DIR}/plugins/post-install.sh
   fi
 
+  # execute plugins/pre-install.sh script
+  if [[ -f ${REDMINE_DATA_DIR}/plugins/pre-install.sh ]]; then
+    echo "Executing plugins/pre-install.sh script..."
+    . ${REDMINE_DATA_DIR}/plugins/pre-install.sh
+  fi
+
   # install gems and migrate the plugins when plugins are added/removed
   CURRENT_SHA1=
   [[ -f ${REDMINE_DATA_DIR}/tmp/plugins.sha1 ]] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/plugins.sha1)

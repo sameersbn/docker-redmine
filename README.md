@@ -633,7 +633,7 @@ For most plugins this is all you need to do. With the plugin installed you can s
 
 ***If the gem installation fails after adding a new plugin, please retry after removing the `/srv/docker/redmine/redmine/tmp` directory***
 
-Some plugins however, require you to perform additional configurations to function correctly. You can add these steps in a `post-install.sh` script at the `/srv/docker/redmine/redmine/plugins` directory that will executed everytime the image is started.
+In some cases it might be necessary to install additional packages and/or perform some post installation setup for a plugin to function correctly. For such case the image allows you to install a `pre-install.sh` and `post-install.sh` script at the `/srv/docker/redmine/redmine/plugins` directory that will be executed everytime the image is started.
 
 For example, the recurring tasks plugin requires that you create a cron job to periodically execute a rake task. To achieve this, create the `/srv/docker/redmine/redmine/plugins/post-install.sh` file with the following content:
 
@@ -656,6 +656,8 @@ rm -rf /tmp/cron.redmine
 ```
 
 Now whenever the image is started the `post-install.sh` script will be executed and the required cron job will be installed.
+
+If you need to install additional packages to satisfy a plugins dependencies then install such packages using the `pre-install.sh` script.
 
 Previously this image packaged a couple of plugins by default. Existing users would notice that those plugins are no longer available. If you want them back, follow these instructions:
 
