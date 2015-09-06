@@ -633,9 +633,9 @@ For most plugins this is all you need to do. With the plugin installed you can s
 
 ***If the gem installation fails after adding a new plugin, please retry after removing the `/srv/docker/redmine/redmine/tmp` directory***
 
-Some plugins however, require you to perform additional configurations to function correctly. You can add these steps in a `init` script at the `/srv/docker/redmine/redmine/plugins` directory that will executed everytime the image is started.
+Some plugins however, require you to perform additional configurations to function correctly. You can add these steps in a `post-install.sh` script at the `/srv/docker/redmine/redmine/plugins` directory that will executed everytime the image is started.
 
-For example, the recurring tasks plugin requires that you create a cron job to periodically execute a rake task. To achieve this, create the `/srv/docker/redmine/redmine/plugins/init` file with the following content:
+For example, the recurring tasks plugin requires that you create a cron job to periodically execute a rake task. To achieve this, create the `/srv/docker/redmine/redmine/plugins/post-install.sh` file with the following content:
 
 ```bash
 ## Recurring Tasks Configuration
@@ -655,7 +655,7 @@ rm -rf /tmp/cron.redmine
 ## End of Recurring Tasks Configuration
 ```
 
-Now whenever the image is started the above init script will be executed and the required cron job will be installed.
+Now whenever the image is started the `post-install.sh` script will be executed and the required cron job will be installed.
 
 Previously this image packaged a couple of plugins by default. Existing users would notice that those plugins are no longer available. If you want them back, follow these instructions:
 
@@ -683,7 +683,7 @@ Once the rake task has been executed, the plugin should be removed from the `/sr
 rm -rf /srv/docker/redmine/redmine/plugins/plugin_name
 ```
 
-Any configuration that you may have added in the `/srv/docker/redmine/redmine/plugins/init` script for the plugin should also be removed.
+Any configuration that you may have added in the `/srv/docker/redmine/redmine/plugins/post-install.sh` script for the plugin should also be removed.
 
 For example, to remove the recurring tasks plugin:
 
