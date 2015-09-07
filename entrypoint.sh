@@ -490,6 +490,12 @@ rm -rf vendor/bundle Gemfile.lock
 ln -sf ${REDMINE_DATA_DIR}/tmp/bundle vendor/bundle
 ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
 
+#install custom cronjob
+if [[ -d ${REDMINE_DATA_DIR}/cron.d ]]; then
+  echo "Installing cronjobs..."
+  rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/cron.d/ /etc/cron.d/
+fi
+
 # install user plugins
 if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
   echo "Installing plugins..."
