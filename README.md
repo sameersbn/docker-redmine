@@ -72,9 +72,7 @@ Here is the shortform of the installation of an updated version of docker on ubu
 
 ```bash
 sudo apt-get purge docker.io
-curl -s https://get.docker.io/ubuntu/ | sudo sh
-sudo apt-get update
-sudo apt-get install lxc-docker
+curl -s https://get.docker.com/ubuntu/ | sudo sh
 ```
 
 Fedora and RHEL/CentOS users should try disabling selinux with `setenforce 0` and check if resolves the issue. If it does than there is not much that I can help you with. You can either stick with selinux disabled (not recommended by redhat) or switch to using ubuntu.
