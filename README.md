@@ -605,6 +605,17 @@ Below is the complete list of parameters that can be set using environment varia
 - **IMAP_PORT**: IMAP server port. Defaults to `993`.
 - **IMAP_SSL**: IMAP enable SSL. Defaults to `true`.
 - **IMAP_INTERVAL**: The interval in minutes between checking emails. Defaults to `30`. Values allowed in the range `1 - 60`.
+- **INCOMING_EMAIL_UNKNOWN_USER**: How to handle emails from an unknown user. Accepted values are `ignore`, `accept` and `create`. Defaults to `ignore`.
+- **INCOMING_EMAIL_NO_PERMISSION_CHECK**: Disable permission checking when receiving the email. Defaults to `false`.
+- **INCOMING_EMAIL_NO_ACCOUNT_NOTICE**: Disable new user account notification. Defaults to `true`.
+- **INCOMING_EMAIL_DEFAULT_GROUP**: Adds created user to foo and bar groups.
+- **INCOMING_EMAIL_PROJECT**: Identifier of the target project.
+- **INCOMING_EMAIL_STATUS**: Name of the target status.
+- **INCOMING_EMAIL_TRACKER**: Name of the target tracker.
+- **INCOMING_EMAIL_CATEGORY**: Name of the target category.
+- **INCOMING_EMAIL_PRIORITY**: Name of the target priority.
+- **INCOMING_EMAIL_PRIVATE**: Create new issues as private.
+- **INCOMING_EMAIL_ALLOW_OVERRIDE**: Allow email content to override attributes specified by previous options. Value is a comma separated list of attributes. See [redmine documentation](http://www.redmine.org/projects/redmine/wiki/RedmineReceivingEmails#Fetching-emails-from-an-IMAP-server) for acceptable values.
 
 # Plugins
 
