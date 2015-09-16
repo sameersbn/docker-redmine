@@ -494,11 +494,6 @@ if [[ ${IMAP_ENABLED} == true ]]; then
     elif [[ ${INCOMING_EMAIL_NO_PERMISSION_CHECK} == false ]]; then
       INCOMING_EMAIL_NO_PERMISSION_CHECK=0
     fi
-    if [[ ${INCOMING_EMAIL_NO_PERMISSION_CHECK} == true ]]; then
-      INCOMING_EMAIL_NO_PERMISSION_CHECK=1
-    elif [[ ${INCOMING_EMAIL_NO_PERMISSION_CHECK} == false ]]; then
-      INCOMING_EMAIL_NO_PERMISSION_CHECK=0
-    fi
     if [[ ${INCOMING_EMAIL_PRIVATE} == true ]]; then
       INCOMING_EMAIL_PRIVATE=1
     elif [[ ${INCOMING_EMAIL_PRIVATE} == false ]]; then
