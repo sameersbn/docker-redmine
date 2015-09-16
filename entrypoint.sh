@@ -489,16 +489,15 @@ esac
 # create a cronjob for receiving emails (comments, etc.)
 if [[ ${IMAP_ENABLED} == true ]]; then
   if ! grep -q 'redmine:email:receive_imap' /tmp/cron.${REDMINE_USER}; then
-    if [[ ${INCOMING_EMAIL_NO_PERMISSION_CHECK} == true ]]; then
-      INCOMING_EMAIL_NO_PERMISSION_CHECK=1
-    elif [[ ${INCOMING_EMAIL_NO_PERMISSION_CHECK} == false ]]; then
-      INCOMING_EMAIL_NO_PERMISSION_CHECK=0
-    fi
-    if [[ ${INCOMING_EMAIL_PRIVATE} == true ]]; then
-      INCOMING_EMAIL_PRIVATE=1
-    elif [[ ${INCOMING_EMAIL_PRIVATE} == false ]]; then
-      INCOMING_EMAIL_PRIVATE=0
-    fi
+    case ${INCOMING_EMAIL_NO_PERMISSION_CHECK} in
+      true)  INCOMING_EMAIL_NO_PERMISSION_CHECK=1 ;;
+      false) INCOMING_EMAIL_NO_PERMISSION_CHECK=0 ;;
+    esac
+
+    case ${INCOMING_EMAIL_PRIVATE} in
+      true)  INCOMING_EMAIL_PRIVATE=1 ;;
+      false) INCOMING_EMAIL_PRIVATE=0 ;;
+    esac
 
     INCOMING_EMAIL_OPTIONS="${INCOMING_EMAIL_UNKNOWN_USER:+unknown_user=${INCOMING_EMAIL_UNKNOWN_USER}} \
       ${INCOMING_EMAIL_NO_PERMISSION_CHECK:+no_permission_check=${INCOMING_EMAIL_NO_PERMISSION_CHECK}} \
