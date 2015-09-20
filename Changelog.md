@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**2.6.7**
 - renamed `plugins/init` script to `plugins/post-install.sh`
 - added `plugins/pre-install.sh` script to execute commands before plugin installation
 - redmine: upgrade to v.2.6.7
