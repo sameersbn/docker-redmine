@@ -1,7 +1,7 @@
 FROM sameersbn/ubuntu:14.04.20150825
 MAINTAINER sameer@damagehead.com
 
-ENV REDMINE_VERSION=3.0.4 \
+ENV REDMINE_VERSION=3.0.5 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
