@@ -3,6 +3,7 @@
 **latest**
 - renamed `plugins/init` script to `plugins/post-install.sh`
 - added `plugins/pre-install.sh` script to execute commands before plugin installation
+- redmine: upgrade to v.2.6.7
 
 **2.6.6-2**
 - added support for receiving emails via IMAP
