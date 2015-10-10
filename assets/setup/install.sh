@@ -7,7 +7,7 @@ GEM_CACHE_DIR="${SETUP_DIR}/cache"
 apt-get update
 
 # install build dependencies
-apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+DEBIAN_FRONTEND=noninteractive apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
   libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
 
 # add ${REDMINE_USER} user
