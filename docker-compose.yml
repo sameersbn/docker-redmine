@@ -1,5 +1,5 @@
 postgresql:
-  image: sameersbn/postgresql:9.4-4
+  image: quay.io/sameersbn/postgresql:9.4-4
   environment:
     - DB_USER=redmine
     - DB_PASS=password
@@ -7,7 +7,7 @@ postgresql:
   volumes:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 redmine:
-  image: sameersbn/redmine:3.1.1-1
+  image: quay.io/sameersbn/redmine:3.1.1-1
   links:
     - postgresql:postgresql
   environment:
