@@ -42,7 +42,7 @@ start() {
 
     $exec run -rm \
       -name redmine \
-        sameersbn/redmine \
+        quay.io/sameersbn/redmine \
       &>> $logfile &
 
       # for configuration see etc/sysconfig/$prog (which is sourced above)
