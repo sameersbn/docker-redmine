@@ -88,7 +88,7 @@ In your issue report please make sure you provide the following information:
 
 # Installation
 
-Pull the image from the docker index. This is the recommended method of installation as it is easier to update image in the future. These builds are performed by the Trusted Build service.
+Automated builds of the image are available on [Quay.io](https://quay.io/repository/sameersbn/redmine) and is the recommended method of installation.
 
 ```bash
 docker pull quay.io/sameersbn/redmine:latest
