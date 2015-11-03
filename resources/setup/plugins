@@ -1,6 +1,6 @@
 # redmine tweaks plugin
 mkdir -p /redmine/plugins/redmine_tweaks
-wget https://github.com/alexandermeindl/redmine_tweaks/archive/master.tar.gz -O - | tar -zvxf - --strip=1 -C /redmine/plugins/redmine_tweaks
+wget https://github.com/alexandermeindl/redmine_tweaks/tarball/3461e87e6b77d0ad6ddd26ec84b91f861fc3a743 -O - | tar -vxf - --strip=1 -C /redmine/plugins/redmine_tweaks
 
 # line numbers plugin
 mkdir -p /redmine/plugins/line_numbers
