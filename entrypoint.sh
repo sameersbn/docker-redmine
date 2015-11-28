@@ -58,6 +58,7 @@ REDMINE_PORT=${REDMINE_PORT:-}
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
 REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
 REDMINE_FETCH_COMMITS=${REDMINE_FETCH_COMMITS:-disable}
+REDMINE_EMAIL=${REDMINE_EMAIL:-}
 
 REDMINE_HTTPS_HSTS_ENABLED=${REDMINE_HTTPS_HSTS_ENABLED:-true}
 REDMINE_HTTPS_HSTS_MAXAGE=${REDMINE_HTTPS_HSTS_MAXAGE:-31536000}
@@ -348,6 +349,7 @@ fi
 if [[ ${SMTP_ENABLED} == true ]]; then
   # configure mail delivery
   sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_METHOD}}/'"${SMTP_METHOD}"'/g' -i config/initializers/smtp_settings.rb
+  sudo -HEu ${REDMINE_USER} sed 's/{{REDMINE_EMAIL}}/'"${REDMINE_EMAIL}"'/g' -i config/initializers/smtp_settings.rb
   sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
   sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
 
