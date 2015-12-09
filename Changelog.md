@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- redmine: upgrade to v.2.6.9
+
 **2.6.8**
 - redmine: upgrade to v.2.6.8
 
