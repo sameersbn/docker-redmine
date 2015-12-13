@@ -1,5 +1,5 @@
 postgresql:
-  image: sameersbn/postgresql:9.4-10
+  image: sameersbn/postgresql:9.4-11
   environment:
     - DB_USER=redmine
     - DB_PASS=password
@@ -13,6 +13,7 @@ redmine:
   environment:
     - TZ=Asia/Kolkata
     - REDMINE_PORT=10083
+
     - SMTP_ENABLED=false
     - SMTP_DOMAIN=www.example.com
     - SMTP_HOST=smtp.gmail.com
