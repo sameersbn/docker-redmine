@@ -1,5 +1,6 @@
 if Rails.env.production?
   ActionMailer::Base.delivery_method = :{{SMTP_METHOD}}
+  ActionMailer::Base.default_options = { from: '{{REDMINE_EMAIL}}' }
   ActionMailer::Base.perform_deliveries = true
   ActionMailer::Base.raise_delivery_errors = true
   ActionMailer::Base.{{SMTP_METHOD}}_settings = {
