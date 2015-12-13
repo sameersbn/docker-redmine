@@ -88,18 +88,20 @@ ln -sf ${REDMINE_LOG_DIR}/redmine log
 chmod -R u+rwX files tmp
 chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_INSTALL_DIR}
 
-# disable default nginx configuration
-rm -f /etc/nginx/sites-enabled/default
+if [[ ${NGINX_ENABLED} == true ]]; then
+    # disable default nginx configuration
+    rm -f /etc/nginx/sites-enabled/default
 
-# run nginx as ${REDMINE_USER} user
-sed 's/user www-data/user '"${REDMINE_USER}"'/' -i /etc/nginx/nginx.conf
+    # run nginx as ${REDMINE_USER} user
+    sed 's/user www-data/user '"${REDMINE_USER}"'/' -i /etc/nginx/nginx.conf
+
+    # move nginx logs to ${REDMINE_LOG_DIR}/nginx
+    sed 's|access_log /var/log/nginx/access.log;|access_log '"${REDMINE_LOG_DIR}"'/nginx/access.log;|' -i /etc/nginx/nginx.conf
+    sed 's|error_log /var/log/nginx/error.log;|error_log '"${REDMINE_LOG_DIR}"'/nginx/error.log;|' -i /etc/nginx/nginx.conf
+fi
 
 # move supervisord.log file to ${REDMINE_LOG_DIR}/supervisor/
 sed 's|^logfile=.*|logfile='"${REDMINE_LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
-
-# move nginx logs to ${REDMINE_LOG_DIR}/nginx
-sed 's|access_log /var/log/nginx/access.log;|access_log '"${REDMINE_LOG_DIR}"'/nginx/access.log;|' -i /etc/nginx/nginx.conf
-sed 's|error_log /var/log/nginx/error.log;|error_log '"${REDMINE_LOG_DIR}"'/nginx/error.log;|' -i /etc/nginx/nginx.conf
 
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
@@ -141,7 +143,7 @@ ${REDMINE_LOG_DIR}/supervisor/*.log {
 EOF
 
 # configure supervisord to start nginx
-cat > /etc/supervisor/conf.d/nginx.conf <<EOF
+[[ ${NGINX_ENABLED} == true ]] && cat > /etc/supervisor/conf.d/nginx.conf <<EOF
 [program:nginx]
 priority=20
 directory=/tmp

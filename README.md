@@ -572,6 +572,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_USER**: The database user. Defaults to `root`
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to `5`.
+- **NGINX_ENABLED**: Start internal nginx server. Set to `false` and publish 8080 port to use external proxy server. Defaults to `true`.
 - **NGINX_WORKERS**: The number of nginx workers to start. Defaults to `1`.
 - **NGINX_MAX_UPLOAD_SIZE**: Maximum acceptable upload size. Defaults to `20m`.
 - **NGINX_X_FORWARDED_PROTO**: Advanced configuration option for the `proxy_set_header X-Forwarded-Proto` setting in the redmine nginx vHost configuration. Defaults to `https` when `REDMINE_HTTPS` is `true`, else defaults to `$scheme`.

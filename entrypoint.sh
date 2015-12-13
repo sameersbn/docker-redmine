@@ -62,6 +62,7 @@ REDMINE_FETCH_COMMITS=${REDMINE_FETCH_COMMITS:-disable}
 REDMINE_HTTPS_HSTS_ENABLED=${REDMINE_HTTPS_HSTS_ENABLED:-true}
 REDMINE_HTTPS_HSTS_MAXAGE=${REDMINE_HTTPS_HSTS_MAXAGE:-31536000}
 
+NGINX_ENABLED=${NGINX_ENABLED:-true}
 NGINX_WORKERS=${NGINX_WORKERS:-1}
 NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
 
@@ -72,6 +73,12 @@ SSL_VERIFY_CLIENT=${SSL_VERIFY_CLIENT:-off}
 
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
 UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
+
+if [[ ${NGINX_ENABLED} == true ]]; then
+    UNICORN_LISTEN="127.0.0.1:8080"
+else
+    UNICORN_LISTEN="8080"
+fi
 
 # is a mysql or postgresql database linked?
 # requires that the mysql or postgresql containers have exposed
@@ -208,7 +215,8 @@ chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/tmp/
 
 # populate ${REDMINE_LOG_DIR}
 mkdir -m 0755 -p ${REDMINE_LOG_DIR}/supervisor  && chown -R root:root ${REDMINE_LOG_DIR}/supervisor
-mkdir -m 0755 -p ${REDMINE_LOG_DIR}/nginx       && chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/nginx
+[[ ${NGINX_ENABLED} == true ]] && \
+    mkdir -m 0755 -p ${REDMINE_LOG_DIR}/nginx   && chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/nginx
 mkdir -m 0755 -p ${REDMINE_LOG_DIR}/redmine     && chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/redmine
 
 # fix permission and ownership of ${REDMINE_DATA_DIR}
@@ -221,19 +229,35 @@ chmod +x ${REDMINE_DATA_DIR}
 
 cd ${REDMINE_INSTALL_DIR}
 
-# copy configuration templates
-case ${REDMINE_HTTPS} in
-  true)
-    if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-enabled/redmine
-    else
-      echo "SSL keys and certificates were not found."
-      echo "Assuming that the container is running behind a HTTPS enabled load balancer."
-      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine
-    fi
-    ;;
-  *) cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
-esac
+if [[ ${NGINX_ENABLED} == true ]]; then
+
+    # copy configuration templates
+    case ${REDMINE_HTTPS} in
+      true)
+        if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
+          cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-enabled/redmine
+        else
+          echo "SSL keys and certificates were not found."
+          echo "Assuming that the container is running behind a HTTPS enabled load balancer."
+          cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine
+        fi
+        ;;
+      *) cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
+    esac
+
+    # override default configuration templates with user templates
+    case ${REDMINE_HTTPS} in
+      true)
+        if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
+          [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]]           && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-enabled/redmine
+        else
+          [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine
+        fi
+        ;;
+      *) [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]                && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
+    esac
+fi
+
 sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
 [[ ${SMTP_ENABLED} == true ]] && \
@@ -241,17 +265,6 @@ sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb c
 [[ ${MEMCACHE_ENABLED} == true ]] && \
 sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 
-# override default configuration templates with user templates
-case ${REDMINE_HTTPS} in
-  true)
-    if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]]           && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-enabled/redmine
-    else
-      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine
-    fi
-    ;;
-  *) [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]                && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
-esac
 [[ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]]              && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
 [[ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]]                && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
 [[ ${SMTP_ENABLED} == true ]] && \
@@ -293,33 +306,35 @@ if [[ ${MEMCACHE_ENABLED} == true ]]; then
 fi
 
 # configure nginx
-sed 's/worker_processes .*/worker_processes '"${NGINX_WORKERS}"';/' -i /etc/nginx/nginx.conf
-sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{REDMINE_LOG_DIR}},'"${REDMINE_LOG_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+if [[ ${NGINX_ENABLED} == true ]]; then
+    sed 's/worker_processes .*/worker_processes '"${NGINX_WORKERS}"';/' -i /etc/nginx/nginx.conf
+    sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
+    sed 's,{{REDMINE_LOG_DIR}},'"${REDMINE_LOG_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
+    sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i /etc/nginx/sites-enabled/redmine
+    sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-enabled/redmine
+    sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
+    sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+    sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-enabled/redmine
 
-# if dhparam path is valid, add to the config, otherwise remove the option
-if [[ -r ${SSL_DHPARAM_PATH} ]]; then
-  sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i /etc/nginx/sites-enabled/redmine
-else
-  sed '/ssl_dhparam {{SSL_DHPARAM_PATH}};/d' -i /etc/nginx/sites-enabled/redmine
-fi
+    # if dhparam path is valid, add to the config, otherwise remove the option
+    if [[ -r ${SSL_DHPARAM_PATH} ]]; then
+      sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+    else
+      sed '/ssl_dhparam {{SSL_DHPARAM_PATH}};/d' -i /etc/nginx/sites-enabled/redmine
+    fi
 
-sed 's,{{SSL_VERIFY_CLIENT}},'"${SSL_VERIFY_CLIENT}"',' -i /etc/nginx/sites-enabled/redmine
-if [[ -f /usr/local/share/ca-certificates/ca.crt ]]; then
-  sed 's,{{CA_CERTIFICATES_PATH}},'"${CA_CERTIFICATES_PATH}"',' -i /etc/nginx/sites-enabled/redmine
-else
-  sed '/{{CA_CERTIFICATES_PATH}}/d' -i /etc/nginx/sites-enabled/redmine
-fi
+    sed 's,{{SSL_VERIFY_CLIENT}},'"${SSL_VERIFY_CLIENT}"',' -i /etc/nginx/sites-enabled/redmine
+    if [[ -f /usr/local/share/ca-certificates/ca.crt ]]; then
+      sed 's,{{CA_CERTIFICATES_PATH}},'"${CA_CERTIFICATES_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+    else
+      sed '/{{CA_CERTIFICATES_PATH}}/d' -i /etc/nginx/sites-enabled/redmine
+    fi
 
-if [[ ${REDMINE_HTTPS_HSTS_ENABLED} == true ]]; then
-  sed 's/{{REDMINE_HTTPS_HSTS_MAXAGE}}/'"${REDMINE_HTTPS_HSTS_MAXAGE}"'/' -i /etc/nginx/sites-enabled/redmine
-else
-  sed '/{{REDMINE_HTTPS_HSTS_MAXAGE}}/d' -i /etc/nginx/sites-enabled/redmine
+    if [[ ${REDMINE_HTTPS_HSTS_ENABLED} == true ]]; then
+      sed 's/{{REDMINE_HTTPS_HSTS_MAXAGE}}/'"${REDMINE_HTTPS_HSTS_MAXAGE}"'/' -i /etc/nginx/sites-enabled/redmine
+    else
+      sed '/{{REDMINE_HTTPS_HSTS_MAXAGE}}/d' -i /etc/nginx/sites-enabled/redmine
+    fi
 fi
 
 # configure unicorn
@@ -327,20 +342,24 @@ sudo -HEu ${REDMINE_USER} sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR
 sudo -HEu ${REDMINE_USER} sed 's/{{REDMINE_USER}}/'"${REDMINE_USER}"'/g' -i config/unicorn.rb
 sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
 sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
+sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_LISTEN}}/'"${UNICORN_LISTEN}"'/' -i config/unicorn.rb
 
 # configure relative_url_root
 if [[ -n ${REDMINE_RELATIVE_URL_ROOT} ]]; then
   sudo -HEu ${REDMINE_USER} cp -f ${SYSCONF_TEMPLATES_DIR}/redmine/config.ru config.ru
   sudo -HEu ${REDMINE_USER} sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
-  sed 's,# alias '"${REDMINE_INSTALL_DIR}"'/public,alias '"${REDMINE_INSTALL_DIR}"'/public,' -i /etc/nginx/sites-enabled/redmine
-  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-enabled/redmine
+  if [[ ${NGINX_ENABLED} == true ]]; then
+      sed 's,# alias '"${REDMINE_INSTALL_DIR}"'/public,alias '"${REDMINE_INSTALL_DIR}"'/public,' -i /etc/nginx/sites-enabled/redmine
+      sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-enabled/redmine
+  fi
 else
   sudo -HEu ${REDMINE_USER} sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
-  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-enabled/redmine
+  [[ ${NGINX_ENABLED} == true ]] && \
+      sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-enabled/redmine
 fi
 
 # disable ipv6 support
-if [[ ! -f /proc/net/if_inet6 ]]; then
+if [[ ! -f /proc/net/if_inet6 && ${NGINX_ENABLED} == true ]]; then
   sed -e '/listen \[::\]:80/ s/^#*/#/' -i /etc/nginx/sites-enabled/redmine
   sed -e '/listen \[::\]:443/ s/^#*/#/' -i /etc/nginx/sites-enabled/redmine
 fi
