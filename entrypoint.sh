@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-source ${REDMINE_RUNTIME_DIR}/env-defaults
+source ${REDMINE_RUNTIME_DIR}/functions
 
 SYSCONF_TEMPLATES_DIR="${REDMINE_RUNTIME_DIR}/config"
 USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
