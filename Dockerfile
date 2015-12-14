@@ -5,11 +5,13 @@ ENV REDMINE_VERSION=3.2.0 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
-    SETUP_DIR="/var/cache/redmine" \
+    REDMINE_CACHE_DIR="/etc/docker-redmine" \
     RAILS_ENV=production
 
 ENV REDMINE_INSTALL_DIR="${REDMINE_HOME}/redmine" \
-    REDMINE_DATA_DIR="${REDMINE_HOME}/data"
+    REDMINE_DATA_DIR="${REDMINE_HOME}/data" \
+    REDMINE_BUILD_DIR="${REDMINE_CACHE_DIR}/build" \
+    REDMINE_RUNTIME_DIR="${REDMINE_CACHE_DIR}/runtime"
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45FA1715D88E1DF1F24 \
  && echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" >> /etc/apt/sources.list \
@@ -29,10 +31,10 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45F
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
-COPY assets/setup/ ${SETUP_DIR}/
-RUN bash ${SETUP_DIR}/install.sh
+COPY assets/build/ ${REDMINE_BUILD_DIR}/
+RUN bash ${REDMINE_BUILD_DIR}/install.sh
 
-COPY assets/config/ ${SETUP_DIR}/config/
+COPY assets/runtime/ ${REDMINE_RUNTIME_DIR}/
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-GEM_CACHE_DIR="${SETUP_DIR}/cache"
+GEM_CACHE_DIR="${REDMINE_BUILD_DIR}/cache"
 
 # rebuild apt cache
 apt-get update
@@ -31,8 +31,8 @@ sudo -HEu ${REDMINE_USER} ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMI
 
 # install redmine, use local copy if available
 mkdir -p ${REDMINE_INSTALL_DIR}
-if [[ -f ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
-  tar -zvxf ${SETUP_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
+if [[ -f ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
+  tar -zvxf ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
   wget -nv "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${REDMINE_INSTALL_DIR}
 fi
