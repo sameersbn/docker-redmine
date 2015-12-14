@@ -5,6 +5,12 @@ SSL_CERTIFICATES_DIR="${REDMINE_DATA_DIR}/certs"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
 USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
 
+REDMINE_DATABASE_CONFIG="${REDMINE_INSTALL_DIR}/config/database.yml"
+REDMINE_UNICORN_CONFIG="${REDMINE_INSTALL_DIR}/config/unicorn.rb"
+REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
+REDMINE_SMTP_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/smtp_settings.rb"
+REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
+
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-}
@@ -225,60 +231,60 @@ cd ${REDMINE_INSTALL_DIR}
 case ${REDMINE_HTTPS} in
   true)
     if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-enabled/redmine
+      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl ${REDMINE_NGINX_CONFIG}
     else
       echo "SSL keys and certificates were not found."
       echo "Assuming that the container is running behind a HTTPS enabled load balancer."
-      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine
+      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG}
     fi
     ;;
-  *) cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
+  *) cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG} ;;
 esac
-sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
-sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb config/unicorn.rb
+sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml ${REDMINE_DATABASE_CONFIG}
+sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
 [[ ${SMTP_ENABLED} == true ]] && \
-sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
+sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
 [[ ${MEMCACHE_ENABLED} == true ]] && \
-sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
+sudo -HEu ${REDMINE_USER} cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG}
 
 # override default configuration templates with user templates
 case ${REDMINE_HTTPS} in
   true)
     if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]]           && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl /etc/nginx/sites-enabled/redmine
+      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]]           && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ${REDMINE_NGINX_CONFIG}
     else
-      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine
+      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG}
     fi
     ;;
-  *) [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]                && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine /etc/nginx/sites-enabled/redmine ;;
+  *) [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]                && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG} ;;
 esac
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]]              && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml config/database.yml
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]]                && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  config/unicorn.rb
+[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]]              && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ${REDMINE_DATABASE_CONFIG}
+[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]]                && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  ${REDMINE_UNICORN_CONFIG}
 [[ ${SMTP_ENABLED} == true ]] && \
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]]          && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb config/initializers/smtp_settings.rb
+[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]]          && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
 [[ ${MEMCACHE_ENABLED} == true ]] && \
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ]] && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
+[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ]] && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG}
 
 # configure database
 case ${DB_TYPE} in
   postgres)
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
+    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/postgresql/' -i ${REDMINE_DATABASE_CONFIG}
+    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/unicode/' -i ${REDMINE_DATABASE_CONFIG}
+    sudo -HEu ${REDMINE_USER} sed 's/reconnect: false/#reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
     ;;
   mysql)
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
+    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/mysql2/' -i ${REDMINE_DATABASE_CONFIG}
+    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/utf8/' -i ${REDMINE_DATABASE_CONFIG}
+    sudo -HEu ${REDMINE_USER} sed 's/#reconnect: false/reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
     ;;
 esac
 
-sudo -HEu ${REDMINE_USER} sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
-sudo -HEu ${REDMINE_USER} sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
-sudo -HEu ${REDMINE_USER} sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i config/database.yml
-sudo -HEu ${REDMINE_USER} sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i config/database.yml
-sudo -HEu ${REDMINE_USER} sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i config/database.yml
-sudo -HEu ${REDMINE_USER} sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database.yml
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i ${REDMINE_DATABASE_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i ${REDMINE_DATABASE_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i ${REDMINE_DATABASE_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i ${REDMINE_DATABASE_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i ${REDMINE_DATABASE_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i ${REDMINE_DATABASE_CONFIG}
 
 # configure secure-cookie if using SSL/TLS
 if [[ ${REDMINE_HTTPS} == true ]]; then
@@ -288,105 +294,105 @@ fi
 # configure memcached
 if [[ ${MEMCACHE_ENABLED} == true ]]; then
   echo "Enabling memcache..."
-  sed 's/{{MEMCACHE_HOST}}/'"${MEMCACHE_HOST}"'/' -i config/additional_environment.rb
-  sed 's/{{MEMCACHE_PORT}}/'"${MEMCACHE_PORT}"'/' -i config/additional_environment.rb
+  sed 's/{{MEMCACHE_HOST}}/'"${MEMCACHE_HOST}"'/' -i ${REDMINE_MEMCACHED_CONFIG}
+  sed 's/{{MEMCACHE_PORT}}/'"${MEMCACHE_PORT}"'/' -i ${REDMINE_MEMCACHED_CONFIG}
 fi
 
 # configure nginx
 sed 's/worker_processes .*/worker_processes '"${NGINX_WORKERS}"';/' -i /etc/nginx/nginx.conf
-sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{REDMINE_LOG_DIR}},'"${REDMINE_LOG_DIR}"',g' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i /etc/nginx/sites-enabled/redmine
-sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i ${REDMINE_NGINX_CONFIG}
+sed 's,{{REDMINE_LOG_DIR}},'"${REDMINE_LOG_DIR}"',g' -i ${REDMINE_NGINX_CONFIG}
+sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i ${REDMINE_NGINX_CONFIG}
+sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i ${REDMINE_NGINX_CONFIG}
+sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i ${REDMINE_NGINX_CONFIG}
+sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
+sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
 
 # if dhparam path is valid, add to the config, otherwise remove the option
 if [[ -r ${SSL_DHPARAM_PATH} ]]; then
-  sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+  sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
 else
-  sed '/ssl_dhparam {{SSL_DHPARAM_PATH}};/d' -i /etc/nginx/sites-enabled/redmine
+  sed '/ssl_dhparam {{SSL_DHPARAM_PATH}};/d' -i ${REDMINE_NGINX_CONFIG}
 fi
 
-sed 's,{{SSL_VERIFY_CLIENT}},'"${SSL_VERIFY_CLIENT}"',' -i /etc/nginx/sites-enabled/redmine
+sed 's,{{SSL_VERIFY_CLIENT}},'"${SSL_VERIFY_CLIENT}"',' -i ${REDMINE_NGINX_CONFIG}
 if [[ -f /usr/local/share/ca-certificates/ca.crt ]]; then
-  sed 's,{{CA_CERTIFICATES_PATH}},'"${CA_CERTIFICATES_PATH}"',' -i /etc/nginx/sites-enabled/redmine
+  sed 's,{{CA_CERTIFICATES_PATH}},'"${CA_CERTIFICATES_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
 else
-  sed '/{{CA_CERTIFICATES_PATH}}/d' -i /etc/nginx/sites-enabled/redmine
+  sed '/{{CA_CERTIFICATES_PATH}}/d' -i ${REDMINE_NGINX_CONFIG}
 fi
 
 if [[ ${REDMINE_HTTPS_HSTS_ENABLED} == true ]]; then
-  sed 's/{{REDMINE_HTTPS_HSTS_MAXAGE}}/'"${REDMINE_HTTPS_HSTS_MAXAGE}"'/' -i /etc/nginx/sites-enabled/redmine
+  sed 's/{{REDMINE_HTTPS_HSTS_MAXAGE}}/'"${REDMINE_HTTPS_HSTS_MAXAGE}"'/' -i ${REDMINE_NGINX_CONFIG}
 else
-  sed '/{{REDMINE_HTTPS_HSTS_MAXAGE}}/d' -i /etc/nginx/sites-enabled/redmine
+  sed '/{{REDMINE_HTTPS_HSTS_MAXAGE}}/d' -i ${REDMINE_NGINX_CONFIG}
 fi
 
 # configure unicorn
-sudo -HEu ${REDMINE_USER} sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i config/unicorn.rb
-sudo -HEu ${REDMINE_USER} sed 's/{{REDMINE_USER}}/'"${REDMINE_USER}"'/g' -i config/unicorn.rb
-sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i config/unicorn.rb
-sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i config/unicorn.rb
+sudo -HEu ${REDMINE_USER} sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i ${REDMINE_UNICORN_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{REDMINE_USER}}/'"${REDMINE_USER}"'/g' -i ${REDMINE_UNICORN_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i ${REDMINE_UNICORN_CONFIG}
+sudo -HEu ${REDMINE_USER} sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i ${REDMINE_UNICORN_CONFIG}
 
 # configure relative_url_root
 if [[ -n ${REDMINE_RELATIVE_URL_ROOT} ]]; then
   sudo -HEu ${REDMINE_USER} cp -f ${SYSCONF_TEMPLATES_DIR}/redmine/config.ru config.ru
-  sudo -HEu ${REDMINE_USER} sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i config/unicorn.rb
-  sed 's,# alias '"${REDMINE_INSTALL_DIR}"'/public,alias '"${REDMINE_INSTALL_DIR}"'/public,' -i /etc/nginx/sites-enabled/redmine
-  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i /etc/nginx/sites-enabled/redmine
+  sudo -HEu ${REDMINE_USER} sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i ${REDMINE_UNICORN_CONFIG}
+  sed 's,# alias '"${REDMINE_INSTALL_DIR}"'/public,alias '"${REDMINE_INSTALL_DIR}"'/public,' -i ${REDMINE_NGINX_CONFIG}
+  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i ${REDMINE_NGINX_CONFIG}
 else
-  sudo -HEu ${REDMINE_USER} sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i config/unicorn.rb
-  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i /etc/nginx/sites-enabled/redmine
+  sudo -HEu ${REDMINE_USER} sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i ${REDMINE_UNICORN_CONFIG}
+  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i ${REDMINE_NGINX_CONFIG}
 fi
 
 # disable ipv6 support
 if [[ ! -f /proc/net/if_inet6 ]]; then
-  sed -e '/listen \[::\]:80/ s/^#*/#/' -i /etc/nginx/sites-enabled/redmine
-  sed -e '/listen \[::\]:443/ s/^#*/#/' -i /etc/nginx/sites-enabled/redmine
+  sed -e '/listen \[::\]:80/ s/^#*/#/' -i ${REDMINE_NGINX_CONFIG}
+  sed -e '/listen \[::\]:443/ s/^#*/#/' -i ${REDMINE_NGINX_CONFIG}
 fi
 
 if [[ ${SMTP_ENABLED} == true ]]; then
   # configure mail delivery
-  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_METHOD}}/'"${SMTP_METHOD}"'/g' -i config/initializers/smtp_settings.rb
-  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i config/initializers/smtp_settings.rb
-  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i config/initializers/smtp_settings.rb
+  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_METHOD}}/'"${SMTP_METHOD}"'/g' -i ${REDMINE_SMTP_CONFIG}
+  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i ${REDMINE_SMTP_CONFIG}
+  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i ${REDMINE_SMTP_CONFIG}
 
   case ${SMTP_USER} in
-    "") sudo -HEu ${REDMINE_USER} sed '/{{SMTP_USER}}/d' -i config/initializers/smtp_settings.rb ;;
-    *) sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i config/initializers/smtp_settings.rb ;;
+    "") sudo -HEu ${REDMINE_USER} sed '/{{SMTP_USER}}/d' -i ${REDMINE_SMTP_CONFIG} ;;
+    *) sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i ${REDMINE_SMTP_CONFIG} ;;
   esac
 
   case ${SMTP_PASS} in
-    "") sudo -HEu ${REDMINE_USER} sed '/{{SMTP_PASS}}/d' -i config/initializers/smtp_settings.rb ;;
-    *) sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i config/initializers/smtp_settings.rb ;;
+    "") sudo -HEu ${REDMINE_USER} sed '/{{SMTP_PASS}}/d' -i ${REDMINE_SMTP_CONFIG} ;;
+    *) sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i ${REDMINE_SMTP_CONFIG} ;;
   esac
 
-  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i config/initializers/smtp_settings.rb
-  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i config/initializers/smtp_settings.rb
-  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_TLS}}/'"${SMTP_TLS}"'/' -i config/initializers/smtp_settings.rb
+  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i ${REDMINE_SMTP_CONFIG}
+  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i ${REDMINE_SMTP_CONFIG}
+  sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_TLS}}/'"${SMTP_TLS}"'/' -i ${REDMINE_SMTP_CONFIG}
 
   if [[ -n ${SMTP_OPENSSL_VERIFY_MODE} ]]; then
-    sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_OPENSSL_VERIFY_MODE}}/'"${SMTP_OPENSSL_VERIFY_MODE}"'/' -i config/initializers/smtp_settings.rb
+    sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_OPENSSL_VERIFY_MODE}}/'"${SMTP_OPENSSL_VERIFY_MODE}"'/' -i ${REDMINE_SMTP_CONFIG}
   else
-    sudo -HEu ${REDMINE_USER} sed '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' -i config/initializers/smtp_settings.rb
+    sudo -HEu ${REDMINE_USER} sed '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' -i ${REDMINE_SMTP_CONFIG}
   fi
 
   case ${SMTP_AUTHENTICATION} in
-    "") sudo -HEu ${REDMINE_USER} sed '/{{SMTP_AUTHENTICATION}}/d' -i config/initializers/smtp_settings.rb ;;
-    *) sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i config/initializers/smtp_settings.rb ;;
+    "") sudo -HEu ${REDMINE_USER} sed '/{{SMTP_AUTHENTICATION}}/d' -i ${REDMINE_SMTP_CONFIG} ;;
+    *) sudo -HEu ${REDMINE_USER} sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i ${REDMINE_SMTP_CONFIG} ;;
   esac
 
   if [[ ${SMTP_CA_ENABLED} == true ]]; then
     if [[ -d ${SMTP_CA_PATH} ]]; then
-      sudo -HEu ${REDMINE_USER} sed 's,{{SMTP_CA_PATH}},'"${SMTP_CA_PATH}"',' -i config/initializers/smtp_settings.rb
+      sudo -HEu ${REDMINE_USER} sed 's,{{SMTP_CA_PATH}},'"${SMTP_CA_PATH}"',' -i ${REDMINE_SMTP_CONFIG}
     fi
 
     if [[ -f ${SMTP_CA_FILE} ]]; then
-      sudo -HEu ${REDMINE_USER} sed 's,{{SMTP_CA_FILE}},'"${SMTP_CA_FILE}"',' -i config/initializers/smtp_settings.rb
+      sudo -HEu ${REDMINE_USER} sed 's,{{SMTP_CA_FILE}},'"${SMTP_CA_FILE}"',' -i ${REDMINE_SMTP_CONFIG}
     fi
   else
-    sudo -HEu ${REDMINE_USER} sed '/{{SMTP_CA_PATH}}/d' -i config/initializers/smtp_settings.rb
-    sudo -HEu ${REDMINE_USER} sed '/{{SMTP_CA_FILE}}/d' -i config/initializers/smtp_settings.rb
+    sudo -HEu ${REDMINE_USER} sed '/{{SMTP_CA_PATH}}/d' -i ${REDMINE_SMTP_CONFIG}
+    sudo -HEu ${REDMINE_USER} sed '/{{SMTP_CA_FILE}}/d' -i ${REDMINE_SMTP_CONFIG}
   fi
 fi
 
