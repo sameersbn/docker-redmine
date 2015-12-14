@@ -12,6 +12,7 @@ REDMINE_SMTP_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/smtp_settings.rb
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
 DB_ADAPTER=${DB_ADAPTER:-}
+DB_ENCODING=${DB_ENCODING:-}
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-}
@@ -142,9 +143,11 @@ fi
 DB_ADAPTER=${DB_ADAPTER:-mysql2}
 case ${DB_ADAPTER} in
   mysql2)
+    DB_ENCODING=${DB_ENCODING:-utf8}
     DB_PORT=${DB_PORT:-3306}
     ;;
   postgresql)
+    DB_ENCODING=${DB_ENCODING:-unicode}
     DB_PORT=${DB_PORT:-5432}
     ;;
   *)
@@ -289,16 +292,15 @@ fi
 # configure database
 case ${DB_ADAPTER} in
   mysql2)
-    exec_as_redmine sed 's/{{DB_ENCODING}}/utf8/' -i ${REDMINE_DATABASE_CONFIG}
     exec_as_redmine sed 's/#reconnect: false/reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
     ;;
   postgresql)
-    exec_as_redmine sed 's/{{DB_ENCODING}}/unicode/' -i ${REDMINE_DATABASE_CONFIG}
     exec_as_redmine sed 's/reconnect: false/#reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
     ;;
 esac
 
 exec_as_redmine sed 's/{{DB_ADAPTER}}/'"${DB_ADAPTER}"'/' -i ${REDMINE_DATABASE_CONFIG}
+exec_as_redmine sed 's/{{DB_ENCODING}}/'"${DB_ENCODING}"'/' -i ${REDMINE_DATABASE_CONFIG}
 exec_as_redmine sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i ${REDMINE_DATABASE_CONFIG}
 exec_as_redmine sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i ${REDMINE_DATABASE_CONFIG}
 exec_as_redmine sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i ${REDMINE_DATABASE_CONFIG}
