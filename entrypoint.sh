@@ -70,7 +70,7 @@ INCOMING_EMAIL_ALLOW_OVERRIDE=${INCOMING_EMAIL_ALLOW_OVERRIDE:-}
 
 REDMINE_PORT=${REDMINE_PORT:-}
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
-REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-}
+REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-/}
 REDMINE_FETCH_COMMITS=${REDMINE_FETCH_COMMITS:-disable}
 
 REDMINE_HTTPS_HSTS_ENABLED=${REDMINE_HTTPS_HSTS_ENABLED:-true}
@@ -297,7 +297,7 @@ cd ${REDMINE_INSTALL_DIR}
 install_template ${REDMINE_USER} redmine/database.yml ${REDMINE_DATABASE_CONFIG}
 install_template ${REDMINE_USER} redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
 
-if [[ -n ${REDMINE_RELATIVE_URL_ROOT} ]]; then
+if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
   install_template ${REDMINE_USER} redmine/config.ru config.ru
 fi
 
@@ -385,14 +385,13 @@ update_template ${REDMINE_UNICORN_CONFIG} \
   UNICORN_TIMEOUT
 
 # configure relative_url_root
-if [[ -n ${REDMINE_RELATIVE_URL_ROOT} ]]; then
+if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
   update_template ${REDMINE_UNICORN_CONFIG} REDMINE_RELATIVE_URL_ROOT
-  sed -i "s|# alias ${REDMINE_INSTALL_DIR}/public|alias ${REDMINE_INSTALL_DIR}/public|" ${REDMINE_NGINX_CONFIG}
-  sed -i "s|{{REDMINE_RELATIVE_URL_ROOT}}|${REDMINE_RELATIVE_URL_ROOT}|" ${REDMINE_NGINX_CONFIG}
 else
-  exec_as_redmine sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i ${REDMINE_UNICORN_CONFIG}
-  sed -i "s|{{REDMINE_RELATIVE_URL_ROOT}}|/|" ${REDMINE_NGINX_CONFIG}
+  exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' ${REDMINE_UNICORN_CONFIG}
 fi
+
+update_template ${REDMINE_NGINX_CONFIG} REDMINE_RELATIVE_URL_ROOT
 
 # disable ipv6 support
 if [[ ! -f /proc/net/if_inet6 ]]; then
