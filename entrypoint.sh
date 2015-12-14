@@ -178,6 +178,22 @@ exec_as_redmine() {
   sudo -HEu ${REDMINE_USER} "$@"
 }
 
+## Copies configuration template to the destination as the specified USER
+### Looks up for overrides in ${USERCONF_TEMPLATES_DIR} before using the defaults from ${SYSCONF_TEMPLATES_DIR}
+# $1: copy-as user
+# $2: source file
+# $3: destination location
+install_template() {
+  local USR=${1}
+  local SRC=${2}
+  local DEST=${3}
+  if [[ -f ${USERCONF_TEMPLATES_DIR}/${SRC} ]]; then
+    sudo -HEu ${USR} cp ${USERCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+  elif [[ -f ${SYSCONF_TEMPLATES_DIR}/${SRC} ]]; then
+    sudo -HEu ${USR} cp ${SYSCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+  fi
+}
+
 ## Adapt uid and gid for ${REDMINE_USER}:${REDMINE_USER}
 USERMAP_ORIG_UID=$(id -u ${REDMINE_USER})
 USERMAP_ORIG_GID=$(id -g ${REDMINE_USER})
@@ -233,42 +249,28 @@ chmod +x ${REDMINE_DATA_DIR}
 cd ${REDMINE_INSTALL_DIR}
 
 # copy configuration templates
-case ${REDMINE_HTTPS} in
-  true)
-    if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine-ssl ${REDMINE_NGINX_CONFIG}
-    else
-      echo "SSL keys and certificates were not found."
-      echo "Assuming that the container is running behind a HTTPS enabled load balancer."
-      cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG}
-    fi
-    ;;
-  *) cp ${SYSCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG} ;;
-esac
-exec_as_redmine cp ${SYSCONF_TEMPLATES_DIR}/redmine/database.yml ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine cp ${SYSCONF_TEMPLATES_DIR}/redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
-[[ ${SMTP_ENABLED} == true ]] && \
-exec_as_redmine cp ${SYSCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
-[[ ${MEMCACHE_ENABLED} == true ]] && \
-exec_as_redmine cp ${SYSCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG}
+install_template ${REDMINE_USER} redmine/database.yml ${REDMINE_DATABASE_CONFIG}
+install_template ${REDMINE_USER} redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
 
-# override default configuration templates with user templates
-case ${REDMINE_HTTPS} in
-  true)
-    if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ]]           && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine-ssl ${REDMINE_NGINX_CONFIG}
-    else
-      [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]               && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG}
-    fi
-    ;;
-  *) [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/redmine ]]                && cp ${USERCONF_TEMPLATES_DIR}/nginx/redmine ${REDMINE_NGINX_CONFIG} ;;
-esac
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ]]              && exec_as_redmine cp ${USERCONF_TEMPLATES_DIR}/redmine/database.yml ${REDMINE_DATABASE_CONFIG}
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb ]]                && exec_as_redmine cp ${USERCONF_TEMPLATES_DIR}/redmine/unicorn.rb  ${REDMINE_UNICORN_CONFIG}
-[[ ${SMTP_ENABLED} == true ]] && \
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ]]          && exec_as_redmine cp ${USERCONF_TEMPLATES_DIR}/redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
-[[ ${MEMCACHE_ENABLED} == true ]] && \
-[[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ]] && exec_as_redmine cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG}
+if [[ ${SMTP_ENABLED} == true ]]; then
+  install_template ${REDMINE_USER} redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
+fi
+
+if [[ ${MEMCACHE_ENABLED} == true ]]; then
+  install_template ${REDMINE_USER} redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG}
+fi
+
+if [[ ${REDMINE_HTTPS} == true ]]; then
+  if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
+    install_template root nginx/redmine-ssl ${REDMINE_NGINX_CONFIG}
+  else
+    echo "SSL keys and certificates were not found."
+    echo "Assuming that the container is running behind a HTTPS enabled load balancer."
+    install_template root nginx/redmine ${REDMINE_NGINX_CONFIG}
+  fi
+else
+  install_template root nginx/redmine ${REDMINE_NGINX_CONFIG}
+fi
 
 # configure database
 case ${DB_TYPE} in
