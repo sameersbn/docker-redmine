@@ -11,13 +11,20 @@ REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.r
 REDMINE_SMTP_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/smtp_settings.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
+DB_ADAPTER=${DB_ADAPTER:-}
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-}
 DB_USER=${DB_USER:-}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
-DB_TYPE=${DB_TYPE:-}
+
+# backward compatibility
+case ${DB_TYPE} in
+  mysql) DB_ADAPTER=${DB_ADAPTER:-mysql2} ;;
+  postgres) DB_ADAPTER=${DB_ADAPTER:-postgresql} ;;
+esac
+
 
 MEMCACHED_HOST=${MEMCACHED_HOST:-}
 MEMCACHED_PORT=${MEMCACHED_PORT:-}
@@ -83,7 +90,7 @@ UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}
 # requires that the mysql or postgresql containers have exposed
 # port 3306 and 5432 respectively.
 if [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
-  DB_TYPE=mysql
+  DB_ADAPTER=${DB_ADAPTER:-mysql2}
   DB_HOST=${DB_HOST:-${MYSQL_PORT_3306_TCP_ADDR}}
   DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
 
@@ -98,7 +105,7 @@ if [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
   DB_PASS=${DB_PASS:-${MYSQL_ENV_MYSQL_PASSWORD}}
   DB_NAME=${DB_NAME:-${MYSQL_ENV_MYSQL_DATABASE}}
 elif [[ -n ${POSTGRESQL_PORT_5432_TCP_ADDR} ]]; then
-  DB_TYPE=postgres
+  DB_ADAPTER=${DB_ADAPTER:-postgresql}
   DB_HOST=${DB_HOST:-${POSTGRESQL_PORT_5432_TCP_ADDR}}
   DB_PORT=${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}
 
@@ -123,10 +130,6 @@ elif [[ -n ${POSTGRESQL_PORT_5432_TCP_ADDR} ]]; then
   DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
 fi
 
-# set the default user and database
-DB_NAME=${DB_NAME:-redmine_production}
-DB_USER=${DB_USER:-root}
-
 if [[ -z ${DB_HOST} ]]; then
   echo "ERROR: "
   echo "  Please configure the database connection."
@@ -135,17 +138,28 @@ if [[ -z ${DB_HOST} ]]; then
   exit 1
 fi
 
-# use default port number if it is still not set
-case ${DB_TYPE} in
-  mysql) DB_PORT=${DB_PORT:-3306} ;;
-  postgres) DB_PORT=${DB_PORT:-5432} ;;
+# set default port number if not specified
+DB_ADAPTER=${DB_ADAPTER:-mysql2}
+case ${DB_ADAPTER} in
+  mysql2)
+    DB_PORT=${DB_PORT:-3306}
+    ;;
+  postgresql)
+    DB_PORT=${DB_PORT:-5432}
+    ;;
   *)
+    echo
     echo "ERROR: "
-    echo "  Please specify the database type in use via the DB_TYPE configuration option."
-    echo "  Accepted values are \"postgres\" or \"mysql\". Aborting..."
-    exit 1
+    echo "  Please specify the database type in use via the DB_ADAPTER configuration option."
+    echo "  Accepted values are \"postgresql\" or \"mysql2\". Aborting..."
+    echo
+    return 1
     ;;
 esac
+
+# set the default user and database
+DB_NAME=${DB_NAME:-redmine_production}
+DB_USER=${DB_USER:-root}
 
 # is a memcached container linked?
 if [[ -n ${MEMCACHED_PORT_11211_TCP_ADDR} ]]; then
@@ -273,19 +287,18 @@ else
 fi
 
 # configure database
-case ${DB_TYPE} in
-  postgres)
-    exec_as_redmine sed 's/{{DB_ADAPTER}}/postgresql/' -i ${REDMINE_DATABASE_CONFIG}
-    exec_as_redmine sed 's/{{DB_ENCODING}}/unicode/' -i ${REDMINE_DATABASE_CONFIG}
-    exec_as_redmine sed 's/reconnect: false/#reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
-    ;;
-  mysql)
-    exec_as_redmine sed 's/{{DB_ADAPTER}}/mysql2/' -i ${REDMINE_DATABASE_CONFIG}
+case ${DB_ADAPTER} in
+  mysql2)
     exec_as_redmine sed 's/{{DB_ENCODING}}/utf8/' -i ${REDMINE_DATABASE_CONFIG}
     exec_as_redmine sed 's/#reconnect: false/reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
     ;;
+  postgresql)
+    exec_as_redmine sed 's/{{DB_ENCODING}}/unicode/' -i ${REDMINE_DATABASE_CONFIG}
+    exec_as_redmine sed 's/reconnect: false/#reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
+    ;;
 esac
 
+exec_as_redmine sed 's/{{DB_ADAPTER}}/'"${DB_ADAPTER}"'/' -i ${REDMINE_DATABASE_CONFIG}
 exec_as_redmine sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i ${REDMINE_DATABASE_CONFIG}
 exec_as_redmine sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i ${REDMINE_DATABASE_CONFIG}
 exec_as_redmine sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i ${REDMINE_DATABASE_CONFIG}
@@ -425,11 +438,11 @@ fi
 
 # due to the nature of docker and its use cases, we allow some time
 # for the database server to come online.
-case ${DB_TYPE} in
-  mysql)
+case ${DB_ADAPTER} in
+  mysql2)
     prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"
     ;;
-  postgres)
+  postgresql)
     prog=$(find /usr/lib/postgresql/ -name pg_isready)
     prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
     ;;

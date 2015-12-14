@@ -1,5 +1,8 @@
 # Changelog
 
+**latest**
+- `DB_TYPE` parameter renamed to `DB_ADAPTER` with `mysql2` and `postgresql` as accepted values.
+
 **3.2.0**
 - redmine: upgrade to v.3.2.0
 
