@@ -3,6 +3,10 @@
 **latest**
 - `DB_TYPE` parameter renamed to `DB_ADAPTER` with `mysql2` and `postgresql` as accepted values.
 - exposed `DB_ENCODING` parameter
+- complete rewrite
+- renamed config `CA_CERTIFICATES_PATH` to `SSL_CA_CERTIFICATES_PATH`
+- renamed config `REDMINE_HTTPS_HSTS_ENABLED` to `NGINX_HSTS_ENABLED`
+- renamed config `REDMINE_HTTPS_HSTS_MAXAGE` to `NGINX_HSTS_MAXAGE`
 
 **3.2.0**
 - redmine: upgrade to v.3.2.0

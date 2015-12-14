@@ -3,12 +3,17 @@ set -e
 
 GEM_CACHE_DIR="${REDMINE_BUILD_DIR}/cache"
 
-# rebuild apt cache
-apt-get update
+BUILD_DEPENDENCIES="libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+                    libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev"
+
+## Execute a command as GITLAB_USER
+exec_as_redmine() {
+  sudo -HEu ${REDMINE_USER} "$@"
+}
 
 # install build dependencies
-DEBIAN_FRONTEND=noninteractive apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y ${BUILD_DEPENDENCIES}
 
 # add ${REDMINE_USER} user
 adduser --disabled-login --gecos 'Redmine' ${REDMINE_USER}
@@ -21,76 +26,68 @@ EOF
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
 rm -rf /tmp/cron.${REDMINE_USER}
 
-# create symlink to ${REDMINE_DATA_DIR}/dotfiles/.ssh
-rm -rf ${REDMINE_HOME}/.ssh
-sudo -HEu ${REDMINE_USER} ln -s ${REDMINE_DATA_DIR}/dotfiles/.ssh ${REDMINE_HOME}/.ssh
-
-# create symlink to ${REDMINE_DATA_DIR}/dotfiles/.subversion
-rm -rf ${REDMINE_HOME}/.subversion
-sudo -HEu ${REDMINE_USER} ln -s ${REDMINE_DATA_DIR}/dotfiles/.subversion ${REDMINE_HOME}/.subversion
-
 # install redmine, use local copy if available
-mkdir -p ${REDMINE_INSTALL_DIR}
+exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}
 if [[ -f ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
-  tar -zvxf ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
+  exec_as_redmine tar -zvxf ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
-  wget -nv "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O - | tar -zvxf - --strip=1 -C ${REDMINE_INSTALL_DIR}
+  echo "Downloading Redmine ${REDMINE_VERSION}..."
+  exec_as_redmine wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O /tmp/redmine-${REDMINE_VERSION}.tar.gz
+
+  echo "Extracting..."
+  exec_as_redmine tar -zxf /tmp/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
+
+  exec_as_redmine rm -rf /tmp/redmine-${REDMINE_VERSION}.tar.gz
 fi
-
-cd ${REDMINE_INSTALL_DIR}
-
-# create version file
-echo "${REDMINE_VERSION}" > ${REDMINE_INSTALL_DIR}/VERSION
 
 # HACK: we want both the pg and mysql2 gems installed, so we remove the
 #       respective lines and add them at the end of the Gemfile so that they
 #       are both installed.
-PG_GEM=$(grep 'gem "pg"' Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
-MYSQL2_GEM=$(grep 'gem "mysql2"' Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+PG_GEM=$(grep 'gem "pg"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+MYSQL2_GEM=$(grep 'gem "mysql2"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 
 sed -i \
   -e '/gem "pg"/d' \
   -e '/gem "mysql2"/d' \
-  Gemfile
+  ${REDMINE_INSTALL_DIR}/Gemfile
 
 (
   echo "${PG_GEM}";
   echo "${MYSQL2_GEM}";
   echo 'gem "unicorn"';
   echo 'gem "dalli", "~> 2.7.0"';
-) >> Gemfile
+) >> ${REDMINE_INSTALL_DIR}/Gemfile
 
-# install gems, use cache if available
+## some gems complain about missing database.yml, shut them up!
+exec_as_redmine cp ${REDMINE_INSTALL_DIR}/config/database.yml.example ${REDMINE_INSTALL_DIR}/config/database.yml
+
+# install gems
+cd ${REDMINE_INSTALL_DIR}
+
+## use local cache if available
 if [[ -d ${GEM_CACHE_DIR} ]]; then
-  mv ${GEM_CACHE_DIR} vendor/
+  cp -a ${GEM_CACHE_DIR} ${REDMINE_INSTALL_DIR}/vendor/cache
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_INSTALL_DIR}/vendor/cache
 fi
-
-# some gems complain about missing database.yml, shut them up!
-cp config/database.yml.example config/database.yml
-
-bundle install -j$(nproc) --without development test --path vendor/bundle
+exec_as_redmine bundle install -j$(nproc) --without development test --path ${REDMINE_INSTALL_DIR}/vendor/bundle
 
 # finalize redmine installation
-mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
+exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}/tmp ${REDMINE_INSTALL_DIR}/tmp/pdf ${REDMINE_INSTALL_DIR}/tmp/pids ${REDMINE_INSTALL_DIR}/tmp/sockets
 
 # create link public/plugin_assets directory
-rm -rf public/plugin_assets
-ln -sf ${REDMINE_DATA_DIR}/tmp/plugin_assets public/plugin_assets
+rm -rf ${REDMINE_INSTALL_DIR}/public/plugin_assets
+exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/plugin_assets ${REDMINE_INSTALL_DIR}/public/plugin_assets
 
 # create link tmp/thumbnails directory
-rm -rf tmp/thumbnails
-ln -sf ${REDMINE_DATA_DIR}/tmp/thumbnails tmp/thumbnails
+rm -rf ${REDMINE_INSTALL_DIR}/tmp/thumbnails
+exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/thumbnails ${REDMINE_INSTALL_DIR}/tmp/thumbnails
 
 # create link to tmp/secret_token.rb
-ln -sf ${REDMINE_DATA_DIR}/tmp/secret_token.rb config/initializers/secret_token.rb
+exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/secret_token.rb ${REDMINE_INSTALL_DIR}/config/initializers/secret_token.rb
 
 # symlink log -> ${REDMINE_LOG_DIR}/redmine
-rm -rf log
-ln -sf ${REDMINE_LOG_DIR}/redmine log
-
-# fix permissions
-chmod -R u+rwX files tmp
-chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_INSTALL_DIR}
+rm -rf ${REDMINE_INSTALL_DIR}/log
+exec_as_redmine ln -sf ${REDMINE_LOG_DIR}/redmine ${REDMINE_INSTALL_DIR}/log
 
 # disable default nginx configuration
 rm -f /etc/nginx/sites-enabled/default
@@ -187,10 +184,6 @@ stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
-# purge build dependencies
-apt-get purge -y --auto-remove \
-  libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-  libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev
-
-# cleanup
+# purge build dependencies and cleanup apt
+apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}
 rm -rf /var/lib/apt/lists/*
