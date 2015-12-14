@@ -211,6 +211,34 @@ install_template() {
   fi
 }
 
+## Replace placeholders with values
+# $1: file with placeholders to replace
+# $x: placeholders to replace
+update_template() {
+  local FILE=${1?missing argument}
+  shift
+
+  [[ ! -f ${FILE} ]] && return 1
+
+  local VARIABLES=($@)
+  local USR=$(stat -c %U ${FILE})
+  local tmp_file=$(mktemp)
+  cp -a "${FILE}" ${tmp_file}
+
+  local variable
+  for variable in ${VARIABLES[@]}; do
+    # Keep the compatibilty: {{VAR}} => ${VAR}
+    sed -ri "s/[{]{2}$variable[}]{2}/\${$variable}/g" ${tmp_file}
+  done
+
+  # Replace placeholders
+  (
+    export ${VARIABLES[@]}
+    local IFS=":"; sudo -HEu ${USR} envsubst "${VARIABLES[*]/#/$}" < ${tmp_file} > ${FILE}
+  )
+  rm -f ${tmp_file}
+}
+
 ## Adapt uid and gid for ${REDMINE_USER}:${REDMINE_USER}
 USERMAP_ORIG_UID=$(id -u ${REDMINE_USER})
 USERMAP_ORIG_GID=$(id -g ${REDMINE_USER})
@@ -269,6 +297,10 @@ cd ${REDMINE_INSTALL_DIR}
 install_template ${REDMINE_USER} redmine/database.yml ${REDMINE_DATABASE_CONFIG}
 install_template ${REDMINE_USER} redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
 
+if [[ -n ${REDMINE_RELATIVE_URL_ROOT} ]]; then
+  install_template ${REDMINE_USER} redmine/config.ru config.ru
+fi
+
 if [[ ${SMTP_ENABLED} == true ]]; then
   install_template ${REDMINE_USER} redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
 fi
@@ -290,131 +322,131 @@ else
 fi
 
 # configure database
-case ${DB_ADAPTER} in
-  mysql2)
-    exec_as_redmine sed 's/#reconnect: false/reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
-    ;;
-  postgresql)
-    exec_as_redmine sed 's/reconnect: false/#reconnect: false/' -i ${REDMINE_DATABASE_CONFIG}
-    ;;
-esac
+update_template ${REDMINE_DATABASE_CONFIG} \
+  DB_ADAPTER \
+  DB_ENCODING \
+  DB_HOST \
+  DB_PORT \
+  DB_NAME \
+  DB_USER \
+  DB_PASS \
+  DB_POOL
 
-exec_as_redmine sed 's/{{DB_ADAPTER}}/'"${DB_ADAPTER}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_ENCODING}}/'"${DB_ENCODING}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_NAME}}/'"${DB_NAME}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_USER}}/'"${DB_USER}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_PASS}}/'"${DB_PASS}"'/' -i ${REDMINE_DATABASE_CONFIG}
-exec_as_redmine sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i ${REDMINE_DATABASE_CONFIG}
+if [[ ${DB_ADAPTER} == postgresql ]]; then
+  exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
+fi
 
 # configure secure-cookie if using SSL/TLS
 if [[ ${REDMINE_HTTPS} == true ]]; then
-  sed "s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" -i config/application.rb
+  exec_as_redmine sed -i "s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" config/application.rb
 fi
 
 # configure memcached
 if [[ ${MEMCACHE_ENABLED} == true ]]; then
   echo "Enabling memcache..."
-  sed 's/{{MEMCACHE_HOST}}/'"${MEMCACHE_HOST}"'/' -i ${REDMINE_MEMCACHED_CONFIG}
-  sed 's/{{MEMCACHE_PORT}}/'"${MEMCACHE_PORT}"'/' -i ${REDMINE_MEMCACHED_CONFIG}
+  update_template ${REDMINE_MEMCACHED_CONFIG} \
+    MEMCACHE_HOST \
+    MEMCACHE_PORT
 fi
 
 # configure nginx
-sed 's/worker_processes .*/worker_processes '"${NGINX_WORKERS}"';/' -i /etc/nginx/nginx.conf
-sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i ${REDMINE_NGINX_CONFIG}
-sed 's,{{REDMINE_LOG_DIR}},'"${REDMINE_LOG_DIR}"',g' -i ${REDMINE_NGINX_CONFIG}
-sed 's/{{REDMINE_PORT}}/'"${REDMINE_PORT}"'/' -i ${REDMINE_NGINX_CONFIG}
-sed 's/{{NGINX_MAX_UPLOAD_SIZE}}/'"${NGINX_MAX_UPLOAD_SIZE}"'/' -i ${REDMINE_NGINX_CONFIG}
-sed 's/{{NGINX_X_FORWARDED_PROTO}}/'"${NGINX_X_FORWARDED_PROTO}"'/' -i ${REDMINE_NGINX_CONFIG}
-sed 's,{{SSL_CERTIFICATE_PATH}},'"${SSL_CERTIFICATE_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
-sed 's,{{SSL_KEY_PATH}},'"${SSL_KEY_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
+sed -i "s|worker_processes .*|worker_processes '"${NGINX_WORKERS}"';|" /etc/nginx/nginx.conf
 
-# if dhparam path is valid, add to the config, otherwise remove the option
-if [[ -r ${SSL_DHPARAM_PATH} ]]; then
-  sed 's,{{SSL_DHPARAM_PATH}},'"${SSL_DHPARAM_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
-else
-  sed '/ssl_dhparam {{SSL_DHPARAM_PATH}};/d' -i ${REDMINE_NGINX_CONFIG}
+if [[ ! -f ${CA_CERTIFICATES_PATH} ]]; then
+  sed -i "/{{CA_CERTIFICATES_PATH}}/d" ${REDMINE_NGINX_CONFIG}
 fi
 
-sed 's,{{SSL_VERIFY_CLIENT}},'"${SSL_VERIFY_CLIENT}"',' -i ${REDMINE_NGINX_CONFIG}
-if [[ -f /usr/local/share/ca-certificates/ca.crt ]]; then
-  sed 's,{{CA_CERTIFICATES_PATH}},'"${CA_CERTIFICATES_PATH}"',' -i ${REDMINE_NGINX_CONFIG}
-else
-  sed '/{{CA_CERTIFICATES_PATH}}/d' -i ${REDMINE_NGINX_CONFIG}
+if [[ ! -f ${SSL_DHPARAM_PATH} ]]; then
+  sed -i "/{{SSL_DHPARAM_PATH}}/d" ${REDMINE_NGINX_CONFIG}
 fi
 
-if [[ ${REDMINE_HTTPS_HSTS_ENABLED} == true ]]; then
-  sed 's/{{REDMINE_HTTPS_HSTS_MAXAGE}}/'"${REDMINE_HTTPS_HSTS_MAXAGE}"'/' -i ${REDMINE_NGINX_CONFIG}
-else
-  sed '/{{REDMINE_HTTPS_HSTS_MAXAGE}}/d' -i ${REDMINE_NGINX_CONFIG}
+if [[ ! -f ${REDMINE_HTTPS_HSTS_ENABLED} ]]; then
+  sed -i "/{{REDMINE_HTTPS_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
 fi
+
+update_template ${REDMINE_NGINX_CONFIG} \
+  REDMINE_INSTALL_DIR \
+  REDMINE_LOG_DIR \
+  REDMINE_PORT \
+  SSL_CERTIFICATE_PATH \
+  SSL_KEY_PATH \
+  SSL_DHPARAM_PATH \
+  SSL_VERIFY_CLIENT \
+  CA_CERTIFICATES_PATH \
+  NGINX_MAX_UPLOAD_SIZE \
+  NGINX_X_FORWARDED_PROTO \
+  REDMINE_HTTPS_HSTS_MAXAGE
 
 # configure unicorn
-exec_as_redmine sed 's,{{REDMINE_INSTALL_DIR}},'"${REDMINE_INSTALL_DIR}"',g' -i ${REDMINE_UNICORN_CONFIG}
-exec_as_redmine sed 's/{{REDMINE_USER}}/'"${REDMINE_USER}"'/g' -i ${REDMINE_UNICORN_CONFIG}
-exec_as_redmine sed 's/{{UNICORN_WORKERS}}/'"${UNICORN_WORKERS}"'/' -i ${REDMINE_UNICORN_CONFIG}
-exec_as_redmine sed 's/{{UNICORN_TIMEOUT}}/'"${UNICORN_TIMEOUT}"'/' -i ${REDMINE_UNICORN_CONFIG}
+update_template ${REDMINE_UNICORN_CONFIG} \
+  REDMINE_INSTALL_DIR \
+  REDMINE_USER \
+  UNICORN_WORKERS \
+  UNICORN_TIMEOUT
 
 # configure relative_url_root
 if [[ -n ${REDMINE_RELATIVE_URL_ROOT} ]]; then
-  exec_as_redmine cp -f ${SYSCONF_TEMPLATES_DIR}/redmine/config.ru config.ru
-  exec_as_redmine sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i ${REDMINE_UNICORN_CONFIG}
-  sed 's,# alias '"${REDMINE_INSTALL_DIR}"'/public,alias '"${REDMINE_INSTALL_DIR}"'/public,' -i ${REDMINE_NGINX_CONFIG}
-  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},'"${REDMINE_RELATIVE_URL_ROOT}"',' -i ${REDMINE_NGINX_CONFIG}
+  update_template ${REDMINE_UNICORN_CONFIG} REDMINE_RELATIVE_URL_ROOT
+  sed -i "s|# alias ${REDMINE_INSTALL_DIR}/public|alias ${REDMINE_INSTALL_DIR}/public|" ${REDMINE_NGINX_CONFIG}
+  sed -i "s|{{REDMINE_RELATIVE_URL_ROOT}}|${REDMINE_RELATIVE_URL_ROOT}|" ${REDMINE_NGINX_CONFIG}
 else
   exec_as_redmine sed '/{{REDMINE_RELATIVE_URL_ROOT}}/d' -i ${REDMINE_UNICORN_CONFIG}
-  sed 's,{{REDMINE_RELATIVE_URL_ROOT}},/,' -i ${REDMINE_NGINX_CONFIG}
+  sed -i "s|{{REDMINE_RELATIVE_URL_ROOT}}|/|" ${REDMINE_NGINX_CONFIG}
 fi
 
 # disable ipv6 support
 if [[ ! -f /proc/net/if_inet6 ]]; then
-  sed -e '/listen \[::\]:80/ s/^#*/#/' -i ${REDMINE_NGINX_CONFIG}
-  sed -e '/listen \[::\]:443/ s/^#*/#/' -i ${REDMINE_NGINX_CONFIG}
+  sed -i \
+    -e "/listen \[::\]:80/d" \
+    -e "/listen \[::\]:443/d" \
+    ${REDMINE_NGINX_CONFIG}
 fi
 
+# configure mail delivery
 if [[ ${SMTP_ENABLED} == true ]]; then
-  # configure mail delivery
-  exec_as_redmine sed 's/{{SMTP_METHOD}}/'"${SMTP_METHOD}"'/g' -i ${REDMINE_SMTP_CONFIG}
-  exec_as_redmine sed 's/{{SMTP_HOST}}/'"${SMTP_HOST}"'/' -i ${REDMINE_SMTP_CONFIG}
-  exec_as_redmine sed 's/{{SMTP_PORT}}/'"${SMTP_PORT}"'/' -i ${REDMINE_SMTP_CONFIG}
-
-  case ${SMTP_USER} in
-    "") exec_as_redmine sed '/{{SMTP_USER}}/d' -i ${REDMINE_SMTP_CONFIG} ;;
-    *) exec_as_redmine sed 's/{{SMTP_USER}}/'"${SMTP_USER}"'/' -i ${REDMINE_SMTP_CONFIG} ;;
-  esac
-
-  case ${SMTP_PASS} in
-    "") exec_as_redmine sed '/{{SMTP_PASS}}/d' -i ${REDMINE_SMTP_CONFIG} ;;
-    *) exec_as_redmine sed 's/{{SMTP_PASS}}/'"${SMTP_PASS}"'/' -i ${REDMINE_SMTP_CONFIG} ;;
-  esac
-
-  exec_as_redmine sed 's/{{SMTP_DOMAIN}}/'"${SMTP_DOMAIN}"'/' -i ${REDMINE_SMTP_CONFIG}
-  exec_as_redmine sed 's/{{SMTP_STARTTLS}}/'"${SMTP_STARTTLS}"'/' -i ${REDMINE_SMTP_CONFIG}
-  exec_as_redmine sed 's/{{SMTP_TLS}}/'"${SMTP_TLS}"'/' -i ${REDMINE_SMTP_CONFIG}
-
-  if [[ -n ${SMTP_OPENSSL_VERIFY_MODE} ]]; then
-    exec_as_redmine sed 's/{{SMTP_OPENSSL_VERIFY_MODE}}/'"${SMTP_OPENSSL_VERIFY_MODE}"'/' -i ${REDMINE_SMTP_CONFIG}
+  if [[ -z "${SMTP_USER}" ]]; then
+    exec_as_redmine sed -i \
+      -e '/{{SMTP_USER}}/d' \
+      -e '/{{SMTP_PASS}}/d' \
+      ${REDMINE_SMTP_CONFIG}
   else
-    exec_as_redmine sed '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' -i ${REDMINE_SMTP_CONFIG}
+    if [[ -z "${SMTP_PASS}" ]]; then
+      exec_as_redmine sed -i '/{{SMTP_PASS}}/d' ${REDMINE_SMTP_CONFIG}
+    fi
   fi
 
-  case ${SMTP_AUTHENTICATION} in
-    "") exec_as_redmine sed '/{{SMTP_AUTHENTICATION}}/d' -i ${REDMINE_SMTP_CONFIG} ;;
-    *) exec_as_redmine sed 's/{{SMTP_AUTHENTICATION}}/'"${SMTP_AUTHENTICATION}"'/' -i ${REDMINE_SMTP_CONFIG} ;;
-  esac
+  if [[ -z "${SMTP_AUTHENTICATION}" ]]; then
+    exec_as_redmine sed -i '/{{SMTP_AUTHENTICATION}}/d' ${REDMINE_SMTP_CONFIG}
+  fi
+
+  if [[ -z "${SMTP_OPENSSL_VERIFY_MODE}" ]]; then
+    exec_as_redmine sed -i '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' ${REDMINE_SMTP_CONFIG}
+  fi
+
+  update_template ${REDMINE_SMTP_CONFIG} \
+    SMTP_METHOD \
+    SMTP_HOST \
+    SMTP_PORT \
+    SMTP_DOMAIN \
+    SMTP_USER \
+    SMTP_PASS \
+    SMTP_AUTHENTICATION \
+    SMTP_OPENSSL_VERIFY_MODE \
+    SMTP_STARTTLS \
+    SMTP_TLS
 
   if [[ ${SMTP_CA_ENABLED} == true ]]; then
     if [[ -d ${SMTP_CA_PATH} ]]; then
-      exec_as_redmine sed 's,{{SMTP_CA_PATH}},'"${SMTP_CA_PATH}"',' -i ${REDMINE_SMTP_CONFIG}
+      update_template ${REDMINE_SMTP_CONFIG} SMTP_CA_PATH
     fi
-
     if [[ -f ${SMTP_CA_FILE} ]]; then
-      exec_as_redmine sed 's,{{SMTP_CA_FILE}},'"${SMTP_CA_FILE}"',' -i ${REDMINE_SMTP_CONFIG}
+      update_template ${REDMINE_SMTP_CONFIG} SMTP_CA_FILE
     fi
   else
-    exec_as_redmine sed '/{{SMTP_CA_PATH}}/d' -i ${REDMINE_SMTP_CONFIG}
-    exec_as_redmine sed '/{{SMTP_CA_FILE}}/d' -i ${REDMINE_SMTP_CONFIG}
+    exec_as_redmine sed -i \
+      -e "/{{SMTP_CA_PATH}}/d" \
+      -e "/{{SMTP_CA_FILE}}/d" \
+      ${REDMINE_SMTP_CONFIG}
   fi
 fi
 
