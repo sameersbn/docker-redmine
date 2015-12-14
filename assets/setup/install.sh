@@ -47,14 +47,18 @@ echo "${REDMINE_VERSION}" > ${REDMINE_INSTALL_DIR}/VERSION
 #       are both installed.
 PG_GEM=$(grep 'gem "pg"' Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 MYSQL2_GEM=$(grep 'gem "mysql2"' Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
-sed '/gem "pg"/d' -i Gemfile
-sed '/gem "mysql2"/d' -i Gemfile
-echo "${PG_GEM}" >> Gemfile
-echo "${MYSQL2_GEM}" >> Gemfile
 
-# add gems for app server and memcache support
-echo 'gem "unicorn"' >> Gemfile
-echo 'gem "dalli", "~> 2.7.0"' >> Gemfile
+sed -i \
+  -e '/gem "pg"/d' \
+  -e '/gem "mysql2"/d' \
+  Gemfile
+
+(
+  echo "${PG_GEM}";
+  echo "${MYSQL2_GEM}";
+  echo 'gem "unicorn"';
+  echo 'gem "dalli", "~> 2.7.0"';
+) >> Gemfile
 
 # install gems, use cache if available
 if [[ -d ${GEM_CACHE_DIR} ]]; then
@@ -92,14 +96,16 @@ chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_INSTALL_DIR}
 rm -f /etc/nginx/sites-enabled/default
 
 # run nginx as ${REDMINE_USER} user
-sed 's/user www-data/user '"${REDMINE_USER}"'/' -i /etc/nginx/nginx.conf
+sed -i "s|user www-data|user ${REDMINE_USER}|" /etc/nginx/nginx.conf
 
 # move supervisord.log file to ${REDMINE_LOG_DIR}/supervisor/
-sed 's|^logfile=.*|logfile='"${REDMINE_LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+sed -i "s|^logfile=.*|logfile=${REDMINE_LOG_DIR}/supervisor/supervisord.log ;|" /etc/supervisor/supervisord.conf
 
 # move nginx logs to ${REDMINE_LOG_DIR}/nginx
-sed 's|access_log /var/log/nginx/access.log;|access_log '"${REDMINE_LOG_DIR}"'/nginx/access.log;|' -i /etc/nginx/nginx.conf
-sed 's|error_log /var/log/nginx/error.log;|error_log '"${REDMINE_LOG_DIR}"'/nginx/error.log;|' -i /etc/nginx/nginx.conf
+sed -i \
+  -e "s|access_log /var/log/nginx/access.log;|access_log ${REDMINE_LOG_DIR}/nginx/access.log;|" \
+  -e "s|error_log /var/log/nginx/error.log;|error_log ${REDMINE_LOG_DIR}/nginx/error.log;|" \
+  /etc/nginx/nginx.conf
 
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
