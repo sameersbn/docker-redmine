@@ -282,7 +282,7 @@ sudo -HEu ${REDMINE_USER} sed 's/{{DB_POOL}}/'"${DB_POOL}"'/' -i config/database
 
 # configure secure-cookie if using SSL/TLS
 if [[ ${REDMINE_HTTPS} == true ]]; then
-  sed '/^\s*config\.session_store\s/s/$/, :secure => true/' -i config/application.rb
+  sed "s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" -i config/application.rb
 fi
 
 # configure memcached
