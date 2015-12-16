@@ -10,7 +10,6 @@
 - install `darcs`
 - expose `REDMINE_ATTACHMENTS_DIR` parameter
 - expose `REDMINE_SECRET_TOKEN` parameter
-- expose `REDMINE_SUDO_MODE_ENABLED` and `REDMINE_SUDO_MODE_TIMEOUT` parameters
 - expose `REDMINE_CONCURRENT_UPLOADS` parameter
 - added `NGINX_ENABLED` parameter to disable the Nginx server
 
