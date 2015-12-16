@@ -220,6 +220,11 @@ redmine_configure_unicorn() {
     exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' ${REDMINE_UNICORN_CONFIG}
   fi
 
+  if [[ ${NGINX_ENABLED} != true ]]; then
+    # nginx has been disabled, configure unicorn to listen on all interfaces
+    exec_as_redmine sed -i "s|127.0.0.1:8080|0.0.0.0:8080|" ${REDMINE_UNICORN_CONFIG}
+  fi
+
   update_template ${REDMINE_UNICORN_CONFIG} \
     REDMINE_INSTALL_DIR \
     REDMINE_USER \
@@ -582,9 +587,14 @@ configure_redmine() {
 }
 
 configure_nginx() {
-  echo "Configuring nginx..."
-  sed -i "s|worker_processes .*|worker_processes ${NGINX_WORKERS};|" /etc/nginx/nginx.conf
-  nginx_configure_redmine
+  if [[ ${NGINX_ENABLED} == true ]]; then
+    echo "Configuring nginx..."
+    sed -i "s|worker_processes .*|worker_processes ${NGINX_WORKERS};|" /etc/nginx/nginx.conf
+    nginx_configure_redmine
+  else
+    echo "Nginx has been disabled..."
+  fi
+  update_template /etc/supervisor/conf.d/nginx.conf NGINX_ENABLED
 }
 
 migrate_database() {
