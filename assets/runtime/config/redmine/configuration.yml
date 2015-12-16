@@ -32,7 +32,7 @@ default:
   # Your Redmine instance needs to have write permission on this
   # directory.
   # Examples:
-  attachments_storage_path: {{REDMINE_DATA_DIR}}/files
+  attachments_storage_path: {{REDMINE_ATTACHMENTS_DIR}}
 
   # Configuration of the autologin cookie.
   autologin_cookie_name: autologin
