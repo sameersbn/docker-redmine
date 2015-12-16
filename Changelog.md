@@ -7,6 +7,7 @@
 - renamed config `CA_CERTIFICATES_PATH` to `SSL_CA_CERTIFICATES_PATH`
 - renamed config `REDMINE_HTTPS_HSTS_ENABLED` to `NGINX_HSTS_ENABLED`
 - renamed config `REDMINE_HTTPS_HSTS_MAXAGE` to `NGINX_HSTS_MAXAGE`
+- install `darcs`
 
 **3.2.0**
 - redmine: upgrade to v.3.2.0
