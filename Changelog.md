@@ -1,5 +1,19 @@
 # Changelog
 
+**latest**
+- `DB_TYPE` parameter renamed to `DB_ADAPTER` with `mysql2` and `postgresql` as accepted values.
+- exposed `DB_ENCODING` parameter
+- complete rewrite
+- renamed config `CA_CERTIFICATES_PATH` to `SSL_CA_CERTIFICATES_PATH`
+- renamed config `REDMINE_HTTPS_HSTS_ENABLED` to `NGINX_HSTS_ENABLED`
+- renamed config `REDMINE_HTTPS_HSTS_MAXAGE` to `NGINX_HSTS_MAXAGE`
+- install `darcs`
+- expose `REDMINE_ATTACHMENTS_DIR` parameter
+- expose `REDMINE_SECRET_TOKEN` parameter
+- expose `REDMINE_SUDO_MODE_ENABLED` and `REDMINE_SUDO_MODE_TIMEOUT` parameters
+- expose `REDMINE_CONCURRENT_UPLOADS` parameter
+- added `NGINX_ENABLED` parameter to disable the Nginx server
+
 **2.6.9**
 - redmine: upgrade to v.2.6.9
 
