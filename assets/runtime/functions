@@ -1,0 +1,695 @@
+#!/bin/bash
+set -e
+source ${REDMINE_RUNTIME_DIR}/env-defaults
+
+SYSCONF_TEMPLATES_DIR="${REDMINE_RUNTIME_DIR}/config"
+USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
+
+REDMINE_CONFIG="${REDMINE_INSTALL_DIR}/config/configuration.yml"
+REDMINE_DATABASE_CONFIG="${REDMINE_INSTALL_DIR}/config/database.yml"
+REDMINE_UNICORN_CONFIG="${REDMINE_INSTALL_DIR}/config/unicorn.rb"
+REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
+REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
+
+## Execute a command as REDMINE_USER
+exec_as_redmine() {
+  sudo -HEu ${REDMINE_USER} "$@"
+}
+
+## Copies configuration template to the destination as the specified USER
+### Looks up for overrides in ${USERCONF_TEMPLATES_DIR} before using the defaults from ${SYSCONF_TEMPLATES_DIR}
+# $1: copy-as user
+# $2: source file
+# $3: destination location
+install_template() {
+  local USR=${1}
+  local SRC=${2}
+  local DEST=${3}
+  if [[ -f ${USERCONF_TEMPLATES_DIR}/${SRC} ]]; then
+    sudo -HEu ${USR} cp ${USERCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+  elif [[ -f ${SYSCONF_TEMPLATES_DIR}/${SRC} ]]; then
+    sudo -HEu ${USR} cp ${SYSCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+  fi
+}
+
+## Replace placeholders with values
+# $1: file with placeholders to replace
+# $x: placeholders to replace
+update_template() {
+  local FILE=${1?missing argument}
+  shift
+
+  [[ ! -f ${FILE} ]] && return 1
+
+  local VARIABLES=($@)
+  local USR=$(stat -c %U ${FILE})
+  local tmp_file=$(mktemp)
+  cp -a "${FILE}" ${tmp_file}
+
+  local variable
+  for variable in ${VARIABLES[@]}; do
+    # Keep the compatibilty: {{VAR}} => ${VAR}
+    sed -ri "s/[{]{2}$variable[}]{2}/\${$variable}/g" ${tmp_file}
+  done
+
+  # Replace placeholders
+  (
+    export ${VARIABLES[@]}
+    local IFS=":"; sudo -HEu ${USR} envsubst "${VARIABLES[*]/#/$}" < ${tmp_file} > ${FILE}
+  )
+  rm -f ${tmp_file}
+}
+
+redmine_finalize_database_parameters() {
+  # is a mysql or postgresql database linked?
+  # requires that the mysql or postgresql containers have exposed
+  # port 3306 and 5432 respectively.
+  if [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
+    DB_ADAPTER=${DB_ADAPTER:-mysql2}
+    DB_HOST=${DB_HOST:-${MYSQL_PORT_3306_TCP_ADDR}}
+    DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
+
+    # support for linked sameersbn/mysql image
+    DB_USER=${DB_USER:-${MYSQL_ENV_DB_USER}}
+    DB_PASS=${DB_PASS:-${MYSQL_ENV_DB_PASS}}
+    DB_NAME=${DB_NAME:-${MYSQL_ENV_DB_NAME}}
+
+    # support for linked orchardup/mysql and centurylink/mysql image
+    # also supports official mysql image
+    DB_USER=${DB_USER:-${MYSQL_ENV_MYSQL_USER}}
+    DB_PASS=${DB_PASS:-${MYSQL_ENV_MYSQL_PASSWORD}}
+    DB_NAME=${DB_NAME:-${MYSQL_ENV_MYSQL_DATABASE}}
+  elif [[ -n ${POSTGRESQL_PORT_5432_TCP_ADDR} ]]; then
+    DB_ADAPTER=${DB_ADAPTER:-postgresql}
+    DB_HOST=${DB_HOST:-${POSTGRESQL_PORT_5432_TCP_ADDR}}
+    DB_PORT=${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}
+
+    # support for linked official postgres image
+    DB_USER=${DB_USER:-${POSTGRESQL_ENV_POSTGRES_USER}}
+    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_POSTGRES_PASSWORD}}
+    DB_NAME=${DB_NAME:-${DB_USER}}
+
+    # support for linked sameersbn/postgresql image
+    DB_USER=${DB_USER:-${POSTGRESQL_ENV_DB_USER}}
+    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_DB_PASS}}
+    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB_NAME}}
+
+    # support for linked orchardup/postgresql image
+    DB_USER=${DB_USER:-${POSTGRESQL_ENV_POSTGRESQL_USER}}
+    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_POSTGRESQL_PASS}}
+    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRESQL_DB}}
+
+    # support for linked paintedfox/postgresql image
+    DB_USER=${DB_USER:-${POSTGRESQL_ENV_USER}}
+    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
+    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
+  fi
+
+  if [[ -z ${DB_HOST} ]]; then
+    echo
+    echo "ERROR: "
+    echo "  Please configure the database connection."
+    echo "  Refer http://git.io/JkE-cw for more information."
+    echo "  Cannot continue without a database. Aborting..."
+    echo
+    return 1
+  fi
+
+  # set default port number if not specified
+  DB_ADAPTER=${DB_ADAPTER:-mysql2}
+  case ${DB_ADAPTER} in
+    mysql2)
+      DB_ENCODING=${DB_ENCODING:-utf8}
+      DB_PORT=${DB_PORT:-3306}
+      ;;
+    postgresql)
+      DB_ENCODING=${DB_ENCODING:-unicode}
+      DB_PORT=${DB_PORT:-5432}
+      ;;
+    *)
+      echo
+      echo "ERROR: "
+      echo "  Please specify the database type in use via the DB_ADAPTER configuration option."
+      echo "  Accepted values are \"postgresql\" or \"mysql2\". Aborting..."
+      echo
+      return 1
+      ;;
+  esac
+
+  # set default user and database
+  DB_USER=${DB_USER:-root}
+  DB_NAME=${DB_NAME:-redmine_production}
+}
+
+redmine_check_database_connection() {
+  case ${DB_ADAPTER} in
+    mysql2)
+      prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"
+      ;;
+    postgresql)
+      prog=$(find /usr/lib/postgresql/ -name pg_isready)
+      prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
+      ;;
+  esac
+  timeout=60
+  while ! ${prog} >/dev/null 2>&1
+  do
+    timeout=$(expr $timeout - 1)
+    if [[ $timeout -eq 0 ]]; then
+      echo
+      echo "Could not connect to database server. Aborting..."
+      return 1
+    fi
+    echo -n "."
+    sleep 1
+  done
+  echo
+}
+
+redmine_configure_database() {
+  echo -n "Configuring redmine::database"
+
+  redmine_finalize_database_parameters
+  redmine_check_database_connection
+
+  update_template ${REDMINE_DATABASE_CONFIG} \
+    DB_ADAPTER \
+    DB_ENCODING \
+    DB_HOST \
+    DB_PORT \
+    DB_NAME \
+    DB_USER \
+    DB_PASS \
+    DB_POOL
+
+  if [[ ${DB_ADAPTER} == postgresql ]]; then
+    exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
+  fi
+}
+
+redmine_finalize_memcached_parameters() {
+  # is a memcached container linked?
+  if [[ -n ${MEMCACHED_PORT_11211_TCP_ADDR} ]]; then
+    MEMCACHE_HOST=${MEMCACHE_HOST:-${MEMCACHED_PORT_11211_TCP_ADDR}}
+    MEMCACHE_PORT=${MEMCACHE_PORT:-${MEMCACHED_PORT_11211_TCP_PORT}}
+  fi
+
+  if [[ -n ${MEMCACHE_HOST} ]]; then
+    MEMCACHE_ENABLED=${MEMCACHE_ENABLED:-true}
+  fi
+
+  MEMCACHE_PORT=${MEMCACHE_PORT:-11211}
+  MEMCACHE_ENABLED=${MEMCACHE_ENABLED:-false}
+}
+
+redmine_configure_memcached() {
+  redmine_finalize_memcached_parameters
+
+  if [[ ${MEMCACHE_ENABLED} == true ]]; then
+    echo "Configuring redmine::memcached..."
+    install_template ${REDMINE_USER} redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG}
+    update_template ${REDMINE_MEMCACHED_CONFIG} \
+      MEMCACHE_HOST \
+      MEMCACHE_PORT
+  fi
+}
+
+redmine_configure_unicorn() {
+  echo "Configuring redmine::unicorn..."
+  if [[ ${REDMINE_RELATIVE_URL_ROOT} == / ]]; then
+    exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' ${REDMINE_UNICORN_CONFIG}
+  fi
+
+  if [[ ${NGINX_ENABLED} != true ]]; then
+    # nginx has been disabled, configure unicorn to listen on all interfaces
+    exec_as_redmine sed -i "s|127.0.0.1:8080|0.0.0.0:8080|" ${REDMINE_UNICORN_CONFIG}
+  fi
+
+  update_template ${REDMINE_UNICORN_CONFIG} \
+    REDMINE_INSTALL_DIR \
+    REDMINE_USER \
+    REDMINE_RELATIVE_URL_ROOT \
+    UNICORN_WORKERS \
+    UNICORN_TIMEOUT
+}
+
+redmine_configure_secret_token() {
+  echo "Configuring redmine::secret_token..."
+  if [[ -z ${REDMINE_SECRET_TOKEN} ]]; then
+    echo "Generating a session token..."
+    echo "Note:"
+    echo "  All old sessions will become invalid."
+    echo "  Please specify the REDMINE_SECRET_TOKEN parameter for persistence."
+    echo "  **SHOULD** be defined if you have a load-balancing Redmine cluster."
+    REDMINE_SECRET_TOKEN=$(< /dev/urandom tr -dc [:alnum:] | head -c64)
+  fi
+  update_template ${REDMINE_CONFIG} REDMINE_SECRET_TOKEN
+}
+
+redmine_configure_concurrent_uploads() {
+  echo "Configuring redmine::max_concurrent_ajax_uploads..."
+  update_template ${REDMINE_CONFIG} REDMINE_CONCURRENT_UPLOADS
+}
+
+redmine_configure_sudo_mode() {
+  echo "Configuring redmine::sudo_mode..."
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_SUDO_MODE_ENABLED \
+    REDMINE_SUDO_MODE_TIMEOUT
+}
+
+redmine_configure_email_delivery() {
+  if [[ ${SMTP_ENABLED} != true ]]; then
+    sed -i \
+      -e "/{{SMTP_METHOD}}/d" \
+      -e "/{{SMTP_HOST}}/d" \
+      -e "/{{SMTP_PORT}}/d" \
+      -e "/{{SMTP_DOMAIN}}/d" \
+      -e "/{{SMTP_USER}}/d" \
+      -e "/{{SMTP_PASS}}/d" \
+      -e "/{{SMTP_AUTHENTICATION}}/d" \
+      -e "/{{SMTP_OPENSSL_VERIFY_MODE}}/d" \
+      -e "/{{SMTP_STARTTLS}}/d" \
+      -e "/{{SMTP_TLS}}/d" \
+      -e "/{{SMTP_CA_PATH}}/d" \
+      -e "/{{SMTP_CA_FILE}}/d" \
+      ${REDMINE_CONFIG}
+  else
+    echo "Configuring redmine::email_delivery..."
+
+    if [[ -z "${SMTP_USER}" ]]; then
+      exec_as_redmine sed -i \
+        -e '/{{SMTP_USER}}/d' \
+        -e '/{{SMTP_PASS}}/d' \
+        ${REDMINE_CONFIG}
+    else
+      if [[ -z "${SMTP_PASS}" ]]; then
+        exec_as_redmine sed -i '/{{SMTP_PASS}}/d' ${REDMINE_CONFIG}
+      fi
+    fi
+
+    if [[ -z "${SMTP_AUTHENTICATION}" ]]; then
+      exec_as_redmine sed -i '/{{SMTP_AUTHENTICATION}}/d' ${REDMINE_CONFIG}
+    fi
+
+    if [[ -z "${SMTP_OPENSSL_VERIFY_MODE}" ]]; then
+      exec_as_redmine sed -i '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' ${REDMINE_CONFIG}
+    fi
+
+    update_template ${REDMINE_CONFIG} \
+      SMTP_METHOD \
+      SMTP_HOST \
+      SMTP_PORT \
+      SMTP_DOMAIN \
+      SMTP_USER \
+      SMTP_PASS \
+      SMTP_AUTHENTICATION \
+      SMTP_OPENSSL_VERIFY_MODE \
+      SMTP_STARTTLS \
+      SMTP_TLS
+
+    if [[ ${SMTP_CA_ENABLED} == true ]]; then
+      if [[ -d ${SMTP_CA_PATH} ]]; then
+        update_template ${REDMINE_CONFIG} SMTP_CA_PATH
+      fi
+      if [[ -f ${SMTP_CA_FILE} ]]; then
+        update_template ${REDMINE_CONFIG} SMTP_CA_FILE
+      fi
+    else
+      exec_as_redmine sed -i \
+        -e "/{{SMTP_CA_PATH}}/d" \
+        -e "/{{SMTP_CA_FILE}}/d" \
+        ${REDMINE_CONFIG}
+    fi
+  fi
+}
+
+redmine_configure_incoming_email() {
+  if [[ ${IMAP_ENABLED} == true ]]; then
+    echo "Configuring redmine::incoming_email..."
+    crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+    if ! grep -q 'redmine:email:receive_imap' /tmp/cron.${REDMINE_USER}; then
+      case ${INCOMING_EMAIL_NO_PERMISSION_CHECK} in
+        true)  INCOMING_EMAIL_NO_PERMISSION_CHECK=1 ;;
+        false) INCOMING_EMAIL_NO_PERMISSION_CHECK=0 ;;
+      esac
+
+      case ${INCOMING_EMAIL_PRIVATE} in
+        true)  INCOMING_EMAIL_PRIVATE=1 ;;
+        false) INCOMING_EMAIL_PRIVATE=0 ;;
+      esac
+
+      INCOMING_EMAIL_OPTIONS="${INCOMING_EMAIL_UNKNOWN_USER:+unknown_user=${INCOMING_EMAIL_UNKNOWN_USER}} \
+        ${INCOMING_EMAIL_NO_PERMISSION_CHECK:+no_permission_check=${INCOMING_EMAIL_NO_PERMISSION_CHECK}} \
+        ${INCOMING_EMAIL_NO_ACCOUNT_NOTICE:+no_account_notice=${INCOMING_EMAIL_NO_ACCOUNT_NOTICE}} \
+        ${INCOMING_EMAIL_DEFAULT_GROUP:+default_group=${INCOMING_EMAIL_DEFAULT_GROUP}} \
+        ${INCOMING_EMAIL_PROJECT:+project=${INCOMING_EMAIL_PROJECT}} \
+        ${INCOMING_EMAIL_STATUS:+status=${INCOMING_EMAIL_STATUS}} \
+        ${INCOMING_EMAIL_TRACKER:+tracker=${INCOMING_EMAIL_TRACKER}} \
+        ${INCOMING_EMAIL_CATEGORY:+category=${INCOMING_EMAIL_CATEGORY}} \
+        ${INCOMING_EMAIL_PRIORITY:+priority=${INCOMING_EMAIL_PRIORITY}} \
+        ${INCOMING_EMAIL_PRIVATE:+private=${INCOMING_EMAIL_PRIVATE}} \
+        ${INCOMING_EMAIL_ALLOW_OVERRIDE:+allow_override=${INCOMING_EMAIL_ALLOW_OVERRIDE}}"
+      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+    fi
+    crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+    rm -rf /tmp/cron.${REDMINE_USER}
+  fi
+}
+
+redmine_configure_fetch_commits() {
+  case ${REDMINE_FETCH_COMMITS} in
+    hourly|daily|monthly)
+      crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+      if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
+        echo "Configuring redmine::fetch_commits..."
+        case ${REDMINE_VERSION} in
+          2.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
+          3.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
+          *) echo "ERROR: Unsupported Redmine version (${REDMINE_VERSION})" && exit 1 ;;
+        esac
+        crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+      fi
+      rm -rf /tmp/cron.${REDMINE_USER}
+      ;;
+  esac
+}
+
+nginx_configure_redmine_ssl() {
+  if [[ ${REDMINE_HTTPS} == true && -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
+    echo "Configuring nginx::redmine::ssl..."
+
+    if [[ ! -f ${SSL_CA_CERTIFICATES_PATH} ]]; then
+      sed -i "/{{SSL_CA_CERTIFICATES_PATH}}/d" ${REDMINE_NGINX_CONFIG}
+    fi
+
+    if [[ ! -f ${SSL_DHPARAM_PATH} ]]; then
+      sed -i "/{{SSL_DHPARAM_PATH}}/d" ${REDMINE_NGINX_CONFIG}
+    fi
+
+    update_template ${REDMINE_NGINX_CONFIG} \
+      SSL_CERTIFICATE_PATH \
+      SSL_KEY_PATH \
+      SSL_DHPARAM_PATH \
+      SSL_VERIFY_CLIENT \
+      SSL_CA_CERTIFICATES_PATH
+  fi
+}
+
+nginx_configure_redmine_hsts() {
+  if [[ ${REDMINE_HTTPS} == true ]]; then
+    echo "Configuring nginx::redmine::hsts..."
+    if [[ ${NGINX_HSTS_ENABLED} != true ]]; then
+      sed -i "/{{NGINX_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
+    fi
+    update_template ${REDMINE_NGINX_CONFIG} NGINX_HSTS_MAXAGE
+  else
+    sed -i "/{{NGINX_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
+  fi
+}
+
+nginx_configure_redmine_relative_url() {
+  if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
+    echo "Configuring nginx::redmine::relative_url..."
+  fi
+  update_template ${REDMINE_NGINX_CONFIG} REDMINE_RELATIVE_URL_ROOT
+}
+
+nginx_configure_redmine_ipv6() {
+  if [[ ! -f /proc/net/if_inet6 ]]; then
+    sed -i \
+      -e "/listen \[::\]:80/d" \
+      -e "/listen \[::\]:443/d" \
+      ${REDMINE_NGINX_CONFIG}
+  fi
+}
+
+nginx_configure_redmine() {
+  echo "Configuring nginx::redmine..."
+  update_template ${REDMINE_NGINX_CONFIG} \
+    REDMINE_INSTALL_DIR \
+    REDMINE_LOG_DIR \
+    REDMINE_PORT \
+    NGINX_MAX_UPLOAD_SIZE \
+    NGINX_X_FORWARDED_PROTO
+
+  nginx_configure_redmine_ssl
+  nginx_configure_redmine_hsts
+  nginx_configure_redmine_relative_url
+  nginx_configure_redmine_ipv6
+}
+
+# _|_|_|              _|        _|  _|
+# _|    _|  _|    _|  _|_|_|    _|        _|_|_|
+# _|_|_|    _|    _|  _|    _|  _|  _|  _|
+# _|        _|    _|  _|    _|  _|  _|  _|
+# _|          _|_|_|  _|_|_|    _|  _|    _|_|_|
+
+map_uidgid() {
+  USERMAP_ORIG_UID=$(id -u ${REDMINE_USER})
+  USERMAP_ORIG_GID=$(id -g ${REDMINE_USER})
+  USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
+  USERMAP_UID=${USERMAP_UID:-$USERMAP_ORIG_UID}
+  if [[ ${USERMAP_UID} != ${USERMAP_ORIG_UID} ]] || [[ ${USERMAP_GID} != ${USERMAP_ORIG_GID} ]]; then
+    echo "Mapping UID and GID for ${REDMINE_USER}:${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
+    groupmod -g ${USERMAP_GID} ${REDMINE_USER}
+    sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
+    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${REDMINE_USER}:${REDMINE_USER}
+  fi
+}
+
+initialize_logdir() {
+  echo "Initializing logdir..."
+  mkdir -p ${REDMINE_LOG_DIR}/supervisor
+  chmod -R 0755 ${REDMINE_LOG_DIR}/supervisor
+  chown -R root:root ${REDMINE_LOG_DIR}/supervisor
+
+  mkdir -p ${REDMINE_LOG_DIR}/nginx
+  chmod -R 0755 ${REDMINE_LOG_DIR}/nginx
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/nginx
+
+  mkdir -p ${REDMINE_LOG_DIR}/redmine
+  chmod -R 0755 ${REDMINE_LOG_DIR}/redmine
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/redmine
+}
+
+initialize_datadir() {
+  echo "Initializing datadir..."
+  chmod -R 0755 ${REDMINE_DATA_DIR}
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}
+
+  # create attachments directory
+  mkdir -p ${REDMINE_ATTACHMENTS_DIR}
+  chmod -R 0755 ${REDMINE_ATTACHMENTS_DIR}
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_ATTACHMENTS_DIR}
+
+  if [[ -d /redmine/files ]]; then # deprecated
+    echo "WARNING: "
+    echo "  The data volume path has now been changed to ${REDMINE_DATA_DIR}."
+    echo "  Refer http://git.io/H59-lg for migration information."
+    exit 1
+  fi
+
+  # create dotfiles directory
+  mkdir -p ${REDMINE_DATA_DIR}/dotfiles
+  chmod -R 0755 ${REDMINE_DATA_DIR}/dotfiles
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles
+
+  mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.ssh
+  chmod -R 0700 ${REDMINE_DATA_DIR}/dotfiles/.ssh
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles/.ssh
+
+  mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.subversion
+  chmod -R 0755 ${REDMINE_DATA_DIR}/dotfiles/.subversion
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles/.subversion
+
+  # create tmp directory
+  mkdir -p ${REDMINE_DATA_DIR}/tmp
+  chmod -R 0755 ${REDMINE_DATA_DIR}/tmp
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/tmp
+}
+
+generate_ssh_client_keys() {
+  if [[ ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa || ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub ]]; then
+    echo "Generating OpenSSH client keys..."
+    exec_as_redmine rm -rf ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub
+    exec_as_redmine ssh-keygen -qt rsa -N '' -f ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa
+  fi
+
+  # ensure existing host keys have the right permissions
+  chmod 0600 ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub
+  chmod 0700 ${REDMINE_DATA_DIR}/dotfiles/.ssh
+}
+
+symlink_dotfiles() {
+  echo "Symlinking dotfiles..."
+  for dotfile in $(find ${REDMINE_DATA_DIR}/dotfiles -maxdepth 1 -type d -not -path ${REDMINE_DATA_DIR}/dotfiles)
+  do
+    exec_as_redmine rm -rf ${REDMINE_HOME}/$(basename ${dotfile})
+    exec_as_redmine ln -sf ${dotfile} ${REDMINE_HOME}/$(basename ${dotfile})
+  done
+}
+
+install_configuration_templates() {
+  echo "Installing configuration templates..."
+
+  install_template ${REDMINE_USER} redmine/configuration.yml ${REDMINE_CONFIG}
+  install_template ${REDMINE_USER} redmine/database.yml ${REDMINE_DATABASE_CONFIG}
+  install_template ${REDMINE_USER} redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
+
+  if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
+    install_template ${REDMINE_USER} redmine/config.ru ${REDMINE_INSTALL_DIR}/config.ru
+  fi
+
+  if [[ ${REDMINE_HTTPS} == true ]]; then
+    if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
+      install_template root nginx/redmine-ssl ${REDMINE_NGINX_CONFIG}
+    else
+      echo "SSL keys and certificates were not found."
+      echo "Assuming that the container is running behind a HTTPS enabled load balancer."
+      install_template root nginx/redmine ${REDMINE_NGINX_CONFIG}
+    fi
+  else
+    install_template root nginx/redmine ${REDMINE_NGINX_CONFIG}
+  fi
+}
+
+initialize_system() {
+  map_uidgid
+  initialize_logdir
+  initialize_datadir
+  generate_ssh_client_keys
+  symlink_dotfiles
+  install_configuration_templates
+}
+
+configure_redmine() {
+  echo "Configuring redmine..."
+
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_ATTACHMENTS_DIR \
+    REDMINE_LOG_DIR
+
+  redmine_configure_database
+  redmine_configure_memcached
+  redmine_configure_unicorn
+  redmine_configure_secret_token
+  redmine_configure_concurrent_uploads
+  redmine_configure_sudo_mode
+  redmine_configure_email_delivery
+  redmine_configure_incoming_email
+  redmine_configure_fetch_commits
+
+  # configure secure-cookie if using SSL/TLS
+  if [[ ${REDMINE_HTTPS} == true ]]; then
+    exec_as_redmine sed -i "s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" ${REDMINE_INSTALL_DIR}/config/application.rb
+  fi
+}
+
+configure_nginx() {
+  if [[ ${NGINX_ENABLED} == true ]]; then
+    echo "Configuring nginx..."
+    sed -i "s|worker_processes .*|worker_processes ${NGINX_WORKERS};|" /etc/nginx/nginx.conf
+    nginx_configure_redmine
+  else
+    echo "Nginx has been disabled..."
+  fi
+  update_template /etc/supervisor/conf.d/nginx.conf NGINX_ENABLED
+}
+
+migrate_database() {
+  CACHE_VERSION=
+  [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
+  if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
+    # recreate the tmp directory
+    rm -rf ${REDMINE_DATA_DIR}/tmp
+    exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp
+    exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/thumbnails
+    exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/plugin_assets
+    exec_as_redmine chmod -R 0755 ${REDMINE_DATA_DIR}/tmp
+
+    echo "Migrating database. Please be patient, this could take a while..."
+    exec_as_redmine bundle exec rake db:create >/dev/null
+    exec_as_redmine bundle exec rake db:migrate >/dev/null
+
+    # clear sessions and application cache
+    exec_as_redmine bundle exec rake tmp:cache:clear >/dev/null
+    exec_as_redmine bundle exec rake tmp:sessions:clear >/dev/null
+
+    # update version file
+    echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
+  fi
+
+  # copy the installed gems and Gemfile.lock to ${REDMINE_DATA_DIR}/tmp/
+  if [[ ! -d ${REDMINE_DATA_DIR}/tmp/bundle ]]; then
+    exec_as_redmine cp -a ${REDMINE_INSTALL_DIR}/vendor/bundle ${REDMINE_DATA_DIR}/tmp/
+    exec_as_redmine cp -a ${REDMINE_INSTALL_DIR}/Gemfile.lock ${REDMINE_DATA_DIR}/tmp/
+  fi
+  rm -rf ${REDMINE_INSTALL_DIR}/vendor/bundle ${REDMINE_INSTALL_DIR}/Gemfile.lock
+
+  # symlink to ${REDMINE_DATA_DIR}/tmp/bundle
+  ln -sf ${REDMINE_DATA_DIR}/tmp/bundle ${REDMINE_INSTALL_DIR}/vendor/bundle
+  ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock ${REDMINE_INSTALL_DIR}/Gemfile.lock
+}
+
+install_plugins() {
+  if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
+    echo "Installing plugins..."
+    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/plugins/ ${REDMINE_INSTALL_DIR}/plugins/
+
+    # plugins/init script is renamed to plugins/post-install.sh
+    if [[ -f ${REDMINE_DATA_DIR}/plugins/init ]]; then
+      mv ${REDMINE_DATA_DIR}/plugins/init ${REDMINE_DATA_DIR}/plugins/post-install.sh
+    fi
+
+    # execute plugins/pre-install.sh script
+    if [[ -f ${REDMINE_DATA_DIR}/plugins/pre-install.sh ]]; then
+      echo "Executing plugins/pre-install.sh script..."
+      . ${REDMINE_DATA_DIR}/plugins/pre-install.sh
+    fi
+
+    # install gems and migrate the plugins when plugins are added/removed
+    CURRENT_SHA1=
+    [[ -f ${REDMINE_DATA_DIR}/tmp/plugins.sha1 ]] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/plugins.sha1)
+    PLUGINS_SHA1=$(find ${REDMINE_DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+    if [[ ${CURRENT_SHA1} != ${PLUGINS_SHA1} ]]; then
+      # remove the existing plugin assets
+      # this ensures there is no cruft when a plugin is removed.
+      rm -rf ${REDMINE_DATA_DIR}/tmp/plugin_assets/*
+
+      echo "Installing gems required by plugins..."
+      exec_as_redmine bundle install --without development test --path ${REDMINE_INSTALL_DIR}/vendor/bundle
+
+      echo "Migrating plugins. Please be patient, this could take a while..."
+      exec_as_redmine bundle exec rake redmine:plugins:migrate
+
+      # save SHA1
+      echo -n ${PLUGINS_SHA1} > ${REDMINE_DATA_DIR}/tmp/plugins.sha1
+    fi
+
+    # execute plugins post-install.sh script
+    if [[ -f ${REDMINE_DATA_DIR}/plugins/post-install.sh ]]; then
+      echo "Executing plugins/post-install.sh script..."
+      . ${REDMINE_DATA_DIR}/plugins/post-install.sh
+    fi
+  else
+    # make sure the plugins.sha1 is not present
+    rm -rf ${REDMINE_DATA_DIR}/tmp/plugins.sha1
+  fi
+}
+
+install_themes() {
+  if [[ -d ${REDMINE_DATA_DIR}/themes ]]; then
+    echo "Installing themes..."
+    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/themes/ ${REDMINE_INSTALL_DIR}/public/themes/
+  fi
+}
+
+execute_raketask() {
+  if [[ -z ${1} ]]; then
+    echo "Please specify the rake task to execute. See http://www.redmine.org/projects/redmine/wiki/RedmineRake."
+    return 1
+  fi
+  echo "Running raketask ${1}..."
+  exec_as_redmine bundle exec rake $@
+}
