@@ -5,10 +5,10 @@ source ${REDMINE_RUNTIME_DIR}/env-defaults
 SYSCONF_TEMPLATES_DIR="${REDMINE_RUNTIME_DIR}/config"
 USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
 
+REDMINE_CONFIG="${REDMINE_INSTALL_DIR}/config/configuration.yml"
 REDMINE_DATABASE_CONFIG="${REDMINE_INSTALL_DIR}/config/database.yml"
 REDMINE_UNICORN_CONFIG="${REDMINE_INSTALL_DIR}/config/unicorn.rb"
 REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
-REDMINE_SMTP_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/smtp_settings.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
 ## Execute a command as REDMINE_USER
@@ -229,29 +229,44 @@ redmine_configure_unicorn() {
 }
 
 redmine_configure_email_delivery() {
-  if [[ ${SMTP_ENABLED} == true ]]; then
+  if [[ ${SMTP_ENABLED} != true ]]; then
+    sed -i \
+      -e "/{{SMTP_METHOD}}/d" \
+      -e "/{{SMTP_HOST}}/d" \
+      -e "/{{SMTP_PORT}}/d" \
+      -e "/{{SMTP_DOMAIN}}/d" \
+      -e "/{{SMTP_USER}}/d" \
+      -e "/{{SMTP_PASS}}/d" \
+      -e "/{{SMTP_AUTHENTICATION}}/d" \
+      -e "/{{SMTP_OPENSSL_VERIFY_MODE}}/d" \
+      -e "/{{SMTP_STARTTLS}}/d" \
+      -e "/{{SMTP_TLS}}/d" \
+      -e "/{{SMTP_CA_PATH}}/d" \
+      -e "/{{SMTP_CA_FILE}}/d" \
+      ${REDMINE_CONFIG}
+  else
     echo "Configuring redmine::email_delivery..."
 
     if [[ -z "${SMTP_USER}" ]]; then
       exec_as_redmine sed -i \
         -e '/{{SMTP_USER}}/d' \
         -e '/{{SMTP_PASS}}/d' \
-        ${REDMINE_SMTP_CONFIG}
+        ${REDMINE_CONFIG}
     else
       if [[ -z "${SMTP_PASS}" ]]; then
-        exec_as_redmine sed -i '/{{SMTP_PASS}}/d' ${REDMINE_SMTP_CONFIG}
+        exec_as_redmine sed -i '/{{SMTP_PASS}}/d' ${REDMINE_CONFIG}
       fi
     fi
 
     if [[ -z "${SMTP_AUTHENTICATION}" ]]; then
-      exec_as_redmine sed -i '/{{SMTP_AUTHENTICATION}}/d' ${REDMINE_SMTP_CONFIG}
+      exec_as_redmine sed -i '/{{SMTP_AUTHENTICATION}}/d' ${REDMINE_CONFIG}
     fi
 
     if [[ -z "${SMTP_OPENSSL_VERIFY_MODE}" ]]; then
-      exec_as_redmine sed -i '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' ${REDMINE_SMTP_CONFIG}
+      exec_as_redmine sed -i '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' ${REDMINE_CONFIG}
     fi
 
-    update_template ${REDMINE_SMTP_CONFIG} \
+    update_template ${REDMINE_CONFIG} \
       SMTP_METHOD \
       SMTP_HOST \
       SMTP_PORT \
@@ -265,16 +280,16 @@ redmine_configure_email_delivery() {
 
     if [[ ${SMTP_CA_ENABLED} == true ]]; then
       if [[ -d ${SMTP_CA_PATH} ]]; then
-        update_template ${REDMINE_SMTP_CONFIG} SMTP_CA_PATH
+        update_template ${REDMINE_CONFIG} SMTP_CA_PATH
       fi
       if [[ -f ${SMTP_CA_FILE} ]]; then
-        update_template ${REDMINE_SMTP_CONFIG} SMTP_CA_FILE
+        update_template ${REDMINE_CONFIG} SMTP_CA_FILE
       fi
     else
       exec_as_redmine sed -i \
         -e "/{{SMTP_CA_PATH}}/d" \
         -e "/{{SMTP_CA_FILE}}/d" \
-        ${REDMINE_SMTP_CONFIG}
+        ${REDMINE_CONFIG}
     fi
   fi
 }
@@ -495,15 +510,12 @@ symlink_dotfiles() {
 install_configuration_templates() {
   echo "Installing configuration templates..."
 
+  install_template ${REDMINE_USER} redmine/configuration.yml ${REDMINE_CONFIG}
   install_template ${REDMINE_USER} redmine/database.yml ${REDMINE_DATABASE_CONFIG}
   install_template ${REDMINE_USER} redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG}
 
   if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
     install_template ${REDMINE_USER} redmine/config.ru ${REDMINE_INSTALL_DIR}/config.ru
-  fi
-
-  if [[ ${SMTP_ENABLED} == true ]]; then
-    install_template ${REDMINE_USER} redmine/smtp_settings.rb ${REDMINE_SMTP_CONFIG}
   fi
 
   if [[ ${REDMINE_HTTPS} == true ]]; then
