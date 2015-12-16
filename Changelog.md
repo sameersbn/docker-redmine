@@ -9,6 +9,7 @@
 - renamed config `REDMINE_HTTPS_HSTS_MAXAGE` to `NGINX_HSTS_MAXAGE`
 - install `darcs`
 - expose `REDMINE_ATTACHMENTS_DIR` parameter
+- expose `REDMINE_SECRET_TOKEN` parameter
 
 **3.2.0**
 - redmine: upgrade to v.3.2.0

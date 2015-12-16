@@ -82,9 +82,6 @@ exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/plugin_assets ${REDMINE_INSTALL_D
 rm -rf ${REDMINE_INSTALL_DIR}/tmp/thumbnails
 exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/thumbnails ${REDMINE_INSTALL_DIR}/tmp/thumbnails
 
-# create link to tmp/secret_token.rb
-exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/secret_token.rb ${REDMINE_INSTALL_DIR}/config/initializers/secret_token.rb
-
 # symlink log -> ${REDMINE_LOG_DIR}/redmine
 rm -rf ${REDMINE_INSTALL_DIR}/log
 exec_as_redmine ln -sf ${REDMINE_LOG_DIR}/redmine ${REDMINE_INSTALL_DIR}/log

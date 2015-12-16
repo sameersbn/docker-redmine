@@ -228,6 +228,19 @@ redmine_configure_unicorn() {
     UNICORN_TIMEOUT
 }
 
+redmine_configure_secret_token() {
+  echo "Configuring redmine::secret_token..."
+  if [[ -z ${REDMINE_SECRET_TOKEN} ]]; then
+    echo "Generating a session token..."
+    echo "Note:"
+    echo "  All old sessions will become invalid."
+    echo "  Please specify the REDMINE_SECRET_TOKEN parameter for persistence."
+    echo "  **SHOULD** be defined if you have a load-balancing Redmine cluster."
+    REDMINE_SECRET_TOKEN=$(< /dev/urandom tr -dc [:alnum:] | head -c64)
+  fi
+  update_template ${REDMINE_CONFIG} REDMINE_SECRET_TOKEN
+}
+
 redmine_configure_email_delivery() {
   if [[ ${SMTP_ENABLED} != true ]]; then
     sed -i \
@@ -543,6 +556,7 @@ configure_redmine() {
   redmine_configure_database
   redmine_configure_memcached
   redmine_configure_unicorn
+  redmine_configure_secret_token
   redmine_configure_email_delivery
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
@@ -577,9 +591,6 @@ migrate_database() {
     # clear sessions and application cache
     exec_as_redmine bundle exec rake tmp:cache:clear >/dev/null
     exec_as_redmine bundle exec rake tmp:sessions:clear >/dev/null
-
-    echo "Generating secure token..."
-    exec_as_redmine bundle exec rake generate_secret_token >/dev/null
 
     # update version file
     echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
