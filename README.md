@@ -50,7 +50,7 @@ Dockerfile to build a [Redmine](http://www.redmine.org/) container image.
 
 ## Version
 
-Current Version: **3.0.5-3**
+Current Version: **sameersbn/redmine:3.0.7-1**
 
 *P.S.: If your installation depends on various third party plugins, please stick with 2.6.xx series to avoid breakage.*
 
@@ -112,7 +112,7 @@ docker build -t sameersbn/redmine github.com/sameersbn/docker-redmine
 The quickest way to get started is using [docker-compose](https://docs.docker.com/compose/).
 
 ```bash
-wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/docker-compose.yml
+wget https://raw.githubusercontent.com/sameersbn/docker-redmine/3.0-stable/docker-compose.yml
 docker-compose up
 ```
 
@@ -226,6 +226,7 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm \
+  --env='DB_ADAPTER=mysql2' \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
@@ -238,7 +239,7 @@ This will initialize the redmine database and after a couple of minutes your red
 
 You can link this image with a mysql container for the database requirements. The alias of the mysql server container should be set to **mysql** while linking with the redmine image.
 
-If a mysql container is linked, only the `DB_TYPE`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
+If a mysql container is linked, only the `DB_ADAPTER`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
 
 To illustrate linking with a mysql container, we will use the [sameersbn/mysql](https://github.com/sameersbn/docker-mysql) image. When using docker-mysql in production you should mount a volume for the mysql data store. Please refer the [README](https://github.com/sameersbn/docker-mysql/blob/master/README.md) of docker-mysql for details.
 
@@ -300,7 +301,7 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm \
-  --env='DB_TYPE=postgres' \
+  --env='DB_ADAPTER=postgresql' \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
@@ -313,7 +314,7 @@ This will initialize the redmine database and after a couple of minutes your red
 
 You can link this image with a postgresql container for the database requirements. The alias of the postgresql server container should be set to **postgresql** while linking with the redmine image.
 
-If a postgresql container is linked, only the `DB_TYPE`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
+If a postgresql container is linked, only the `DB_ADAPTER`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
 
 To illustrate linking with a postgresql container, we will use the [sameersbn/postgresql](https://github.com/sameersbn/docker-postgresql) image. When using postgresql image in production you should mount a volume for the postgresql data store. Please refer the [README](https://github.com/sameersbn/docker-postgresql/blob/master/README.md) of docker-postgresql for details.
 
@@ -495,17 +496,17 @@ In this configuration, any requests made over the plain http protocol will autom
 
 HSTS if supported by the browsers makes sure that your users will only reach your server via HTTPS. When the user comes for the first time it sees a header from the server which states for how long from now this site should only be reachable via HTTPS - that's the HSTS max-age value.
 
-With `REDMINE_HTTPS_HSTS_MAXAGE` you can configure that value. The default value is `31536000` seconds. If you want to disable a already sent HSTS MAXAGE value, set it to `0`.
+With `NGINX_HSTS_MAXAGE` you can configure that value. The default value is `31536000` seconds. If you want to disable a already sent HSTS MAXAGE value, set it to `0`.
 
 ```bash
 docker run --name=redmine -d \
   --env='REDMINE_HTTPS=true' \
-  --env='REDMINE_HTTPS_HSTS_MAXAGE=2592000'
+  --env='NGINX_HSTS_MAXAGE=2592000'
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
   sameersbn/redmine:3.0.7-1
 ```
 
-If you want to completely disable HSTS set `REDMINE_HTTPS_HSTS_ENABLED` to `false`.
+If you want to completely disable HSTS set `NGINX_HSTS_ENABLED` to `false`.
 
 #### Using HTTPS with a load balancer
 
@@ -560,21 +561,28 @@ docker run --name=redmine -it --rm [options] \
 Below is the complete list of parameters that can be set using environment variables.
 
 - **REDMINE_HTTPS**: Enable HTTPS (SSL/TLS) port on server. Defaults to `false`
-- **REDMINE_HTTPS_HSTS_ENABLED**: Advanced configuration option for turning off the HSTS configuration. Applicable only when SSL is in use. Defaults to `true`. See [#138](https://github.com/sameersbn/docker-gitlab/issues/138) for use case scenario.
-- **REDMINE_HTTPS_HSTS_MAXAGE**: Advanced configuration option for setting the HSTS max-age in the redmine nginx vHost configuration. Applicable only when SSL is in use. Defaults to `31536000`.
 - **REDMINE_PORT**: The port of the Redmine server. Defaults to `80` for plain http and `443` when https is enabled.
 - **REDMINE_RELATIVE_URL_ROOT**: The relative url of the Redmine server, e.g. `/redmine`. No default.
+- **REDMINE_ATTACHMENTS_DIR**: The attachments directory. Defaults to `/home/redmine/data/files`
+- **REDMINE_SECRET_TOKEN**: Secret key for verifying cookie session data integrity. Defaults to a random alphanumeric string.
+- **REDMINE_CONCURRENT_UPLOADS**: Maximum number of simultaneous AJAX uploads. Defaults to `2`.
+- **REDMINE_SUDO_MODE_ENABLED**: Requires users to re-enter their password for sensitive actions. Defaults to `false`.
+- **REDMINE_SUDO_MODE_TIMEOUT**: Sudo mode timeout. Defaults to `15` minutes.
 - **REDMINE_FETCH_COMMITS**: Setup cron job to fetch commits. Possible values `disable`, `hourly`, `daily` or `monthly`. Disabled by default.
-- **DB_TYPE**: The database type. Possible values: `mysql`, `postgres`. Defaults to `mysql`.
+- **DB_ADAPTER**: The database type. Possible values: `mysql2`, `postgresql`. Defaults to `mysql`.
+- **DB_ENCODING**: The database encoding. For `DB_ADAPTER` values `postresql` and `mysql2`, this parameter defaults to `unicode` and `utf8` respectively.
 - **DB_HOST**: The database server hostname. Defaults to `localhost`.
 - **DB_PORT**: The database server port. Defaults to `3306`.
 - **DB_NAME**: The database name. Defaults to `redmine_production`
 - **DB_USER**: The database user. Defaults to `root`
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to `5`.
+- **NGINX_ENABLED**: Enable/disable the nginx server. Disabling Nginx is not recommended (see #148), use at your discretion. Defaults to `true`. When disabled publish port `8080` instead of the usual port `80` or `443`.
 - **NGINX_WORKERS**: The number of nginx workers to start. Defaults to `1`.
 - **NGINX_MAX_UPLOAD_SIZE**: Maximum acceptable upload size. Defaults to `20m`.
 - **NGINX_X_FORWARDED_PROTO**: Advanced configuration option for the `proxy_set_header X-Forwarded-Proto` setting in the redmine nginx vHost configuration. Defaults to `https` when `REDMINE_HTTPS` is `true`, else defaults to `$scheme`.
+- **NGINX_HSTS_ENABLED**: Advanced configuration option for turning off the HSTS configuration. Applicable only when SSL is in use. Defaults to `true`. See [#138](https://github.com/sameersbn/docker-gitlab/issues/138) for use case scenario.
+- **NGINX_HSTS_MAXAGE**: Advanced configuration option for setting the HSTS max-age in the redmine nginx vHost configuration. Applicable only when SSL is in use. Defaults to `31536000`.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to `2`.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
 - **MEMCACHE_HOST**: The host name of the memcached server. No defaults.
@@ -582,7 +590,8 @@ Below is the complete list of parameters that can be set using environment varia
 - **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/app/setup/certs/redmine.crt`.
 - **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
 - **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.
-- **SSL_VERIFY_CLIENT**: Enable verification of client certificates using the `CA_CERTIFICATES_PATH` file. Defaults to `false`
+- **SSL_VERIFY_CLIENT**: Enable verification of client certificates using the `SSL_CA_CERTIFICATES_PATH` file. Defaults to `false`
+- **SSL_CA_CERTIFICATES_PATH**: List of SSL certificates to trust. Defaults to `/home/redmine/data/certs/ca.crt`.
 - **SMTP_ENABLED**: Enable mail delivery via SMTP. Defaults to `true` if `SMTP_USER` is defined, else defaults to `false`.
 - **SMTP_DOMAIN**: SMTP domain. Defaults to `www.gmail.com`
 - **SMTP_HOST**: SMTP server host. Defaults to `smtp.gmail.com`
