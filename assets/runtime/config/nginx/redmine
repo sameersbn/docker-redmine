@@ -15,15 +15,16 @@ server {
   ## Increase this if you want to upload large attachments
   client_max_body_size {{NGINX_MAX_UPLOAD_SIZE}};
 
+  add_header Strict-Transport-Security "max-age={{NGINX_HSTS_MAXAGE}};";
+
   ## Individual nginx logs for this Redmine vhost
   access_log  {{REDMINE_LOG_DIR}}/nginx/redmine_access.log;
   error_log   {{REDMINE_LOG_DIR}}/nginx/redmine_error.log;
 
   location {{REDMINE_RELATIVE_URL_ROOT}} {
-    # alias {{REDMINE_INSTALL_DIR}}/public;
     ## Serve static files from defined root folder.
     ## @redmine is a named location for the upstream fallback, see below.
-    try_files $uri $uri/index.html $uri.html @redmine;
+    try_files $uri index.html $uri.html @redmine;
   }
 
   ## If a file, which is not found in the root folder is requested,

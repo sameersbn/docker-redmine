@@ -6,15 +6,26 @@ postgresql:
     - DB_NAME=redmine_production
   volumes:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
+
 redmine:
   image: sameersbn/redmine:3.1.3-1
   links:
     - postgresql:postgresql
   environment:
     - TZ=Asia/Kolkata
+
     - REDMINE_PORT=10083
+    - REDMINE_HTTPS=false
+    - REDMINE_RELATIVE_URL_ROOT=
+    - REDMINE_SECRET_TOKEN=
+
+    - REDMINE_SUDO_MODE_ENABLED=false
+    - REDMINE_SUDO_MODE_TIMEOUT=15
+
+    - REDMINE_CONCURRENT_UPLOADS=2
 
     - SMTP_ENABLED=false
+    - SMTP_METHOD=smtp
     - SMTP_DOMAIN=www.example.com
     - SMTP_HOST=smtp.gmail.com
     - SMTP_PORT=587
@@ -22,13 +33,15 @@ redmine:
     - SMTP_PASS=password
     - SMTP_STARTTLS=true
     - SMTP_AUTHENTICATION=:login
+
     - IMAP_ENABLED=false
-    - IMAP_USER=mailer@example.com
-    - IMAP_PASS=password
     - IMAP_HOST=imap.gmail.com
     - IMAP_PORT=993
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
     - IMAP_SSL=true
     - IMAP_INTERVAL=30
+
   ports:
     - "10083:80"
   volumes:
