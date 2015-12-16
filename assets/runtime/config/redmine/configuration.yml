@@ -32,7 +32,7 @@ default:
   # Your Redmine instance needs to have write permission on this
   # directory.
   # Examples:
-  attachments_storage_path: /home/redmine/data/files
+  attachments_storage_path: {{REDMINE_DATA_DIR}}/files
 
   # Configuration of the autologin cookie.
   autologin_cookie_name: autologin
@@ -76,7 +76,7 @@ default:
 
   # Absolute path to the SCM commands errors (stderr) log file.
   # The default is to log in the 'log' directory of your Redmine instance.
-  scm_stderr_log_file: /var/log/redmine/redmine/redmine_scm_stderr.log
+  scm_stderr_log_file: {{REDMINE_LOG_DIR}}/redmine/redmine_scm_stderr.log
 
   # Key used to encrypt sensitive data in the database (SCM and LDAP passwords).
   # If you don't want to enable data encryption, just leave it blank.

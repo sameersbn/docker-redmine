@@ -542,6 +542,11 @@ initialize_system() {
 
 configure_redmine() {
   echo "Configuring redmine..."
+
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_DATA_DIR \
+    REDMINE_LOG_DIR
+
   redmine_configure_database
   redmine_configure_memcached
   redmine_configure_unicorn
