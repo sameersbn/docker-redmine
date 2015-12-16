@@ -10,6 +10,7 @@
 - install `darcs`
 - expose `REDMINE_ATTACHMENTS_DIR` parameter
 - expose `REDMINE_SECRET_TOKEN` parameter
+- expose `REDMINE_SUDO_MODE_ENABLED` and `REDMINE_SUDO_MODE_TIMEOUT` parameters
 
 **3.2.0**
 - redmine: upgrade to v.3.2.0

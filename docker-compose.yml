@@ -17,6 +17,9 @@ redmine:
     - REDMINE_PORT=10083
     - REDMINE_SECRET_TOKEN=
 
+    - REDMINE_SUDO_MODE_ENABLED=false
+    - REDMINE_SUDO_MODE_TIMEOUT=15
+
     - SMTP_ENABLED=false
     - SMTP_DOMAIN=www.example.com
     - SMTP_HOST=smtp.gmail.com

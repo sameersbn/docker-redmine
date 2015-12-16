@@ -241,6 +241,18 @@ redmine_configure_secret_token() {
   update_template ${REDMINE_CONFIG} REDMINE_SECRET_TOKEN
 }
 
+redmine_configure_concurrent_uploads() {
+  echo "Configuring redmine::max_concurrent_ajax_uploads..."
+  update_template ${REDMINE_CONFIG} REDMINE_CONCURRENT_UPLOADS
+}
+
+redmine_configure_sudo_mode() {
+  echo "Configuring redmine::sudo_mode..."
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_SUDO_MODE_ENABLED \
+    REDMINE_SUDO_MODE_TIMEOUT
+}
+
 redmine_configure_email_delivery() {
   if [[ ${SMTP_ENABLED} != true ]]; then
     sed -i \
@@ -557,6 +569,7 @@ configure_redmine() {
   redmine_configure_memcached
   redmine_configure_unicorn
   redmine_configure_secret_token
+  redmine_configure_sudo_mode
   redmine_configure_email_delivery
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
