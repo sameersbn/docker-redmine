@@ -455,16 +455,13 @@ initialize_datadir() {
 
   # symlink file store
   rm -rf ${REDMINE_INSTALL_DIR}/files
-  if [[ -d /redmine/files ]]; then # backward compatibility
+  ln -sf ${REDMINE_DATA_DIR}/files ${REDMINE_INSTALL_DIR}/files
+
+  if [[ -d /redmine/files ]]; then # deprecated
     echo "WARNING: "
-    echo "  The data volume path has now been changed to ${REDMINE_DATA_DIR}/files."
+    echo "  The data volume path has now been changed to ${REDMINE_DATA_DIR}."
     echo "  Refer http://git.io/H59-lg for migration information."
-    echo "  Setting up backward compatibility..."
-    chmod -R 0755 /redmine/files
-    chown -R ${REDMINE_USER}:${REDMINE_USER} /redmine/files
-    ln -sf /redmine/files ${REDMINE_INSTALL_DIR}/files
-  else
-    ln -sf ${REDMINE_DATA_DIR}/files ${REDMINE_INSTALL_DIR}/files
+    exit 1
   fi
 
   # create dotfiles directory
