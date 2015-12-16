@@ -569,6 +569,7 @@ configure_redmine() {
   redmine_configure_memcached
   redmine_configure_unicorn
   redmine_configure_secret_token
+  redmine_configure_concurrent_uploads
   redmine_configure_sudo_mode
   redmine_configure_email_delivery
   redmine_configure_incoming_email
