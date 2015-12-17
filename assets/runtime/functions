@@ -501,17 +501,17 @@ initialize_datadir() {
   fi
 
   # create dotfiles directory
-  mkdir -p ${REDMINE_DATA_DIR}/dotfiles
-  chmod -R 0755 ${REDMINE_DATA_DIR}/dotfiles
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles
+  mkdir -p ${REDMINE_DOTFILES_DIR}
+  chmod -R 0755 ${REDMINE_DOTFILES_DIR}
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DOTFILES_DIR}
 
-  mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.ssh
-  chmod -R 0700 ${REDMINE_DATA_DIR}/dotfiles/.ssh
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles/.ssh
+  mkdir -p ${REDMINE_DOTFILES_DIR}/.ssh
+  chmod -R 0700 ${REDMINE_DOTFILES_DIR}/.ssh
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DOTFILES_DIR}/.ssh
 
-  mkdir -p ${REDMINE_DATA_DIR}/dotfiles/.subversion
-  chmod -R 0755 ${REDMINE_DATA_DIR}/dotfiles/.subversion
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/dotfiles/.subversion
+  mkdir -p ${REDMINE_DOTFILES_DIR}/.subversion
+  chmod -R 0755 ${REDMINE_DOTFILES_DIR}/.subversion
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DOTFILES_DIR}/.subversion
 
   # create tmp directory
   mkdir -p ${REDMINE_DATA_DIR}/tmp
@@ -520,20 +520,20 @@ initialize_datadir() {
 }
 
 generate_ssh_client_keys() {
-  if [[ ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa || ! -e ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub ]]; then
+  if [[ ! -e ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa || ! -e ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa.pub ]]; then
     echo "Generating OpenSSH client keys..."
-    exec_as_redmine rm -rf ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub
-    exec_as_redmine ssh-keygen -qt rsa -N '' -f ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa
+    exec_as_redmine rm -rf ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa.pub
+    exec_as_redmine ssh-keygen -qt rsa -N '' -f ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa
   fi
 
   # ensure existing host keys have the right permissions
-  chmod 0600 ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa ${REDMINE_DATA_DIR}/dotfiles/.ssh/id_rsa.pub
-  chmod 0700 ${REDMINE_DATA_DIR}/dotfiles/.ssh
+  chmod 0600 ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa.pub
+  chmod 0700 ${REDMINE_DOTFILES_DIR}/.ssh
 }
 
 symlink_dotfiles() {
   echo "Symlinking dotfiles..."
-  for dotfile in $(find ${REDMINE_DATA_DIR}/dotfiles -maxdepth 1 -type d -not -path ${REDMINE_DATA_DIR}/dotfiles)
+  for dotfile in $(find ${REDMINE_DOTFILES_DIR} -maxdepth 1 -type d -not -path ${REDMINE_DOTFILES_DIR})
   do
     exec_as_redmine rm -rf ${REDMINE_HOME}/$(basename ${dotfile})
     exec_as_redmine ln -sf ${dotfile} ${REDMINE_HOME}/$(basename ${dotfile})
