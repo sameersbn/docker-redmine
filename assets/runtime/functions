@@ -29,6 +29,18 @@ parse_yaml() {
    }'
 }
 
+# Compares two version strings `a` and `b`
+# Returns
+#   - negative integer, if `a` is less than `b`
+#   - 0, if `a` and `b` are equal
+#   - non-negative integer, if `a` is greater than `b`
+vercmp () {
+  expr '(' "$1" : '\([^.]*\)' ')' '-' '(' "$2" : '\([^.]*\)' ')' '|' \
+       '(' "$1.0" : '[^.]*[.]\([^.]*\)' ')' '-' '(' "$2.0" : '[^.]*[.]\([^.]*\)' ')' '|' \
+       '(' "$1.0.0" : '[^.]*[.][^.]*[.]\([^.]*\)' ')' '-' '(' "$2.0.0" : '[^.]*[.][^.]*[.]\([^.]*\)' ')' '|' \
+       '(' "$1.0.0.0" : '[^.]*[.][^.]*[.][^.]*[.]\([^.]*\)' ')' '-' '(' "$2.0.0.0" : '[^.]*[.][^.]*[.][^.]*[.]\([^.]*\)' ')'
+}
+
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
   if [[ $(whoami) == ${REDMINE_USER} ]]; then
@@ -700,7 +712,7 @@ install_plugins() {
       rm -rf ${REDMINE_DATA_DIR}/tmp/plugin_assets/*
 
       echo "Installing gems required by plugins..."
-      exec_as_redmine bundle install --without development test --path ${REDMINE_INSTALL_DIR}/vendor/bundle
+      exec_as_redmine bundle install -j$(nproc) --without development test --path ${REDMINE_INSTALL_DIR}/vendor/bundle --quiet
 
       echo "Migrating plugins. Please be patient, this could take a while..."
       exec_as_redmine bundle exec rake redmine:plugins:migrate
@@ -801,4 +813,122 @@ backup_create() {
                          ${config_default_backup_storage_path}/dotfiles.tar.gz \
                          ${config_default_backup_storage_path}/plugins.tar.gz \
                          ${config_default_backup_storage_path}/themes.tar.gz
+}
+
+backup_restore() {
+  # read yaml configuration
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+
+  interactive=true
+  for arg in $@
+  do
+    if [[ $arg == BACKUP=* ]]; then
+      BACKUP=${arg##BACKUP=}
+      interactive=false
+      break
+    fi
+  done
+
+  # user needs to select the backup to restore
+  if [[ $interactive == true ]]; then
+    num_backups=$(ls ${config_default_backup_storage_path}/*_redmine_backup.tar | wc -l)
+    if [[ $num_backups -eq 0 ]]; then
+      echo "No backups exist at ${config_default_backup_storage_path}. Cannot continue."
+      return 1
+    fi
+
+    echo
+    for backup in $(ls ${config_default_backup_storage_path} | grep redmine_backup.tar | sort -r)
+    do
+      echo "‣ $backup"
+    done
+    echo
+
+    read -p "Select a backup to restore: " BACKUP
+  fi
+
+  if [[ ! -f ${config_default_backup_storage_path}/${BACKUP} ]]; then
+    echo "Specified backup does not exist. Aborting..."
+    return 1
+  fi
+
+  echo "Unpacking backup ${BACKUP}..."
+  tar xf ${config_default_backup_storage_path}/${BACKUP} -C ${config_default_backup_storage_path}
+
+  # check if backup can be restored
+  eval $(parse_yaml ${config_default_backup_storage_path}/backup_information.yml backup_)
+
+  ## version check
+  if [ $(vercmp ${REDMINE_VERSION} ${backup_info_redmine_version}) -lt 0 ]; then
+    echo
+    echo "ERROR: "
+    echo "  Cannot restore backup for version ${backup_info_redmine_version} on a ${REDMINE_VERSION} instance."
+    echo "  You can only restore backups generated for versions <= ${REDMINE_VERSION}."
+    echo "  Please use sameersbn/redmine:${backup_info_redmine_version} to restore this backup."
+    echo "  Cannot continue. Aborting!"
+    echo
+    return 1
+  fi
+
+  ## database adapter check
+  if [[ ${database_production_adapter} != ${backup_info_database_adapter} ]]; then
+    echo
+    echo "ERROR:"
+    echo "  Your current setup uses the ${database_production_adapter} adapter, while the database"
+    echo "  backup was generated with the ${backup_info_database_adapter} adapter."
+    echo "  Cannot continue. Aborting!"
+    echo
+    return 1
+  fi
+
+  case ${database_production_adapter} in
+    postgresql)
+      echo "Restoring PostgreSQL database..."
+      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
+        PGPASSWORD=${database_production_password} psql \
+          --host ${database_production_host} --port ${database_production_port} \
+          --username ${database_production_username} \
+          ${database_production_database}
+      ;;
+    mysql2)
+      echo "Restoring MySQL database..."
+      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
+        MYSQL_PWD=${database_production_password} mysql \
+          --host ${database_production_host} --port ${database_production_port} \
+          --user ${database_production_username} --default-character-set ${database_production_encoding} \
+          ${database_production_database}
+      ;;
+  esac
+
+  echo "Restoring files..."
+  exec_as_redmine mv ${config_default_attachments_storage_path} ${config_default_attachments_storage_path}.$(date +%s)
+  exec_as_redmine mkdir -p ${config_default_attachments_storage_path}
+  exec_as_redmine tar xf ${config_default_backup_storage_path}/files.tar.gz -C ${config_default_attachments_storage_path}
+
+  echo "Restoring dotfiles..."
+  exec_as_redmine mv ${REDMINE_DOTFILES_DIR} ${REDMINE_DOTFILES_DIR}.$(date +%s)
+  exec_as_redmine mkdir -p ${REDMINE_DOTFILES_DIR}
+  exec_as_redmine tar xf ${config_default_backup_storage_path}/dotfiles.tar.gz -C ${REDMINE_DOTFILES_DIR}
+
+  echo "Restoring plugins..."
+  exec_as_redmine mv ${REDMINE_PLUGINS_DIR} ${REDMINE_PLUGINS_DIR}.$(date +%s)
+  exec_as_redmine mkdir -p ${REDMINE_PLUGINS_DIR}
+  exec_as_redmine tar xf ${config_default_backup_storage_path}/plugins.tar.gz -C ${REDMINE_PLUGINS_DIR}
+
+  echo "Restoring themes..."
+  exec_as_redmine mv ${REDMINE_THEMES_DIR} ${REDMINE_THEMES_DIR}.$(date +%s)
+  exec_as_redmine mkdir -p ${REDMINE_THEMES_DIR}
+  exec_as_redmine tar xf ${config_default_backup_storage_path}/themes.tar.gz -C ${REDMINE_THEMES_DIR}
+
+  echo "Cleaning up..."
+  exec_as_redmine rm -rf ${config_default_backup_storage_path}/backup_information.yml\
+                         ${config_default_backup_storage_path}/database.sql.gz \
+                         ${config_default_backup_storage_path}/files.tar.gz \
+                         ${config_default_backup_storage_path}/dotfiles.tar.gz \
+                         ${config_default_backup_storage_path}/plugins.tar.gz \
+                         ${config_default_backup_storage_path}/themes.tar.gz
+
+  # force execution of database and plugin migrations on next start
+  rm -rf ${REDMINE_DATA_DIR}/tmp
 }
