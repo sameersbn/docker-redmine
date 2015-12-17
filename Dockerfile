@@ -35,6 +35,7 @@ COPY assets/build/ ${REDMINE_BUILD_DIR}/
 RUN bash ${REDMINE_BUILD_DIR}/install.sh
 
 COPY assets/runtime/ ${REDMINE_RUNTIME_DIR}/
+COPY assets/tools/ /usr/bin/
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 
