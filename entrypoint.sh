@@ -5,7 +5,7 @@ source ${REDMINE_RUNTIME_DIR}/functions
 [[ $DEBUG == true ]] && set -x
 
 case ${1} in
-  app:init|app:start|app:rake)
+  app:init|app:start|app:rake|app:backup:create)
 
     initialize_system
     configure_redmine
@@ -32,15 +32,20 @@ case ${1} in
         shift 1
         execute_raketask $@
         ;;
+      app:backup:create)
+        shift 1
+        backup_create $@
+        ;;
     esac
     ;;
   app:help)
     echo "Available options:"
-    echo " app:start        - Starts the redmine server (default)"
-    echo " app:init         - Initialize the redmine server (e.g. create databases, install plugins/themes), but don't start it."
-    echo " app:rake <task>  - Execute a rake task."
-    echo " app:help         - Displays the help"
-    echo " [command]        - Execute the specified command, eg. bash."
+    echo " app:start          - Starts the Redmine server (default)"
+    echo " app:init           - Initialize the Redmine server (e.g. create databases, install plugins/themes), but don't start it."
+    echo " app:rake <task>    - Execute a rake task."
+    echo " app:backup:create  - Create a backup."
+    echo " app:help           - Displays the help"
+    echo " [command]          - Execute the specified command, eg. bash."
     ;;
   *)
     exec "$@"

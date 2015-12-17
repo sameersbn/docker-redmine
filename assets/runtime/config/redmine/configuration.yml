@@ -142,6 +142,9 @@ default:
   # allowed values: :memory, :file, :memcache
   openid_authentication_store: :memory
 
+  # Path to store backups (docker-redmine only)
+  backup_storage_path: {{REDMINE_BACKUPS_DIR}}
+
 # specific configuration options for production environment
 # that overrides the default ones
 production:
