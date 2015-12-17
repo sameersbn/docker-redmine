@@ -24,6 +24,8 @@ redmine:
 
     - REDMINE_CONCURRENT_UPLOADS=2
 
+    - REDMINE_BACKUP_EXPIRY=0
+
     - SMTP_ENABLED=false
     - SMTP_METHOD=smtp
     - SMTP_DOMAIN=www.example.com
