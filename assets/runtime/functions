@@ -11,6 +11,24 @@ REDMINE_UNICORN_CONFIG="${REDMINE_INSTALL_DIR}/config/unicorn.rb"
 REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
+# Read YAML file from Bash script
+# Credits: https://gist.github.com/pkuczynski/8665367
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
   if [[ $(whoami) == ${REDMINE_USER} ]]; then
@@ -379,6 +397,11 @@ redmine_configure_fetch_commits() {
   esac
 }
 
+redmine_configure_backups() {
+  echo "Configuring redmine::backups..."
+  update_template ${REDMINE_CONFIG} REDMINE_BACKUPS_DIR
+}
+
 nginx_configure_redmine_ssl() {
   if [[ ${REDMINE_HTTPS} == true && -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
     echo "Configuring nginx::redmine::ssl..."
@@ -497,6 +520,11 @@ initialize_datadir() {
   chmod -R 0755 ${REDMINE_ATTACHMENTS_DIR}
   chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_ATTACHMENTS_DIR}
 
+  # create backups directory
+  mkdir -p ${REDMINE_BACKUPS_DIR}
+  chmod -R 0755 ${REDMINE_BACKUPS_DIR}
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_BACKUPS_DIR}
+
   if [[ -d /redmine/files ]]; then # deprecated
     echo "WARNING: "
     echo "  The data volume path has now been changed to ${REDMINE_DATA_DIR}."
@@ -592,6 +620,7 @@ configure_redmine() {
   redmine_configure_email_delivery
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
+  redmine_configure_backups
 
   # configure secure-cookie if using SSL/TLS
   if [[ ${REDMINE_HTTPS} == true ]]; then
@@ -705,4 +734,71 @@ execute_raketask() {
   fi
   echo "Running raketask ${1}..."
   exec_as_redmine bundle exec rake $@
+}
+
+# _|_|_|      _|_|      _|_|_|  _|    _|  _|    _|  _|_|_|      _|_|_|
+# _|    _|  _|    _|  _|        _|  _|    _|    _|  _|    _|  _|
+# _|_|_|    _|_|_|_|  _|        _|_|      _|    _|  _|_|_|      _|_|
+# _|    _|  _|    _|  _|        _|  _|    _|    _|  _|              _|
+# _|_|_|    _|    _|    _|_|_|  _|    _|    _|_|    _|        _|_|_|
+
+backup_create() {
+  local tar_file="$(date +%s)_redmine_backup.tar"
+
+  # read yaml configuration
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+
+  case ${database_production_adapter} in
+    postgresql)
+      echo "Dumping PostgreSQL database ${database_production_database}..."
+      PGPASSWORD=${database_production_password} pg_dump --clean \
+        --host ${database_production_host} --port ${database_production_port} \
+        --username ${database_production_username} \
+        ${database_production_database} | \
+          gzip > ${config_default_backup_storage_path}/database.sql.gz
+      ;;
+    mysql2)
+      echo "Dumping MySQL database ${database_production_database}..."
+      MYSQL_PWD=${database_production_password} mysqldump --add-drop-table \
+        --host ${database_production_host} --port ${database_production_port} \
+        --user ${database_production_username} --default-character-set ${database_production_encoding} \
+        ${database_production_database} | \
+          gzip > ${config_default_backup_storage_path}/database.sql.gz
+      ;;
+  esac
+  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/database.sql.gz
+
+  echo "Dumping files..."
+  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/files.tar.gz -C ${config_default_attachments_storage_path} .
+
+  echo "Dumping dotfiles..."
+  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/dotfiles.tar.gz -C ${REDMINE_DOTFILES_DIR} .
+
+  echo "Dumping plugins..."
+  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/plugins.tar.gz -C ${REDMINE_PLUGINS_DIR} .
+
+  echo "Dumping themes..."
+  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/themes.tar.gz -C ${REDMINE_THEMES_DIR} .
+
+  # backup information
+  (
+    echo "info:"
+    echo "  redmine_version: ${REDMINE_VERSION}"
+    echo "  database_adapter: ${database_production_adapter}"
+    echo "  created_at: $(date)"
+  ) > ${config_default_backup_storage_path}/backup_information.yml
+  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/backup_information.yml
+
+  # create archive
+  echo "Creating backup archive: ${tar_file}..."
+  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} \
+    backup_information.yml database.sql.gz files.tar.gz dotfiles.tar.gz plugins.tar.gz themes.tar.gz
+
+  exec_as_redmine rm -rf ${config_default_backup_storage_path}/backup_information.yml \
+                         ${config_default_backup_storage_path}/database.sql.gz \
+                         ${config_default_backup_storage_path}/files.tar.gz \
+                         ${config_default_backup_storage_path}/dotfiles.tar.gz \
+                         ${config_default_backup_storage_path}/plugins.tar.gz \
+                         ${config_default_backup_storage_path}/themes.tar.gz
 }
