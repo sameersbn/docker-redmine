@@ -13,6 +13,7 @@
 - expose `REDMINE_CONCURRENT_UPLOADS` parameter
 - added `NGINX_ENABLED` parameter to disable the Nginx server
 - feature: create backups
+- feature: restore backups
 
 **3.0.7**
 - redmine: upgrade to v.3.0.7
