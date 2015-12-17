@@ -478,6 +478,11 @@ initialize_datadir() {
   chmod -R 0755 ${REDMINE_DATA_DIR}
   chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}
 
+  # create plugins directory
+  mkdir -p ${REDMINE_PLUGINS_DIR}
+  chmod -R 0755 ${REDMINE_PLUGINS_DIR}
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_PLUGINS_DIR}
+
   # create attachments directory
   mkdir -p ${REDMINE_ATTACHMENTS_DIR}
   chmod -R 0755 ${REDMINE_ATTACHMENTS_DIR}
@@ -633,25 +638,25 @@ migrate_database() {
 }
 
 install_plugins() {
-  if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
+  if [[ -d ${REDMINE_PLUGINS_DIR} ]]; then
     echo "Installing plugins..."
-    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/plugins/ ${REDMINE_INSTALL_DIR}/plugins/
+    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_PLUGINS_DIR}/ ${REDMINE_INSTALL_DIR}/plugins/
 
     # plugins/init script is renamed to plugins/post-install.sh
-    if [[ -f ${REDMINE_DATA_DIR}/plugins/init ]]; then
-      mv ${REDMINE_DATA_DIR}/plugins/init ${REDMINE_DATA_DIR}/plugins/post-install.sh
+    if [[ -f ${REDMINE_PLUGINS_DIR}/init ]]; then
+      mv ${REDMINE_PLUGINS_DIR}/init ${REDMINE_PLUGINS_DIR}/post-install.sh
     fi
 
     # execute plugins/pre-install.sh script
-    if [[ -f ${REDMINE_DATA_DIR}/plugins/pre-install.sh ]]; then
+    if [[ -f ${REDMINE_PLUGINS_DIR}/pre-install.sh ]]; then
       echo "Executing plugins/pre-install.sh script..."
-      . ${REDMINE_DATA_DIR}/plugins/pre-install.sh
+      . ${REDMINE_PLUGINS_DIR}/pre-install.sh
     fi
 
     # install gems and migrate the plugins when plugins are added/removed
     CURRENT_SHA1=
     [[ -f ${REDMINE_DATA_DIR}/tmp/plugins.sha1 ]] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/plugins.sha1)
-    PLUGINS_SHA1=$(find ${REDMINE_DATA_DIR}/plugins -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+    PLUGINS_SHA1=$(find ${REDMINE_PLUGINS_DIR} -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
     if [[ ${CURRENT_SHA1} != ${PLUGINS_SHA1} ]]; then
       # remove the existing plugin assets
       # this ensures there is no cruft when a plugin is removed.
@@ -668,9 +673,9 @@ install_plugins() {
     fi
 
     # execute plugins post-install.sh script
-    if [[ -f ${REDMINE_DATA_DIR}/plugins/post-install.sh ]]; then
+    if [[ -f ${REDMINE_PLUGINS_DIR}/post-install.sh ]]; then
       echo "Executing plugins/post-install.sh script..."
-      . ${REDMINE_DATA_DIR}/plugins/post-install.sh
+      . ${REDMINE_PLUGINS_DIR}/post-install.sh
     fi
   else
     # make sure the plugins.sha1 is not present
