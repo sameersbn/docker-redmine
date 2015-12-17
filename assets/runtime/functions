@@ -418,7 +418,9 @@ redmine_configure_fetch_commits() {
 
 redmine_configure_backups() {
   echo "Configuring redmine::backups..."
-  update_template ${REDMINE_CONFIG} REDMINE_BACKUPS_DIR
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_BACKUPS_DIR \
+    REDMINE_BACKUP_EXPIRY
 }
 
 nginx_configure_redmine_ssl() {
@@ -821,6 +823,23 @@ backup_create() {
                          ${config_default_backup_storage_path}/dotfiles.tar.gz \
                          ${config_default_backup_storage_path}/plugins.tar.gz \
                          ${config_default_backup_storage_path}/themes.tar.gz
+
+  # remove old backups
+  if [[ ${config_default_backup_expiry} -gt 0 ]]; then
+    echo -n "Deleting old backups... "
+    local removed=0
+    local now=$(date +%s)
+    local cutoff=$(expr ${now} - ${config_default_backup_expiry})
+    for backup in $(ls ${config_default_backup_storage_path}/*_redmine_backup.tar)
+    do
+      local timestamp=$(stat -c %Y ${backup})
+      if [[ ${timestamp} -lt ${cutoff} ]]; then
+        rm ${backup}
+        removed=$(expr ${removed} + 1)
+      fi
+    done
+    echo "(${removed} removed)"
+  fi
 }
 
 backup_restore() {
