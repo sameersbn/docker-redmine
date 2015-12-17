@@ -14,6 +14,7 @@
 - added `NGINX_ENABLED` parameter to disable the Nginx server
 - feature: create backups
 - feature: restore backups
+- added `REDMINE_BACKUP_EXPIRY` option
 
 **3.0.7**
 - redmine: upgrade to v.3.0.7

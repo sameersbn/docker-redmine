@@ -136,6 +136,7 @@ default:
 
   # Path to store backups (docker-redmine only)
   backup_storage_path: {{REDMINE_BACKUPS_DIR}}
+  backup_expiry: {{REDMINE_BACKUP_EXPIRY}}
 
 # specific configuration options for production environment
 # that overrides the default ones
