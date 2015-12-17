@@ -476,6 +476,11 @@ initialize_datadir() {
   chmod -R 0755 ${REDMINE_PLUGINS_DIR}
   chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_PLUGINS_DIR}
 
+  # create themes directory
+  mkdir -p ${REDMINE_THEMES_DIR}
+  chmod -R 0755 ${REDMINE_THEMES_DIR}
+  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_THEMES_DIR}
+
   # create attachments directory
   mkdir -p ${REDMINE_ATTACHMENTS_DIR}
   chmod -R 0755 ${REDMINE_ATTACHMENTS_DIR}
@@ -676,9 +681,9 @@ install_plugins() {
 }
 
 install_themes() {
-  if [[ -d ${REDMINE_DATA_DIR}/themes ]]; then
+  if [[ -d ${REDMINE_THEMES_DIR} ]]; then
     echo "Installing themes..."
-    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/themes/ ${REDMINE_INSTALL_DIR}/public/themes/
+    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_THEMES_DIR}/ ${REDMINE_INSTALL_DIR}/public/themes/
   fi
 }
 
