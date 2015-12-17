@@ -12,6 +12,7 @@
 - expose `REDMINE_SECRET_TOKEN` parameter
 - expose `REDMINE_CONCURRENT_UPLOADS` parameter
 - added `NGINX_ENABLED` parameter to disable the Nginx server
+- feature: create backups
 
 **2.6.9**
 - redmine: upgrade to v.2.6.9

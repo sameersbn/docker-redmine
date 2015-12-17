@@ -1,0 +1,7 @@
+#!/bin/bash
+## Script to generate backup of running Redmine instance from the BASH shell
+
+set -e
+source ${REDMINE_RUNTIME_DIR}/functions
+
+backup_create $@
