@@ -15,6 +15,7 @@
 - feature: create backups
 - feature: restore backups
 - added `REDMINE_BACKUP_EXPIRY` option
+- feature: automatic backups
 
 **2.6.9**
 - redmine: upgrade to v.2.6.9
