@@ -416,11 +416,36 @@ redmine_configure_fetch_commits() {
   esac
 }
 
+redmine_configure_backups_cron() {
+  case ${REDMINE_BACKUPS} in
+    daily|weekly|monthly)
+      crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+      if ! grep -q '/usr/bin/redmine-backup-create' /tmp/cron.${REDMINE_USER}; then
+        echo "Configuring redmine::backups::cron..."
+        read hour min <<< ${REDMINE_BACKUP_TIME//[:]/ }
+        day_of_month=*
+        month=*
+        day_of_week=*
+        case ${REDMINE_BACKUPS} in
+          daily) ;;
+          weekly) day_of_week=0 ;;
+          monthly) day_of_month=01 ;;
+        esac
+        echo "$min $hour $day_of_month $month $day_of_week /usr/bin/redmine-backup-create >> ${REDMINE_LOG_DIR}/redmine/backups.log 2>&1" >> /tmp/cron.${REDMINE_USER}
+        crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+      fi
+      rm -rf /tmp/cron.${REDMINE_USER}
+      ;;
+  esac
+}
+
 redmine_configure_backups() {
   echo "Configuring redmine::backups..."
   update_template ${REDMINE_CONFIG} \
     REDMINE_BACKUPS_DIR \
     REDMINE_BACKUP_EXPIRY
+
+  redmine_configure_backups_cron
 }
 
 nginx_configure_redmine_ssl() {
