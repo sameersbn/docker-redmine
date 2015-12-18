@@ -21,6 +21,10 @@ passwd -d ${REDMINE_USER}
 
 # set PATH for ${REDMINE_USER} cron jobs
 cat > /tmp/cron.${REDMINE_USER} <<EOF
+REDMINE_USER=${REDMINE_USER}
+REDMINE_INSTALL_DIR=${REDMINE_INSTALL_DIR}
+REDMINE_DATA_DIR=${REDMINE_DATA_DIR}
+REDMINE_RUNTIME_DIR=${REDMINE_RUNTIME_DIR}
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 EOF
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
