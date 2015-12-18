@@ -40,6 +40,9 @@
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
 - [Maintenance](#maintenance)
+    - [Creating Backups](#creating-backups)
+    - [Restoring Backups](#restoring-backups)
+    - [Automated Backups](#automated-backups)
     - [Rake Tasks](#rake-tasks)
     - [Upgrading](#upgrading)
     - [Shell Access](#shell-access)
@@ -570,6 +573,9 @@ Below is the complete list of parameters that can be set using environment varia
 - **REDMINE_SUDO_MODE_ENABLED**: Requires users to re-enter their password for sensitive actions. Defaults to `false`.
 - **REDMINE_SUDO_MODE_TIMEOUT**: Sudo mode timeout. Defaults to `15` minutes.
 - **REDMINE_FETCH_COMMITS**: Setup cron job to fetch commits. Possible values `disable`, `hourly`, `daily` or `monthly`. Disabled by default.
+- **REDMINE_BACKUPS**: Setup cron job to automatic backups. Possible values `disable`, `daily`, `weekly` or `monthly`. Disabled by default
+- **REDMINE_BACKUP_EXPIRY**: Configure how long (in seconds) to keep backups before they are deleted. By default when automated backups are disabled backups are kept forever (0 seconds), else the backups expire in 7 days (604800 seconds).
+- **REDMINE_BACKUP_TIME**: Set a time for the automatic backups in `HH:MM` format. Defaults to `04:00`.
 - **DB_ADAPTER**: The database type. Possible values: `mysql2`, `postgresql`. Defaults to `mysql`.
 - **DB_ENCODING**: The database encoding. For `DB_ADAPTER` values `postresql` and `mysql2`, this parameter defaults to `unicode` and `utf8` respectively.
 - **DB_HOST**: The database server hostname. Defaults to `localhost`.
@@ -765,6 +771,67 @@ Now when the image is started the theme will be not be available anymore.
 
 # Maintenance
 
+## Creating backups
+
+**Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
+
+The image allows using to generate a backup of your Redmine installation using the `app:backup:create` command or the `redmine-backup-create` helper script. The generated backup consists of uploaded files, dotfiles, plugins, themes and the sql database.
+
+Before taking a backup make sure the container is stopped and removed.
+
+```bash
+docker stop redmine && docker rm redmine
+```
+
+Relaunch the container with the `app:backup:create` argument.
+
+```bash
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:3.1.3-1 app:backup:create
+```
+
+The backup will be created in the backups folder of the [Data Store](#data-store). You can change the location of the backups using the `REDMINE_BACKUP_DIR` configuration parameter.
+
+*P.S. Backups can also be generated on a running instance using `docker exec -it redmine redmine-backup-create`. However, to avoid undesired side-effects, you are advised against running backup and restore operations on a running instance.*
+
+## Restoring Backups
+
+**Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
+
+Backups created using instruction from [Creating backups](#creating-backups) can be restored using the `app:backup:restore` argument.
+
+Before performing a restore make sure the container is stopped and removed.
+
+```bash
+docker stop redmine && docker rm redmine
+```
+
+Relaunch the container with the `app:backup:restore` argument.Ensure you run the container in interactive mode `-it`.
+
+```bash
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:3.1.3-1 app:backup:restore
+```
+
+The list of all available backups will be displayed in reverse chronological order. Select the backup you want to restore and continue.
+
+To avoid user interaction in the restore operation you can specify a backup file name using the `BACKUP` argument.
+
+```bash
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:3.1.3-1 app:backup:restore BACKUP=1417624827_redmine_backup.tar
+```
+
+## Automated Backups
+
+**Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
+
+The image can be configured to automatically take backups `daily`, `weekly` or `monthly` using the `REDMINE_BACKUPS` configuration option.
+
+Daily backups are created at `REDMINE_BACKUP_TIME` which defaults to `04:00` everyday. Weekly backups are created every Sunday at `REDMINE_BACKUP_TIME`. Monthly backups are created on the 1st of every month at `REDMINE_BACKUP_TIME`.
+
+By default when automated backups are enabled, backups are held for a period of 7 days. When disabled, the backups are held for an infinite period of time. This can behavior can be modified using the `REDMINE_BACKUP_EXPIRY` option.
+
 ## Rake Tasks
 
 The `app:rake` command allows you to run redmine rake tasks. To run a rake task simply specify the task to be executed to the `app:rake` command. For example, if you want to send a test email to the admin user.
@@ -815,13 +882,11 @@ docker rm redmine
 - **Step 3**: Create a backup
 
 ```bash
-mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:x.x.x app:backup:create
 ```
 
-With docker
-```bash
-docker exec mysql-redmine mysqldump -h localhost --add-drop-table redmine_production > redmine.sql
-```
+Replace `x.x.x` with the version you are upgrading from. For example, if you are upgrading from version `2.6.4`, set `x.x.x` to `2.6.4`
 
 - **Step 4**: Start the image
 
