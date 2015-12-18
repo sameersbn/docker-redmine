@@ -350,7 +350,7 @@ redmine_configure_incoming_email() {
         ${INCOMING_EMAIL_PRIORITY:+priority=${INCOMING_EMAIL_PRIORITY}} \
         ${INCOMING_EMAIL_PRIVATE:+private=${INCOMING_EMAIL_PRIVATE}} \
         ${INCOMING_EMAIL_ALLOW_OVERRIDE:+allow_override=${INCOMING_EMAIL_ALLOW_OVERRIDE}}"
-      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
     fi
     crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
     rm -rf /tmp/cron.${REDMINE_USER}
@@ -364,9 +364,16 @@ redmine_configure_fetch_commits() {
       if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
         echo "Configuring redmine::fetch_commits..."
         case ${REDMINE_VERSION} in
-          2.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
-          3.*) echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> log/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER} ;;
-          *) echo "ERROR: Unsupported Redmine version (${REDMINE_VERSION})" && exit 1 ;;
+          2.*)
+            echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+            ;;
+          3.*)
+            echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+            ;;
+          *)
+            echo "ERROR: Unsupported Redmine version (${REDMINE_VERSION})"
+            return 1
+            ;;
         esac
         crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
       fi
