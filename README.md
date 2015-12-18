@@ -39,9 +39,10 @@
 - [Themes](#plugins)
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
-- [Shell Access](#shell-access)
-- [Upgrading](#upgrading)
-- [Rake Tasks](#rake-tasks)
+- [Maintenance](#maintenance)
+    - [Rake Tasks](#rake-tasks)
+    - [Upgrading](#upgrading)
+    - [Shell Access](#shell-access)
 - [References](#references)
 
 # Introduction
@@ -762,71 +763,7 @@ rm -rf /srv/docker/redmine/redmine/themes/gitmike
 
 Now when the image is started the theme will be not be available anymore.
 
-# Shell Access
-
-For debugging and maintenance purposes you may want access the containers shell. If you are using docker version `1.3.0` or higher you can access a running containers shell using `docker exec` command.
-
-```bash
-docker exec -it redmine bash
-```
-
-If you are using an older version of docker, you can use the [nsenter](http://man7.org/linux/man-pages/man1/nsenter.1.html) linux tool (part of the util-linux package) to access the container shell.
-
-Some linux distros (e.g. ubuntu) use older versions of the util-linux which do not include the `nsenter` tool. To get around this @jpetazzo has created a nice docker image that allows you to install the `nsenter` utility and a helper script named `docker-enter` on these distros.
-
-To install `nsenter` execute the following command on your host,
-
-```bash
-docker run --rm --volume=/usr/local/bin:/target jpetazzo/nsenter
-```
-
-Now you can access the container shell using the command
-
-```bash
-sudo docker-enter redmine
-```
-
-For more information refer https://github.com/jpetazzo/nsenter
-
-# Upgrading
-
-To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
-
-**Step 1**: Update the docker image.
-
-```bash
-docker pull sameersbn/redmine:3.2.0-2
-```
-
-**Step 2**: Stop and remove the currently running image
-
-```bash
-docker stop redmine
-docker rm redmine
-```
-
-**Step 3**: Backup the database in case something goes wrong.
-
-```bash
-mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
-```
-
-With docker
-```bash
-docker exec mysql-redmine mysqldump -h localhost --add-drop-table redmine_production > redmine.sql
-```
-
-**Step 4**: Start the image
-
-```bash
-docker run --name=redmine -d [OPTIONS] sameersbn/redmine:3.2.0-2
-```
-
-**Step 5**: Restore database from before
-
-```bash
-docker exec -i mysql-redmine mysql -h localhost redmine_production < redmine.sql
-```
+# Maintenance
 
 ## Rake Tasks
 
@@ -858,7 +795,49 @@ docker exec -it redmine sudo -u redmine -H bundle exec rake redmine:attachments:
 
 For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
 
-## References
-  * http://www.redmine.org/
-  * http://www.redmine.org/projects/redmine/wiki/Guide
-  * http://www.redmine.org/projects/redmine/wiki/RedmineInstall
+## Upgrading
+
+To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
+
+- **Step 1**: Update the docker image.
+
+```bash
+docker pull sameersbn/redmine:3.2.0-2
+```
+
+- **Step 2**: Stop and remove the currently running image
+
+```bash
+docker stop redmine
+docker rm redmine
+```
+
+- **Step 3**: Create a backup
+
+```bash
+mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
+```
+
+With docker
+```bash
+docker exec mysql-redmine mysqldump -h localhost --add-drop-table redmine_production > redmine.sql
+```
+
+- **Step 4**: Start the image
+
+```bash
+docker run --name=redmine -d [OPTIONS] sameersbn/redmine:3.2.0-2
+```
+
+## Shell Access
+
+For debugging and maintenance purposes you may want access the containers shell. If you are using docker version `1.3.0` or higher you can access a running containers shell using `docker exec` command.
+
+```bash
+docker exec -it redmine bash
+```
+
+# References
+    * http://www.redmine.org/
+    * http://www.redmine.org/projects/redmine/wiki/Guide
+    * http://www.redmine.org/projects/redmine/wiki/RedmineInstall
