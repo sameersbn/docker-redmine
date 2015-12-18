@@ -39,9 +39,13 @@
 - [Themes](#plugins)
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
-- [Shell Access](#shell-access)
-- [Upgrading](#upgrading)
-- [Rake Tasks](#rake-tasks)
+- [Maintenance](#maintenance)
+    - [Creating Backups](#creating-backups)
+    - [Restoring Backups](#restoring-backups)
+    - [Automated Backups](#automated-backups)
+    - [Rake Tasks](#rake-tasks)
+    - [Upgrading](#upgrading)
+    - [Shell Access](#shell-access)
 - [References](#references)
 
 # Introduction
@@ -569,6 +573,9 @@ Below is the complete list of parameters that can be set using environment varia
 - **REDMINE_SUDO_MODE_ENABLED**: Requires users to re-enter their password for sensitive actions. Defaults to `false`.
 - **REDMINE_SUDO_MODE_TIMEOUT**: Sudo mode timeout. Defaults to `15` minutes.
 - **REDMINE_FETCH_COMMITS**: Setup cron job to fetch commits. Possible values `disable`, `hourly`, `daily` or `monthly`. Disabled by default.
+- **REDMINE_BACKUPS**: Setup cron job to automatic backups. Possible values `disable`, `daily`, `weekly` or `monthly`. Disabled by default
+- **REDMINE_BACKUP_EXPIRY**: Configure how long (in seconds) to keep backups before they are deleted. By default when automated backups are disabled backups are kept forever (0 seconds), else the backups expire in 7 days (604800 seconds).
+- **REDMINE_BACKUP_TIME**: Set a time for the automatic backups in `HH:MM` format. Defaults to `04:00`.
 - **DB_ADAPTER**: The database type. Possible values: `mysql2`, `postgresql`. Defaults to `mysql`.
 - **DB_ENCODING**: The database encoding. For `DB_ADAPTER` values `postresql` and `mysql2`, this parameter defaults to `unicode` and `utf8` respectively.
 - **DB_HOST**: The database server hostname. Defaults to `localhost`.
@@ -762,71 +769,68 @@ rm -rf /srv/docker/redmine/redmine/themes/gitmike
 
 Now when the image is started the theme will be not be available anymore.
 
-# Shell Access
+# Maintenance
 
-For debugging and maintenance purposes you may want access the containers shell. If you are using docker version `1.3.0` or higher you can access a running containers shell using `docker exec` command.
+## Creating backups
 
-```bash
-docker exec -it redmine bash
-```
+**Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
 
-If you are using an older version of docker, you can use the [nsenter](http://man7.org/linux/man-pages/man1/nsenter.1.html) linux tool (part of the util-linux package) to access the container shell.
+The image allows using to generate a backup of your Redmine installation using the `app:backup:create` command or the `redmine-backup-create` helper script. The generated backup consists of uploaded files, dotfiles, plugins, themes and the sql database.
 
-Some linux distros (e.g. ubuntu) use older versions of the util-linux which do not include the `nsenter` tool. To get around this @jpetazzo has created a nice docker image that allows you to install the `nsenter` utility and a helper script named `docker-enter` on these distros.
-
-To install `nsenter` execute the following command on your host,
+Before taking a backup make sure the container is stopped and removed.
 
 ```bash
-docker run --rm --volume=/usr/local/bin:/target jpetazzo/nsenter
+docker stop redmine && docker rm redmine
 ```
 
-Now you can access the container shell using the command
+Relaunch the container with the `app:backup:create` argument.
 
 ```bash
-sudo docker-enter redmine
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:3.2.0-2 app:backup:create
 ```
 
-For more information refer https://github.com/jpetazzo/nsenter
+The backup will be created in the backups folder of the [Data Store](#data-store). You can change the location of the backups using the `REDMINE_BACKUP_DIR` configuration parameter.
 
-# Upgrading
+*P.S. Backups can also be generated on a running instance using `docker exec -it redmine redmine-backup-create`. However, to avoid undesired side-effects, you are advised against running backup and restore operations on a running instance.*
 
-To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
+## Restoring Backups
 
-**Step 1**: Update the docker image.
+**Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
+
+Backups created using instruction from [Creating backups](#creating-backups) can be restored using the `app:backup:restore` argument.
+
+Before performing a restore make sure the container is stopped and removed.
 
 ```bash
-docker pull sameersbn/redmine:3.2.0-2
+docker stop redmine && docker rm redmine
 ```
 
-**Step 2**: Stop and remove the currently running image
+Relaunch the container with the `app:backup:restore` argument.Ensure you run the container in interactive mode `-it`.
 
 ```bash
-docker stop redmine
-docker rm redmine
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:3.2.0-2 app:backup:restore
 ```
 
-**Step 3**: Backup the database in case something goes wrong.
+The list of all available backups will be displayed in reverse chronological order. Select the backup you want to restore and continue.
+
+To avoid user interaction in the restore operation you can specify a backup file name using the `BACKUP` argument.
 
 ```bash
-mysqldump -h <mysql-server-ip> -uredmine -p --add-drop-table redmine_production > redmine.sql
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:3.2.0-2 app:backup:restore BACKUP=1417624827_redmine_backup.tar
 ```
 
-With docker
-```bash
-docker exec mysql-redmine mysqldump -h localhost --add-drop-table redmine_production > redmine.sql
-```
+## Automated Backups
 
-**Step 4**: Start the image
+**Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
 
-```bash
-docker run --name=redmine -d [OPTIONS] sameersbn/redmine:3.2.0-2
-```
+The image can be configured to automatically take backups `daily`, `weekly` or `monthly` using the `REDMINE_BACKUPS` configuration option.
 
-**Step 5**: Restore database from before
+Daily backups are created at `REDMINE_BACKUP_TIME` which defaults to `04:00` everyday. Weekly backups are created every Sunday at `REDMINE_BACKUP_TIME`. Monthly backups are created on the 1st of every month at `REDMINE_BACKUP_TIME`.
 
-```bash
-docker exec -i mysql-redmine mysql -h localhost redmine_production < redmine.sql
-```
+By default when automated backups are enabled, backups are held for a period of 7 days. When disabled, the backups are held for an infinite period of time. This can behavior can be modified using the `REDMINE_BACKUP_EXPIRY` option.
 
 ## Rake Tasks
 
@@ -858,7 +862,47 @@ docker exec -it redmine sudo -u redmine -H bundle exec rake redmine:attachments:
 
 For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
 
-## References
-  * http://www.redmine.org/
-  * http://www.redmine.org/projects/redmine/wiki/Guide
-  * http://www.redmine.org/projects/redmine/wiki/RedmineInstall
+## Upgrading
+
+To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
+
+- **Step 1**: Update the docker image.
+
+```bash
+docker pull sameersbn/redmine:3.2.0-2
+```
+
+- **Step 2**: Stop and remove the currently running image
+
+```bash
+docker stop redmine
+docker rm redmine
+```
+
+- **Step 3**: Create a backup
+
+```bash
+docker run --name redmine -it --rm [OPTIONS] \
+    sameersbn/redmine:x.x.x app:backup:create
+```
+
+Replace `x.x.x` with the version you are upgrading from. For example, if you are upgrading from version `2.6.4`, set `x.x.x` to `2.6.4`
+
+- **Step 4**: Start the image
+
+```bash
+docker run --name=redmine -d [OPTIONS] sameersbn/redmine:3.2.0-2
+```
+
+## Shell Access
+
+For debugging and maintenance purposes you may want access the containers shell. If you are using docker version `1.3.0` or higher you can access a running containers shell using `docker exec` command.
+
+```bash
+docker exec -it redmine bash
+```
+
+# References
+    * http://www.redmine.org/
+    * http://www.redmine.org/projects/redmine/wiki/Guide
+    * http://www.redmine.org/projects/redmine/wiki/RedmineInstall
