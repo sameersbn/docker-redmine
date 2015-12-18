@@ -13,7 +13,11 @@ REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
-  sudo -HEu ${REDMINE_USER} "$@"
+  if [[ $(whoami) == ${REDMINE_USER} ]]; then
+    $@
+  else
+    sudo -HEu ${REDMINE_USER} "$@"
+  fi
 }
 
 ## Copies configuration template to the destination as the specified USER
