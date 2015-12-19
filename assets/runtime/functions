@@ -410,7 +410,7 @@ redmine_configure_fetch_commits() {
 }
 
 redmine_configure_backups_cron() {
-  case ${REDMINE_BACKUPS} in
+  case ${REDMINE_BACKUP_SCHEDULE} in
     daily|weekly|monthly)
       crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
       if ! grep -q '/usr/bin/redmine-backup-create' /tmp/cron.${REDMINE_USER}; then
@@ -419,7 +419,7 @@ redmine_configure_backups_cron() {
         day_of_month=*
         month=*
         day_of_week=*
-        case ${REDMINE_BACKUPS} in
+        case ${REDMINE_BACKUP_SCHEDULE} in
           daily) ;;
           weekly) day_of_week=0 ;;
           monthly) day_of_month=01 ;;
