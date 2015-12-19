@@ -512,6 +512,163 @@ nginx_configure_redmine() {
   nginx_configure_redmine_ipv6
 }
 
+backup_dump_database() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  case ${database_production_adapter} in
+    postgresql)
+      echo "Dumping PostgreSQL database ${database_production_database}..."
+      PGPASSWORD=${database_production_password} pg_dump --clean \
+        --host ${database_production_host} --port ${database_production_port} \
+        --username ${database_production_username} \
+        ${database_production_database} | \
+          gzip > ${config_default_backup_storage_path}/database.sql.gz
+      ;;
+    mysql2)
+      echo "Dumping MySQL database ${database_production_database}..."
+      MYSQL_PWD=${database_production_password} mysqldump --add-drop-table \
+        --host ${database_production_host} --port ${database_production_port} \
+        --user ${database_production_username} --default-character-set ${database_production_encoding} \
+        ${database_production_database} | \
+          gzip > ${config_default_backup_storage_path}/database.sql.gz
+      ;;
+  esac
+  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/database.sql.gz
+}
+
+backup_dump_directory() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+
+  local directory=${1}
+  local dirname=$(basename ${directory})
+
+  echo "Dumping ${dirname}..."
+  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/${dirname}.tar.gz -C ${directory} .
+}
+
+backup_dump_information() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  (
+    echo "info:"
+    echo "  redmine_version: ${REDMINE_VERSION}"
+    echo "  database_adapter: ${database_production_adapter}"
+    echo "  created_at: $(date)"
+  ) > ${config_default_backup_storage_path}/backup_information.yml
+  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/backup_information.yml
+}
+
+backup_create_archive() {
+  local tar_file="$(date +%s)_redmine_backup.tar"
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+
+  echo "Creating backup archive: ${tar_file}..."
+  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
+
+  for f in $@
+  do
+    exec_as_redmine rm -rf ${config_default_backup_storage_path}/${f}
+  done
+}
+
+backup_purge_expired() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  if [[ ${config_default_backup_expiry} -gt 0 ]]; then
+    echo -n "Deleting old backups... "
+    local removed=0
+    local now=$(date +%s)
+    local cutoff=$(expr ${now} - ${config_default_backup_expiry})
+    for backup in $(ls ${config_default_backup_storage_path}/*_redmine_backup.tar)
+    do
+      local timestamp=$(stat -c %Y ${backup})
+      if [[ ${timestamp} -lt ${cutoff} ]]; then
+        rm ${backup}
+        removed=$(expr ${removed} + 1)
+      fi
+    done
+    echo "(${removed} removed)"
+  fi
+}
+
+backup_restore_unpack() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  local backup=${1}
+  if [[ ! -f ${config_default_backup_storage_path}/${backup} ]]; then
+    echo "Specified backup does not exist. Aborting..."
+    return 1
+  fi
+
+  echo "Unpacking ${backup}..."
+  tar xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
+}
+
+backup_restore_validate() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  eval $(parse_yaml ${config_default_backup_storage_path}/backup_information.yml backup_)
+
+  ## version check
+  if [ $(vercmp ${REDMINE_VERSION} ${backup_info_redmine_version}) -lt 0 ]; then
+    echo
+    echo "ERROR: "
+    echo "  Cannot restore backup for version ${backup_info_redmine_version} on a ${REDMINE_VERSION} instance."
+    echo "  You can only restore backups generated for versions <= ${REDMINE_VERSION}."
+    echo "  Please use sameersbn/redmine:${backup_info_redmine_version} to restore this backup."
+    echo "  Cannot continue. Aborting!"
+    echo
+    return 1
+  fi
+
+  ## database adapter check
+  if [[ ${database_production_adapter} != ${backup_info_database_adapter} ]]; then
+    echo
+    echo "ERROR:"
+    echo "  Your current setup uses the ${database_production_adapter} adapter, while the database"
+    echo "  backup was generated with the ${backup_info_database_adapter} adapter."
+    echo "  Cannot continue. Aborting!"
+    echo
+    return 1
+  fi
+  exec_as_redmine rm -rf ${config_default_backup_storage_path}/backup_information.yml
+}
+
+backup_restore_database() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  case ${database_production_adapter} in
+    postgresql)
+      echo "Restoring PostgreSQL database..."
+      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
+        PGPASSWORD=${database_production_password} psql \
+          --host ${database_production_host} --port ${database_production_port} \
+          --username ${database_production_username} \
+          ${database_production_database}
+      ;;
+    mysql2)
+      echo "Restoring MySQL database..."
+      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
+        MYSQL_PWD=${database_production_password} mysql \
+          --host ${database_production_host} --port ${database_production_port} \
+          --user ${database_production_username} --default-character-set ${database_production_encoding} \
+          ${database_production_database}
+      ;;
+  esac
+  exec_as_redmine rm -rf ${config_default_backup_storage_path}/database.sql.gz
+}
+
+backup_restore_directory() {
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+
+  local directory=${1}
+  local dirname=$(basename ${directory})
+
+  echo "Restoring ${dirname}..."
+  exec_as_redmine mv ${directory} ${directory}.$(date +%s)
+  exec_as_redmine mkdir -p ${directory}
+  exec_as_redmine tar xf ${config_default_backup_storage_path}/${dirname}.tar.gz -C ${directory}
+  exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}.tar.gz
+}
+
 # _|_|_|              _|        _|  _|
 # _|    _|  _|    _|  _|_|_|    _|        _|_|_|
 # _|_|_|    _|    _|  _|    _|  _|  _|  _|
@@ -783,100 +940,27 @@ execute_raketask() {
   exec_as_redmine bundle exec rake $@
 }
 
-# _|_|_|      _|_|      _|_|_|  _|    _|  _|    _|  _|_|_|      _|_|_|
-# _|    _|  _|    _|  _|        _|  _|    _|    _|  _|    _|  _|
-# _|_|_|    _|_|_|_|  _|        _|_|      _|    _|  _|_|_|      _|_|
-# _|    _|  _|    _|  _|        _|  _|    _|    _|  _|              _|
-# _|_|_|    _|    _|    _|_|_|  _|    _|    _|_|    _|        _|_|_|
-
 backup_create() {
-  local tar_file="$(date +%s)_redmine_backup.tar"
-
-  # read yaml configuration
   eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
-
-  case ${database_production_adapter} in
-    postgresql)
-      echo "Dumping PostgreSQL database ${database_production_database}..."
-      PGPASSWORD=${database_production_password} pg_dump --clean \
-        --host ${database_production_host} --port ${database_production_port} \
-        --username ${database_production_username} \
-        ${database_production_database} | \
-          gzip > ${config_default_backup_storage_path}/database.sql.gz
-      ;;
-    mysql2)
-      echo "Dumping MySQL database ${database_production_database}..."
-      MYSQL_PWD=${database_production_password} mysqldump --add-drop-table \
-        --host ${database_production_host} --port ${database_production_port} \
-        --user ${database_production_username} --default-character-set ${database_production_encoding} \
-        ${database_production_database} | \
-          gzip > ${config_default_backup_storage_path}/database.sql.gz
-      ;;
-  esac
-  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/database.sql.gz
-
-  echo "Dumping files..."
-  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/files.tar.gz -C ${config_default_attachments_storage_path} .
-
-  echo "Dumping dotfiles..."
-  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/dotfiles.tar.gz -C ${REDMINE_DOTFILES_DIR} .
-
-  echo "Dumping plugins..."
-  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/plugins.tar.gz -C ${REDMINE_PLUGINS_DIR} .
-
-  echo "Dumping themes..."
-  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/themes.tar.gz -C ${REDMINE_THEMES_DIR} .
-
-  # backup information
-  (
-    echo "info:"
-    echo "  redmine_version: ${REDMINE_VERSION}"
-    echo "  database_adapter: ${database_production_adapter}"
-    echo "  created_at: $(date)"
-  ) > ${config_default_backup_storage_path}/backup_information.yml
-  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/backup_information.yml
-
-  # create archive
-  echo "Creating backup archive: ${tar_file}..."
-  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} \
-    backup_information.yml database.sql.gz files.tar.gz dotfiles.tar.gz plugins.tar.gz themes.tar.gz
-
-  exec_as_redmine rm -rf ${config_default_backup_storage_path}/backup_information.yml \
-                         ${config_default_backup_storage_path}/database.sql.gz \
-                         ${config_default_backup_storage_path}/files.tar.gz \
-                         ${config_default_backup_storage_path}/dotfiles.tar.gz \
-                         ${config_default_backup_storage_path}/plugins.tar.gz \
-                         ${config_default_backup_storage_path}/themes.tar.gz
-
-  # remove old backups
-  if [[ ${config_default_backup_expiry} -gt 0 ]]; then
-    echo -n "Deleting old backups... "
-    local removed=0
-    local now=$(date +%s)
-    local cutoff=$(expr ${now} - ${config_default_backup_expiry})
-    for backup in $(ls ${config_default_backup_storage_path}/*_redmine_backup.tar)
-    do
-      local timestamp=$(stat -c %Y ${backup})
-      if [[ ${timestamp} -lt ${cutoff} ]]; then
-        rm ${backup}
-        removed=$(expr ${removed} + 1)
-      fi
-    done
-    echo "(${removed} removed)"
-  fi
+  backup_dump_database
+  backup_dump_directory ${config_default_attachments_storage_path}
+  backup_dump_directory ${REDMINE_DOTFILES_DIR}
+  backup_dump_directory ${REDMINE_PLUGINS_DIR}
+  backup_dump_directory ${REDMINE_THEMES_DIR}
+  backup_dump_information
+  backup_create_archive backup_information.yml database.sql.gz files.tar.gz dotfiles.tar.gz plugins.tar.gz themes.tar.gz
+  backup_purge_expired
 }
 
 backup_restore() {
-  # read yaml configuration
   eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
 
-  interactive=true
+  local tar_file=
+  local interactive=true
   for arg in $@
   do
     if [[ $arg == BACKUP=* ]]; then
-      BACKUP=${arg##BACKUP=}
+      tar_file=${arg##BACKUP=}
       interactive=false
       break
     fi
@@ -891,95 +975,22 @@ backup_restore() {
     fi
 
     echo
-    for backup in $(ls ${config_default_backup_storage_path} | grep redmine_backup.tar | sort -r)
+    for b in $(ls ${config_default_backup_storage_path} | grep redmine_backup.tar | sort -r)
     do
-      echo "‣ $backup"
+      echo "‣ $b"
     done
     echo
 
-    read -p "Select a backup to restore: " BACKUP
+    read -p "Select a backup to restore: " tar_file
   fi
 
-  if [[ ! -f ${config_default_backup_storage_path}/${BACKUP} ]]; then
-    echo "Specified backup does not exist. Aborting..."
-    return 1
-  fi
-
-  echo "Unpacking backup ${BACKUP}..."
-  tar xf ${config_default_backup_storage_path}/${BACKUP} -C ${config_default_backup_storage_path}
-
-  # check if backup can be restored
-  eval $(parse_yaml ${config_default_backup_storage_path}/backup_information.yml backup_)
-
-  ## version check
-  if [ $(vercmp ${REDMINE_VERSION} ${backup_info_redmine_version}) -lt 0 ]; then
-    echo
-    echo "ERROR: "
-    echo "  Cannot restore backup for version ${backup_info_redmine_version} on a ${REDMINE_VERSION} instance."
-    echo "  You can only restore backups generated for versions <= ${REDMINE_VERSION}."
-    echo "  Please use sameersbn/redmine:${backup_info_redmine_version} to restore this backup."
-    echo "  Cannot continue. Aborting!"
-    echo
-    return 1
-  fi
-
-  ## database adapter check
-  if [[ ${database_production_adapter} != ${backup_info_database_adapter} ]]; then
-    echo
-    echo "ERROR:"
-    echo "  Your current setup uses the ${database_production_adapter} adapter, while the database"
-    echo "  backup was generated with the ${backup_info_database_adapter} adapter."
-    echo "  Cannot continue. Aborting!"
-    echo
-    return 1
-  fi
-
-  case ${database_production_adapter} in
-    postgresql)
-      echo "Restoring PostgreSQL database..."
-      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
-        PGPASSWORD=${database_production_password} psql \
-          --host ${database_production_host} --port ${database_production_port} \
-          --username ${database_production_username} \
-          ${database_production_database}
-      ;;
-    mysql2)
-      echo "Restoring MySQL database..."
-      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
-        MYSQL_PWD=${database_production_password} mysql \
-          --host ${database_production_host} --port ${database_production_port} \
-          --user ${database_production_username} --default-character-set ${database_production_encoding} \
-          ${database_production_database}
-      ;;
-  esac
-
-  echo "Restoring files..."
-  exec_as_redmine mv ${config_default_attachments_storage_path} ${config_default_attachments_storage_path}.$(date +%s)
-  exec_as_redmine mkdir -p ${config_default_attachments_storage_path}
-  exec_as_redmine tar xf ${config_default_backup_storage_path}/files.tar.gz -C ${config_default_attachments_storage_path}
-
-  echo "Restoring dotfiles..."
-  exec_as_redmine mv ${REDMINE_DOTFILES_DIR} ${REDMINE_DOTFILES_DIR}.$(date +%s)
-  exec_as_redmine mkdir -p ${REDMINE_DOTFILES_DIR}
-  exec_as_redmine tar xf ${config_default_backup_storage_path}/dotfiles.tar.gz -C ${REDMINE_DOTFILES_DIR}
-
-  echo "Restoring plugins..."
-  exec_as_redmine mv ${REDMINE_PLUGINS_DIR} ${REDMINE_PLUGINS_DIR}.$(date +%s)
-  exec_as_redmine mkdir -p ${REDMINE_PLUGINS_DIR}
-  exec_as_redmine tar xf ${config_default_backup_storage_path}/plugins.tar.gz -C ${REDMINE_PLUGINS_DIR}
-
-  echo "Restoring themes..."
-  exec_as_redmine mv ${REDMINE_THEMES_DIR} ${REDMINE_THEMES_DIR}.$(date +%s)
-  exec_as_redmine mkdir -p ${REDMINE_THEMES_DIR}
-  exec_as_redmine tar xf ${config_default_backup_storage_path}/themes.tar.gz -C ${REDMINE_THEMES_DIR}
-
-  echo "Cleaning up..."
-  exec_as_redmine rm -rf ${config_default_backup_storage_path}/backup_information.yml\
-                         ${config_default_backup_storage_path}/database.sql.gz \
-                         ${config_default_backup_storage_path}/files.tar.gz \
-                         ${config_default_backup_storage_path}/dotfiles.tar.gz \
-                         ${config_default_backup_storage_path}/plugins.tar.gz \
-                         ${config_default_backup_storage_path}/themes.tar.gz
+  backup_restore_unpack ${tar_file}
+  backup_restore_validate
+  backup_restore_database
+  backup_restore_directory ${config_default_attachments_storage_path}
+  backup_restore_directory ${REDMINE_DOTFILES_DIR}
+  backup_restore_directory ${REDMINE_PLUGINS_DIR}
+  backup_restore_directory ${REDMINE_THEMES_DIR}
 
   # force execution of database and plugin migrations on next start
   rm -rf ${REDMINE_DATA_DIR}/tmp
