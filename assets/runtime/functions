@@ -519,7 +519,7 @@ backup_dump_database() {
       ;;
     mysql2)
       echo "Dumping MySQL database ${database_production_database}..."
-      MYSQL_PWD=${database_production_password} mysqldump --add-drop-table \
+      MYSQL_PWD=${database_production_password} mysqldump --lock-tables --add-drop-table \
         --host ${database_production_host} --port ${database_production_port} \
         --user ${database_production_username} --default-character-set ${database_production_encoding} \
         ${database_production_database} | \
