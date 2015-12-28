@@ -666,7 +666,12 @@ backup_restore_directory() {
   local dirname=$(basename ${directory})
 
   echo "Restoring ${dirname}..."
-  exec_as_redmine mv ${directory} ${directory}.$(date +%s)
+  files=($(shopt -s nullglob;shopt -s dotglob;echo ${directory}/*))
+  if [[ ${#files[@]} -gt 0 ]]; then
+    exec_as_redmine mv ${directory} ${directory}.$(date +%s)
+  else
+    exec_as_redmine rm -rf ${directory}
+  fi
   exec_as_redmine mkdir -p ${directory}
   exec_as_redmine tar xf ${config_default_backup_storage_path}/${dirname}.tar.gz -C ${directory}
   exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}.tar.gz
