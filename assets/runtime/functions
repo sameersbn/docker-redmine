@@ -999,9 +999,9 @@ backup_restore() {
     fi
 
     echo
-    for b in $(ls ${config_default_backup_storage_path} | grep redmine_backup.tar | sort -r)
+    for b in $(ls ${config_default_backup_storage_path} | grep _redmine_backup.tar | sort -r)
     do
-      echo "‣ $b"
+      echo "‣ $b (created at $(date --date="@${b%%_redmine_backup.tar}" +'%d %b, %G - %H:%M:%S %Z'))"
     done
     echo
 
