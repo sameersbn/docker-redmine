@@ -34,7 +34,7 @@ parse_yaml() {
 #   - negative integer, if `a` is less than `b`
 #   - 0, if `a` and `b` are equal
 #   - non-negative integer, if `a` is greater than `b`
-vercmp () {
+vercmp() {
   expr '(' "$1" : '\([^.]*\)' ')' '-' '(' "$2" : '\([^.]*\)' ')' '|' \
        '(' "$1.0" : '[^.]*[.]\([^.]*\)' ')' '-' '(' "$2.0" : '[^.]*[.]\([^.]*\)' ')' '|' \
        '(' "$1.0.0" : '[^.]*[.][^.]*[.]\([^.]*\)' ')' '-' '(' "$2.0.0" : '[^.]*[.][^.]*[.]\([^.]*\)' ')' '|' \
@@ -604,7 +604,7 @@ backup_restore_validate() {
   eval $(parse_yaml ${config_default_backup_storage_path}/backup_information.yml backup_)
 
   ## version check
-  if [ $(vercmp ${REDMINE_VERSION} ${backup_info_redmine_version}) -lt 0 ]; then
+  if [[ $(vercmp ${REDMINE_VERSION} ${backup_info_redmine_version}) -lt 0 ]]; then
     echo
     echo "ERROR: "
     echo "  Cannot restore backup for version ${backup_info_redmine_version} on a ${REDMINE_VERSION} instance."
