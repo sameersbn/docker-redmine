@@ -535,9 +535,10 @@ backup_dump_directory() {
 
   local directory=${1}
   local dirname=$(basename ${directory})
+  local extension=${2}
 
   echo "Dumping ${dirname}..."
-  exec_as_redmine tar -jcf ${config_default_backup_storage_path}/${dirname}.tar.gz -C ${directory} .
+  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory} .
 }
 
 backup_dump_information() {
@@ -659,6 +660,7 @@ backup_restore_directory() {
 
   local directory=${1}
   local dirname=$(basename ${directory})
+  local extension=${2}
 
   echo "Restoring ${dirname}..."
   files=($(shopt -s nullglob;shopt -s dotglob;echo ${directory}/*))
@@ -668,8 +670,8 @@ backup_restore_directory() {
     exec_as_redmine rm -rf ${directory}
   fi
   exec_as_redmine mkdir -p ${directory}
-  exec_as_redmine tar xf ${config_default_backup_storage_path}/${dirname}.tar.gz -C ${directory}
-  exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}.tar.gz
+  exec_as_redmine tar xf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory}
+  exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}${extension}
 }
 
 # _|_|_|              _|        _|  _|
@@ -956,10 +958,10 @@ execute_raketask() {
 backup_create() {
   eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
   backup_dump_database
-  backup_dump_directory ${config_default_attachments_storage_path}
-  backup_dump_directory ${REDMINE_DOTFILES_DIR}
-  backup_dump_directory ${REDMINE_PLUGINS_DIR}
-  backup_dump_directory ${REDMINE_THEMES_DIR}
+  backup_dump_directory ${config_default_attachments_storage_path} .tar.gz
+  backup_dump_directory ${REDMINE_DOTFILES_DIR} .tar.gz
+  backup_dump_directory ${REDMINE_PLUGINS_DIR} .tar.gz
+  backup_dump_directory ${REDMINE_THEMES_DIR} .tar.gz
   backup_dump_information
   backup_create_archive backup_information.yml database.sql.gz files.tar.gz dotfiles.tar.gz plugins.tar.gz themes.tar.gz
   backup_purge_expired
@@ -1000,10 +1002,10 @@ backup_restore() {
   backup_restore_unpack ${tar_file}
   backup_restore_validate
   backup_restore_database
-  backup_restore_directory ${config_default_attachments_storage_path}
-  backup_restore_directory ${REDMINE_DOTFILES_DIR}
-  backup_restore_directory ${REDMINE_PLUGINS_DIR}
-  backup_restore_directory ${REDMINE_THEMES_DIR}
+  backup_restore_directory ${config_default_attachments_storage_path} .tar.gz
+  backup_restore_directory ${REDMINE_DOTFILES_DIR} .tar.gz
+  backup_restore_directory ${REDMINE_PLUGINS_DIR} .tar.gz
+  backup_restore_directory ${REDMINE_THEMES_DIR} .tar.gz
 
   # force execution of database and plugin migrations on next start
   rm -rf ${REDMINE_DATA_DIR}/tmp
