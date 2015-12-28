@@ -587,15 +587,10 @@ backup_purge_expired() {
 }
 
 backup_restore_unpack() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
   local backup=${1}
-  if [[ ! -f ${config_default_backup_storage_path}/${backup} ]]; then
-    echo "Specified backup does not exist. Aborting..."
-    return 1
-  fi
-
   echo "Unpacking ${backup}..."
-  tar xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
+  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  tar -xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
 }
 
 backup_restore_validate() {
@@ -998,6 +993,11 @@ backup_restore() {
     echo
 
     read -p "Select a backup to restore: " tar_file
+  fi
+
+  if [[ ! -f ${config_default_backup_storage_path}/${tar_file} ]]; then
+    echo "Specified backup does not exist. Aborting..."
+    return 1
   fi
 
   backup_restore_unpack ${tar_file}
