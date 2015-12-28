@@ -847,6 +847,17 @@ migrate_database() {
   CACHE_VERSION=
   [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
   if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
+    ## version check, only upgrades are allowed
+    if [[ -n ${CACHE_VERSION} && $(vercmp ${REDMINE_VERSION} ${CACHE_VERSION}) -lt 0 ]]; then
+      echo
+      echo "ERROR: "
+      echo "  Cannot downgrade from Redmine version ${CACHE_VERSION} to ${REDMINE_VERSION}."
+      echo "  Only upgrades are allowed. Please use sameersbn/redmine:${CACHE_VERSION} or higher."
+      echo "  Cannot continue. Aborting!"
+      echo
+      return 1
+    fi
+
     # recreate the tmp directory
     rm -rf ${REDMINE_DATA_DIR}/tmp
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp
