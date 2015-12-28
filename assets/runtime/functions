@@ -559,6 +559,7 @@ backup_create_archive() {
 
   echo "Creating backup archive: ${tar_file}..."
   exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
+  exec_as_redmine chmod 0755 ${config_default_backup_storage_path}/${tar_file}
 
   for f in $@
   do
