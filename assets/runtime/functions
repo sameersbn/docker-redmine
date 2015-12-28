@@ -103,7 +103,7 @@ redmine_finalize_database_parameters() {
   # port 3306 and 5432 respectively.
   if [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
     DB_ADAPTER=${DB_ADAPTER:-mysql2}
-    DB_HOST=${DB_HOST:-${MYSQL_PORT_3306_TCP_ADDR}}
+    DB_HOST=${DB_HOST:-mysql}
     DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
 
     # support for linked sameersbn/mysql image
@@ -118,7 +118,7 @@ redmine_finalize_database_parameters() {
     DB_NAME=${DB_NAME:-${MYSQL_ENV_MYSQL_DATABASE}}
   elif [[ -n ${POSTGRESQL_PORT_5432_TCP_ADDR} ]]; then
     DB_ADAPTER=${DB_ADAPTER:-postgresql}
-    DB_HOST=${DB_HOST:-${POSTGRESQL_PORT_5432_TCP_ADDR}}
+    DB_HOST=${DB_HOST:-postgresql}
     DB_PORT=${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}
 
     # support for linked official postgres image
