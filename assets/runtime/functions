@@ -673,7 +673,7 @@ backup_restore_directory() {
     exec_as_redmine rm -rf ${directory}
   fi
   exec_as_redmine mkdir -p ${directory}
-  exec_as_redmine tar xf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory}
+  exec_as_redmine tar -xf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory}
   exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}${extension}
 }
 
