@@ -40,9 +40,9 @@
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
 - [Maintenance](#maintenance)
-    - [Creating Backups](#creating-backups)
-    - [Restoring Backups](#restoring-backups)
-    - [Automated Backups](#automated-backups)
+    - [Creating backups](#creating-backups)
+    - [Restoring backups](#restoring-backups)
+    - [Automated backups](#automated-backups)
     - [Rake Tasks](#rake-tasks)
     - [Upgrading](#upgrading)
     - [Shell Access](#shell-access)
@@ -571,7 +571,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **REDMINE_SUDO_MODE_ENABLED**: Requires users to re-enter their password for sensitive actions. Defaults to `false`.
 - **REDMINE_SUDO_MODE_TIMEOUT**: Sudo mode timeout. Defaults to `15` minutes.
 - **REDMINE_FETCH_COMMITS**: Setup cron job to fetch commits. Possible values `disable`, `hourly`, `daily` or `monthly`. Disabled by default.
-- **REDMINE_BACKUP_DIR**: The backup folder in the container. Defaults to `/home/redmine/data/backups`
+- **REDMINE_BACKUPS_DIR**: The backup folder in the container. Defaults to `/home/redmine/data/backups`
 - **REDMINE_BACKUP_SCHEDULE**: Setup cron job to schedule automatic backups. Possible values `disable`, `daily`, `weekly` or `monthly`. Disabled by default
 - **REDMINE_BACKUP_EXPIRY**: Configure how long (in seconds) to keep backups before they are deleted. By default when automated backups are disabled backups are kept forever (0 seconds), else the backups expire in 7 days (604800 seconds).
 - **REDMINE_BACKUP_TIME**: Set a time for the automatic backups in `HH:MM` format. Defaults to `04:00`.
@@ -774,9 +774,9 @@ Now when the image is started the theme will be not be available anymore.
 
 **Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
 
-The image allows using to generate a backup of your Redmine installation using the `app:backup:create` command or the `redmine-backup-create` helper script. The generated backup consists of uploaded files, dotfiles, plugins, themes and the sql database.
+The image allows users to create backups of the Redmine installation using the `app:backup:create` command or the `redmine-backup-create` helper script. The generated backup consists of configuration files, uploaded files and the sql database.
 
-Before generating a backup stopped and removed the running instances.
+Before generating a backup — stop and remove the running instance.
 
 ```bash
 docker stop redmine && docker rm redmine
@@ -786,12 +786,20 @@ Relaunch the container with the `app:backup:create` argument.
 
 ```bash
 docker run --name redmine -it --rm [OPTIONS] \
-    sameersbn/redmine:2.6.9-1 app:backup:create
+  sameersbn/redmine:2.6.9-1 app:backup:create
 ```
 
-The backup will be created in the backups folder of the [Data Store](#data-store). You can change the location of the backups using the `REDMINE_BACKUP_DIR` configuration parameter.
+The backup will be created in the `backups/` folder of the [Data Store](#data-store). You can change the location using the `REDMINE_BACKUPS_DIR` configuration parameter.
 
-*P.S. Backups can also be generated on a running instance using `docker exec -it redmine redmine-backup-create`. However, to avoid undesired side-effects, you are advised against running backup and restore operations on a running instance.*
+> **NOTE**
+>
+> Backups can also be generated on a running instance using:
+>
+>  ```bash
+>  docker exec -it redmine redmine-backup-create
+>  ```
+>
+>  To avoid undesired side-effects, you are advised against creating a backup on a running instance.
 
 ## Restoring Backups
 
@@ -799,7 +807,7 @@ The backup will be created in the backups folder of the [Data Store](#data-store
 
 Backups created using instructions from the [Creating backups](#creating-backups) section can be restored using the `app:backup:restore` argument.
 
-Before performing a restore stopped and removed the running instances.
+Before restoring a backup — stop and remove the running instance.
 
 ```bash
 docker stop redmine && docker rm redmine
@@ -809,19 +817,19 @@ Relaunch the container with the `app:backup:restore` argument. Ensure you launch
 
 ```bash
 docker run --name redmine -it --rm [OPTIONS] \
-    sameersbn/redmine:2.6.9-1 app:backup:restore
+  sameersbn/redmine:2.6.9-1 app:backup:restore
 ```
 
-A list of existing backups will be displayed in the reverse chronological order. Select a backup you want to restore and continue.
+A list of existing backups will be displayed. Select a backup you wish to restore.
 
-To avoid user interaction in the restore operation you can directly specify the backup filename using the `BACKUP` argument to `app:backup:restore`.
+To avoid this interaction you can specify the backup filename using the `BACKUP` argument to `app:backup:restore`, eg.
 
 ```bash
 docker run --name redmine -it --rm [OPTIONS] \
-    sameersbn/redmine:2.6.9-1 app:backup:restore BACKUP=1417624827_redmine_backup.tar
+  sameersbn/redmine:2.6.9-1 app:backup:restore BACKUP=1417624827_redmine_backup.tar
 ```
 
-## Automated Backups
+## Automated backups
 
 **Only available in versions >`3.2.0-2`, >`3.1.3-1`, >`3.0.7-1` and >`2.6.9-1`**
 
