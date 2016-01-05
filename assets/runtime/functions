@@ -558,7 +558,7 @@ backup_dump_information() {
     echo "  database_adapter: ${database_production_adapter}"
     echo "  created_at: $(date)"
   ) > ${config_default_backup_storage_path}/backup_information.yml
-  chown ${REDMINE_USER}:${REDMINE_USER} ${config_default_backup_storage_path}/backup_information.yml
+  chown ${REDMINE_USER}: ${config_default_backup_storage_path}/backup_information.yml
 }
 
 backup_create_archive() {
@@ -693,7 +693,7 @@ map_uidgid() {
     echo "Mapping UID and GID for ${REDMINE_USER}:${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
     groupmod -g ${USERMAP_GID} ${REDMINE_USER}
     sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
-    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${REDMINE_USER}:${REDMINE_USER}
+    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${REDMINE_USER}:
   fi
 }
 
@@ -701,41 +701,41 @@ initialize_logdir() {
   echo "Initializing logdir..."
   mkdir -p ${REDMINE_LOG_DIR}/supervisor
   chmod -R 0755 ${REDMINE_LOG_DIR}/supervisor
-  chown -R root:root ${REDMINE_LOG_DIR}/supervisor
+  chown -R root: ${REDMINE_LOG_DIR}/supervisor
 
   mkdir -p ${REDMINE_LOG_DIR}/nginx
   chmod -R 0755 ${REDMINE_LOG_DIR}/nginx
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/nginx
+  chown -R ${REDMINE_USER}: ${REDMINE_LOG_DIR}/nginx
 
   mkdir -p ${REDMINE_LOG_DIR}/redmine
   chmod -R 0755 ${REDMINE_LOG_DIR}/redmine
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_LOG_DIR}/redmine
+  chown -R ${REDMINE_USER}: ${REDMINE_LOG_DIR}/redmine
 }
 
 initialize_datadir() {
   echo "Initializing datadir..."
   chmod -R 0755 ${REDMINE_DATA_DIR}
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}
+  chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}
 
   # create plugins directory
   mkdir -p ${REDMINE_PLUGINS_DIR}
   chmod -R 0755 ${REDMINE_PLUGINS_DIR}
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_PLUGINS_DIR}
+  chown -R ${REDMINE_USER}: ${REDMINE_PLUGINS_DIR}
 
   # create themes directory
   mkdir -p ${REDMINE_THEMES_DIR}
   chmod -R 0755 ${REDMINE_THEMES_DIR}
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_THEMES_DIR}
+  chown -R ${REDMINE_USER}: ${REDMINE_THEMES_DIR}
 
   # create attachments directory
   mkdir -p ${REDMINE_ATTACHMENTS_DIR}
   chmod -R 0755 ${REDMINE_ATTACHMENTS_DIR}
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_ATTACHMENTS_DIR}
+  chown -R ${REDMINE_USER}: ${REDMINE_ATTACHMENTS_DIR}
 
   # create backups directory
   mkdir -p ${REDMINE_BACKUPS_DIR}
   chmod -R 0755 ${REDMINE_BACKUPS_DIR}
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_BACKUPS_DIR}
+  chown -R ${REDMINE_USER}: ${REDMINE_BACKUPS_DIR}
 
   if [[ -d /redmine/files ]]; then # deprecated
     echo "WARNING: "
@@ -747,20 +747,20 @@ initialize_datadir() {
   # create dotfiles directory
   mkdir -p ${REDMINE_DOTFILES_DIR}
   chmod -R 0755 ${REDMINE_DOTFILES_DIR}
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DOTFILES_DIR}
+  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}
 
   mkdir -p ${REDMINE_DOTFILES_DIR}/.ssh
   chmod -R 0700 ${REDMINE_DOTFILES_DIR}/.ssh
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DOTFILES_DIR}/.ssh
+  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.ssh
 
   mkdir -p ${REDMINE_DOTFILES_DIR}/.subversion
   chmod -R 0755 ${REDMINE_DOTFILES_DIR}/.subversion
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DOTFILES_DIR}/.subversion
+  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.subversion
 
   # create tmp directory
   mkdir -p ${REDMINE_DATA_DIR}/tmp
   chmod -R 0755 ${REDMINE_DATA_DIR}/tmp
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/tmp
+  chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}/tmp
 }
 
 generate_ssh_client_keys() {
