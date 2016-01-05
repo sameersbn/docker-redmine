@@ -57,16 +57,17 @@ exec_as_redmine() {
 # $3: destination location
 # $4: mode of destination
 install_template() {
-  local USR=${1}
+  local OWNERSHIP=${1}
   local SRC=${2}
   local DEST=${3}
   local MODE=${4:-0644}
   if [[ -f ${USERCONF_TEMPLATES_DIR}/${SRC} ]]; then
-    sudo -HEu ${USR} cp ${USERCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+    cp ${USERCONF_TEMPLATES_DIR}/${SRC} ${DEST}
   elif [[ -f ${SYSCONF_TEMPLATES_DIR}/${SRC} ]]; then
-    sudo -HEu ${USR} cp ${SYSCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+    cp ${SYSCONF_TEMPLATES_DIR}/${SRC} ${DEST}
   fi
   chmod ${MODE} ${DEST}
+  chown ${OWNERSHIP} ${DEST}
 }
 
 ## Replace placeholders with values
@@ -244,7 +245,7 @@ redmine_configure_memcached() {
 
   if [[ ${MEMCACHE_ENABLED} == true ]]; then
     echo "Configuring redmine::memcached..."
-    install_template ${REDMINE_USER} redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG} 0644
+    install_template ${REDMINE_USER}: redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG} 0644
     update_template ${REDMINE_MEMCACHED_CONFIG} \
       MEMCACHE_HOST \
       MEMCACHE_PORT
@@ -786,24 +787,24 @@ symlink_dotfiles() {
 install_configuration_templates() {
   echo "Installing configuration templates..."
 
-  install_template ${REDMINE_USER} redmine/configuration.yml ${REDMINE_CONFIG} 0640
-  install_template ${REDMINE_USER} redmine/database.yml ${REDMINE_DATABASE_CONFIG} 0640
-  install_template ${REDMINE_USER} redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG} 0644
+  install_template ${REDMINE_USER}: redmine/configuration.yml ${REDMINE_CONFIG} 0640
+  install_template ${REDMINE_USER}: redmine/database.yml ${REDMINE_DATABASE_CONFIG} 0640
+  install_template ${REDMINE_USER}: redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG} 0644
 
   if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
-    install_template ${REDMINE_USER} redmine/config.ru ${REDMINE_INSTALL_DIR}/config.ru 0644
+    install_template ${REDMINE_USER}: redmine/config.ru ${REDMINE_INSTALL_DIR}/config.ru 0644
   fi
 
   if [[ ${REDMINE_HTTPS} == true ]]; then
     if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-      install_template root nginx/redmine-ssl ${REDMINE_NGINX_CONFIG} 0644
+      install_template root: nginx/redmine-ssl ${REDMINE_NGINX_CONFIG} 0644
     else
       echo "SSL keys and certificates were not found."
       echo "Assuming that the container is running behind a HTTPS enabled load balancer."
-      install_template root nginx/redmine ${REDMINE_NGINX_CONFIG} 0644
+      install_template root: nginx/redmine ${REDMINE_NGINX_CONFIG} 0644
     fi
   else
-    install_template root nginx/redmine ${REDMINE_NGINX_CONFIG} 0644
+    install_template root: nginx/redmine ${REDMINE_NGINX_CONFIG} 0644
   fi
 }
 
