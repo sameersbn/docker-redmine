@@ -71,7 +71,7 @@ cd ${REDMINE_INSTALL_DIR}
 ## use local cache if available
 if [[ -d ${GEM_CACHE_DIR} ]]; then
   cp -a ${GEM_CACHE_DIR} ${REDMINE_INSTALL_DIR}/vendor/cache
-  chown -R ${REDMINE_USER}:${REDMINE_USER} ${REDMINE_INSTALL_DIR}/vendor/cache
+  chown -R ${REDMINE_USER}: ${REDMINE_INSTALL_DIR}/vendor/cache
 fi
 exec_as_redmine bundle install -j$(nproc) --without development test --path ${REDMINE_INSTALL_DIR}/vendor/bundle
 
