@@ -15,8 +15,6 @@ server {
   ## Increase this if you want to upload large attachments
   client_max_body_size {{NGINX_MAX_UPLOAD_SIZE}};
 
-  add_header Strict-Transport-Security "max-age={{NGINX_HSTS_MAXAGE}};";
-
   ## Individual nginx logs for this Redmine vhost
   access_log  {{REDMINE_LOG_DIR}}/nginx/redmine_access.log;
   error_log   {{REDMINE_LOG_DIR}}/nginx/redmine_error.log;
