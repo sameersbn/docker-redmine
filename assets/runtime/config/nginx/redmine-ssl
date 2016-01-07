@@ -13,8 +13,7 @@ server {
   server_tokens off;
   
   ## Redirects all traffic to the HTTPS host
-  root /nowhere; ## root doesn't have to be a valid path since we are redirecting
-  rewrite ^ https://$host:{{REDMINE_PORT}}$request_uri? permanent;
+  return 301 https://$host:{{REDMINE_PORT}}$request_uri;
 }
 
 ## HTTPS host
