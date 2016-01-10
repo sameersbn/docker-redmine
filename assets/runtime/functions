@@ -522,19 +522,20 @@ backup_dump_database() {
   case ${database_production_adapter} in
     postgresql)
       echo "Dumping PostgreSQL database ${database_production_database}..."
-      exec_as_redmine PGPASSWORD=${database_production_password} pg_dump --clean \
+      PGPASSWORD=${database_production_password} pg_dump --clean \
         --host ${database_production_host} --port ${database_production_port} \
         --username ${database_production_username} \
         ${database_production_database} > ${config_default_backup_storage_path}/database.sql
       ;;
     mysql2)
       echo "Dumping MySQL database ${database_production_database}..."
-      exec_as_redmine MYSQL_PWD=${database_production_password} mysqldump --lock-tables --add-drop-table \
+      MYSQL_PWD=${database_production_password} mysqldump --lock-tables --add-drop-table \
         --host ${database_production_host} --port ${database_production_port} \
         --user ${database_production_username} --default-character-set ${database_production_encoding} \
         ${database_production_database} > ${config_default_backup_storage_path}/database.sql
       ;;
   esac
+  chown ${REDMINE_USER}: ${config_default_backup_storage_path}/database.sql
   exec_as_redmine gzip -f ${config_default_backup_storage_path}/database.sql
 }
 
