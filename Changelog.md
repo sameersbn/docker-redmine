@@ -1,6 +1,6 @@
 # Changelog
 
-**latest**
+**3.2.0-3**
 - `DB_TYPE` parameter renamed to `DB_ADAPTER` with `mysql2` and `postgresql` as accepted values.
 - exposed `DB_ENCODING` parameter
 - complete rewrite
