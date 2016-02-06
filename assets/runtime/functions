@@ -511,8 +511,8 @@ nginx_configure_redmine() {
 }
 
 backup_dump_database() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
   case ${database_production_adapter} in
     postgresql)
       echo "Dumping PostgreSQL database ${database_production_database}..."
@@ -534,7 +534,7 @@ backup_dump_database() {
 }
 
 backup_dump_directory() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
   local directory=${1}
   local dirname=$(basename ${directory})
@@ -545,8 +545,8 @@ backup_dump_directory() {
 }
 
 backup_dump_information() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
   (
     echo "info:"
     echo "  redmine_version: ${REDMINE_VERSION}"
@@ -558,7 +558,7 @@ backup_dump_information() {
 
 backup_create_archive() {
   local tar_file="$(date +%s)_redmine_backup.tar"
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
   echo "Creating backup archive: ${tar_file}..."
   exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
@@ -571,7 +571,7 @@ backup_create_archive() {
 }
 
 backup_purge_expired() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
   if [[ ${config_default_backup_expiry} -gt 0 ]]; then
     echo -n "Deleting old backups... "
     local removed=0
@@ -592,13 +592,13 @@ backup_purge_expired() {
 backup_restore_unpack() {
   local backup=${1}
   echo "Unpacking ${backup}..."
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
   tar -xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
 }
 
 backup_restore_validate() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
   eval $(parse_yaml ${config_default_backup_storage_path}/backup_information.yml backup_)
 
   ## version check
@@ -627,8 +627,8 @@ backup_restore_validate() {
 }
 
 backup_restore_database() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/database.yml database_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
   case ${database_production_adapter} in
     postgresql)
       echo "Restoring PostgreSQL database..."
@@ -655,7 +655,7 @@ backup_restore_database() {
 }
 
 backup_restore_directory() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
   local directory=${1}
   local dirname=$(basename ${directory})
@@ -955,7 +955,7 @@ execute_raketask() {
 }
 
 backup_create() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
   backup_dump_database
   backup_dump_directory ${config_default_attachments_storage_path} .tar
   backup_dump_directory ${REDMINE_DOTFILES_DIR} .tar.gz
@@ -967,7 +967,7 @@ backup_create() {
 }
 
 backup_restore() {
-  eval $(parse_yaml ${REDMINE_INSTALL_DIR}/config/configuration.yml config_)
+  eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
   local tar_file=
   local interactive=true
