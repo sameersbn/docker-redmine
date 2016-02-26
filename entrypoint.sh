@@ -21,6 +21,9 @@ case ${1} in
           echo "Executing entrypoint.custom.sh..."
           . ${REDMINE_DATA_DIR}/entrypoint.custom.sh
         fi
+
+        rm -rf /var/run/supervisor.sock
+        rm -rf ${REDMINE_INSTALL_DIR}/tmp/sockets/redmine.socket
         exec /usr/bin/supervisord -nc /etc/supervisor/supervisord.conf
         ;;
       app:init)
