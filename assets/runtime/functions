@@ -841,6 +841,9 @@ configure_redmine() {
   if [[ ${REDMINE_HTTPS} == true ]]; then
     exec_as_redmine sed -i "s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" ${REDMINE_INSTALL_DIR}/config/application.rb
   fi
+
+  # remove stale redmine.socket
+  rm -rf ${REDMINE_INSTALL_DIR}/tmp/sockets/redmine.socket
 }
 
 configure_nginx() {
