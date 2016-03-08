@@ -1,5 +1,5 @@
 postgresql:
-  image: sameersbn/postgresql:9.4-13
+  image: sameersbn/postgresql:9.4-14
   environment:
     - DB_USER=redmine
     - DB_PASS=password
