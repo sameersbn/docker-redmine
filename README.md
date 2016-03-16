@@ -1,5 +1,10 @@
 [![Docker Repository on Quay.io](https://quay.io/repository/sameersbn/redmine/status "Docker Repository on Quay.io")](https://quay.io/repository/sameersbn/redmine)
 
+> **NOTICE**:
+>
+>  `3.0.x`  has reached End-Of-Life
+
+
 # Table of Contents
 
 - [Introduction](#introduction)
