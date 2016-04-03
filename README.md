@@ -754,7 +754,7 @@ wget http://goo.gl/deKDpp -O - | sh
 
 ## Uninstalling Themes
 
-To uninstall plugins you simply need to remove the theme from the `/srv/docker/redmine/redmine/themes/` directory and restart the image.
+To uninstall themes you simply need to remove the theme from the `/srv/docker/redmine/redmine/themes/` directory and restart the image.
 
 ```bash
 rm -rf /srv/docker/redmine/redmine/themes/theme_name
