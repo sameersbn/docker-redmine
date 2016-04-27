@@ -359,8 +359,8 @@ redmine_configure_email_delivery() {
 redmine_configure_incoming_email() {
   if [[ ${IMAP_ENABLED} == true ]]; then
     echo "Configuring redmine::incoming_email..."
-    if [[ ! $(crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER} 2>/dev/null) || \
-          ! $(grep -q 'redmine:email:receive_imap' /tmp/cron.${REDMINE_USER}) ]]; then
+    crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+    if ! grep -q 'redmine:email:receive_imap' /tmp/cron.${REDMINE_USER}; then
       case ${INCOMING_EMAIL_NO_PERMISSION_CHECK} in
         true)  INCOMING_EMAIL_NO_PERMISSION_CHECK=1 ;;
         false) INCOMING_EMAIL_NO_PERMISSION_CHECK=0 ;;
@@ -392,8 +392,8 @@ redmine_configure_incoming_email() {
 redmine_configure_fetch_commits() {
   case ${REDMINE_FETCH_COMMITS} in
     hourly|daily|monthly)
-      if [[ ! $(crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER} 2>/dev/null) || \
-            ! $(grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}) ]]; then
+      crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+      if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
         echo "Configuring redmine::fetch_commits..."
         case ${REDMINE_VERSION} in
           2.*)
@@ -417,8 +417,8 @@ redmine_configure_fetch_commits() {
 redmine_configure_backups_schedule() {
   case ${REDMINE_BACKUP_SCHEDULE} in
     daily|weekly|monthly)
-      if [[ ! $(crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER} 2>/dev/null) || \
-            ! $(grep -q '/usr/bin/redmine-backup-create' /tmp/cron.${REDMINE_USER}) ]]; then
+      crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
+      if ! grep -q '/usr/bin/redmine-backup-create' /tmp/cron.${REDMINE_USER}; then
         echo "Configuring redmine::backups::schedule..."
         read hour min <<< ${REDMINE_BACKUP_TIME//[:]/ }
         day_of_month=*
