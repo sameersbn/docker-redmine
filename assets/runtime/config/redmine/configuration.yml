@@ -105,7 +105,7 @@ default:
   #
   # If you have a load-balancing Redmine cluster, you have to use the
   # same secret token on each machine.
-  secret_token: '{{REDMINE_SECRET_TOKEN}}'
+  #secret_token: 'change it to a long random string'
 
   # Requires users to re-enter their password for sensitive actions (editing
   # of account data, project memberships, application settings, user, group,
