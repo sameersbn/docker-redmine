@@ -298,6 +298,14 @@ redmine_configure_sudo_mode() {
     REDMINE_SUDO_MODE_TIMEOUT
 }
 
+redmine_configure_autologin_cookie() {
+  echo "Configuring redmine::autologin_cookie..."
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_AUTOLOGIN_COOKIE_NAME \
+    REDMINE_AUTOLOGIN_COOKIE_PATH \
+    REDMINE_AUTOLOGIN_COOKIE_SECURE
+}
+
 redmine_configure_email_delivery() {
   if [[ ${SMTP_ENABLED} != true ]]; then
     sed -i \
@@ -834,6 +842,7 @@ configure_redmine() {
   redmine_configure_secret_token
   redmine_configure_concurrent_uploads
   redmine_configure_sudo_mode
+  redmine_configure_autologin_cookie
   redmine_configure_email_delivery
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
