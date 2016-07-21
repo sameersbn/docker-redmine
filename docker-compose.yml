@@ -1,18 +1,28 @@
-postgresql:
-  image: sameersbn/postgresql:9.4-24
-  environment:
+version: '2'
+
+services:
+  postgresql:
+    image: sameersbn/postgresql:9.4-24
+    environment:
+      - DB_USER=redmine
+      - DB_PASS=password
+      - DB_NAME=redmine_production
+    volumes:
+      - /srv/docker/redmine/postgresql:/var/lib/postgresql
+
+  redmine:
+    image: sameersbn/redmine:2.6.10-8
+    depends_on:
+    - postgresql
+    environment:
+    - TZ=Asia/Kolkata
+
+    - DB_ADAPTER=postgresql
+    - DB_HOST=postgresql
+    - DB_PORT=5432
     - DB_USER=redmine
     - DB_PASS=password
     - DB_NAME=redmine_production
-  volumes:
-    - /srv/docker/redmine/postgresql:/var/lib/postgresql
-
-redmine:
-  image: sameersbn/redmine:2.6.10-8
-  links:
-    - postgresql:postgresql
-  environment:
-    - TZ=Asia/Kolkata
 
     - REDMINE_PORT=10083
     - REDMINE_HTTPS=false
@@ -43,7 +53,7 @@ redmine:
     - IMAP_SSL=true
     - IMAP_INTERVAL=30
 
-  ports:
+    ports:
     - "10083:80"
-  volumes:
+    volumes:
     - /srv/docker/redmine/redmine:/home/redmine/data
