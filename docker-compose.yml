@@ -8,7 +8,7 @@ postgresql:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 
 redmine:
-  image: sameersbn/redmine:2.6.10-7
+  image: sameersbn/redmine:2.6.10-8
   links:
     - postgresql:postgresql
   environment:
