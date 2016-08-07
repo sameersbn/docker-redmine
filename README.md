@@ -1,5 +1,8 @@
 [![Docker Repository on Quay.io](https://quay.io/repository/sameersbn/redmine/status "Docker Repository on Quay.io")](https://quay.io/repository/sameersbn/redmine)
 
+> **NOTICE**:
+> Redmine `2.6.x` has reached End-Of-Life. `sameersbn/redmine:2.6.10-8` is the last image available in this series. Please consider upgrading to Redmine `3.1.x` or above.
+
 # Table of Contents
 
 - [Introduction](#introduction)
