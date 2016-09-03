@@ -36,7 +36,7 @@
 - [Plugins](#plugins)
   - [Installing Plugins](#installing-plugins)
   - [Uninstalling Plugins](#uninstalling-plugins)
-- [Themes](#plugins)
+- [Themes](#themes)
   - [Installing Themes](#installing-themes)
   - [Uninstalling Themes](#uninstalling-themes)
 - [Maintenance](#maintenance)
