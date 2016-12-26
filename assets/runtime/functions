@@ -387,7 +387,10 @@ redmine_configure_incoming_email() {
         false) INCOMING_EMAIL_PRIVATE=0 ;;
       esac
 
-      INCOMING_EMAIL_OPTIONS="${INCOMING_EMAIL_UNKNOWN_USER:+unknown_user=${INCOMING_EMAIL_UNKNOWN_USER}} \
+      INCOMING_EMAIL_OPTIONS="${IMAP_FOLDER:+folder=${IMAP_FOLDER}} \
+        ${IMAP_MOVE_ON_SUCCESS:+move_on_success=${IMAP_MOVE_ON_SUCCESS}} \
+        ${IMAP_MOVE_ON_FAILURE:+move_on_failure=${IMAP_MOVE_ON_FAILURE}} \
+        ${INCOMING_EMAIL_UNKNOWN_USER:+unknown_user=${INCOMING_EMAIL_UNKNOWN_USER}} \
         ${INCOMING_EMAIL_NO_PERMISSION_CHECK:+no_permission_check=${INCOMING_EMAIL_NO_PERMISSION_CHECK}} \
         ${INCOMING_EMAIL_NO_ACCOUNT_NOTICE:+no_account_notice=${INCOMING_EMAIL_NO_ACCOUNT_NOTICE}} \
         ${INCOMING_EMAIL_DEFAULT_GROUP:+default_group=${INCOMING_EMAIL_DEFAULT_GROUP}} \
@@ -398,7 +401,7 @@ redmine_configure_incoming_email() {
         ${INCOMING_EMAIL_PRIORITY:+priority=${INCOMING_EMAIL_PRIORITY}} \
         ${INCOMING_EMAIL_PRIVATE:+private=${INCOMING_EMAIL_PRIVATE}} \
         ${INCOMING_EMAIL_ALLOW_OVERRIDE:+allow_override=${INCOMING_EMAIL_ALLOW_OVERRIDE}}"
-      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} starttls=${IMAP_STARTTLS} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
     fi
     crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
     rm -rf /tmp/cron.${REDMINE_USER}
