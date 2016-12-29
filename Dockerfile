@@ -1,4 +1,4 @@
-FROM sameersbn/ubuntu:14.04.20161014
+FROM sameersbn/ubuntu:14.04.20161217
 MAINTAINER sameer@damagehead.com
 
 ENV REDMINE_VERSION=3.3.1 \
