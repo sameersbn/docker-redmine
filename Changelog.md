@@ -1,5 +1,30 @@
 # Changelog
 
+**3.3.2-2**
+- added `IMAP_STARTTLS`, `IMAP_FOLDER`, `IMAP_MOVE_ON_SUCCESS`, `IMAP_MOVE_ON_FAILURE` configuration parameters
+- switch to ruby2.2
+
+**3.3.1-1**
+- upgrade baseimage to `sameersbn/ubuntu:14.04.20161217`
+
+**3.3.1**
+- redmine: upgrade to v.3.3.1
+- upgrade baseimage to `sameersbn/ubuntu:14.04.20161014`
+
+**3.3.0-4**
+- upgrade baseimage to `sameersbn/ubuntu:14.04.20160827`
+
+**3.3.0-3**
+- upgrade `docker-compose.yml` to v2 format
+- upgrade baseimage to `sameersbn/ubuntu:14.04.20160817`
+
+**3.3.0-2**
+- upgrade baseimage to `sameersbn/ubuntu:14.04.20160727`
+
+**3.3.0-1**
+- nginx spdy to http2
+- upgrade baseimage to `sameersbn/ubuntu:14.04.20160710`
+
 **3.3.0**
 - redmine: upgrade to v.3.3.0
 
