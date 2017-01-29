@@ -2,7 +2,7 @@ version: '2'
 
 services:
   postgresql:
-    image: sameersbn/postgresql:9.6-1
+    image: sameersbn/postgresql:9.6-2
     environment:
     - DB_USER=redmine
     - DB_PASS=password
