@@ -305,7 +305,8 @@ We are now ready to start the redmine application.
 
 ```bash
 docker run --name=redmine -it --rm \
-  --env='DB_ADAPTER=postgresql' \
+  --env='DB_TYPE=postgres' \
+  --env='DB_ADAPTER=psotgresql' \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
