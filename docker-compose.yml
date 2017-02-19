@@ -15,8 +15,6 @@ services:
     depends_on:
     - postgresql
     environment:
-    - TZ=Asia/Kolkata
-
     - DB_ADAPTER=postgresql
     - DB_HOST=postgresql
     - DB_PORT=5432
