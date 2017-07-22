@@ -578,7 +578,7 @@ backup_create_archive() {
 
   echo "Creating backup archive: ${tar_file}..."
   exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
-  exec_as_redmine chmod 0755 ${config_default_backup_storage_path}/${tar_file}
+  exec_as_redmine chmod 0644 ${config_default_backup_storage_path}/${tar_file}
 
   for f in $@
   do
@@ -711,41 +711,41 @@ map_uidgid() {
 initialize_logdir() {
   echo "Initializing logdir..."
   mkdir -p ${REDMINE_LOG_DIR}/supervisor
-  chmod -R 0755 ${REDMINE_LOG_DIR}/supervisor
+  chmod -R u+rw,go+r ${REDMINE_LOG_DIR}/supervisor
   chown -R root: ${REDMINE_LOG_DIR}/supervisor
 
   mkdir -p ${REDMINE_LOG_DIR}/nginx
-  chmod -R 0755 ${REDMINE_LOG_DIR}/nginx
+  chmod -R u+rw,go+r ${REDMINE_LOG_DIR}/nginx
   chown -R ${REDMINE_USER}: ${REDMINE_LOG_DIR}/nginx
 
   mkdir -p ${REDMINE_LOG_DIR}/redmine
-  chmod -R 0755 ${REDMINE_LOG_DIR}/redmine
+  chmod -R u+rw,go+r ${REDMINE_LOG_DIR}/redmine
   chown -R ${REDMINE_USER}: ${REDMINE_LOG_DIR}/redmine
 }
 
 initialize_datadir() {
   echo "Initializing datadir..."
-  chmod -R 0755 ${REDMINE_DATA_DIR}
+  chmod -R u+rw,go+r ${REDMINE_DATA_DIR}
   chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}
 
   # create plugins directory
   mkdir -p ${REDMINE_PLUGINS_DIR}
-  chmod -R 0755 ${REDMINE_PLUGINS_DIR}
+  chmod -R u+rw,go+r ${REDMINE_PLUGINS_DIR}
   chown -R ${REDMINE_USER}: ${REDMINE_PLUGINS_DIR}
 
   # create themes directory
   mkdir -p ${REDMINE_THEMES_DIR}
-  chmod -R 0755 ${REDMINE_THEMES_DIR}
+  chmod -R u+rw,go+r ${REDMINE_THEMES_DIR}
   chown -R ${REDMINE_USER}: ${REDMINE_THEMES_DIR}
 
   # create attachments directory
   mkdir -p ${REDMINE_ATTACHMENTS_DIR}
-  chmod -R 0755 ${REDMINE_ATTACHMENTS_DIR}
+  chmod -R u+rw,go+r ${REDMINE_ATTACHMENTS_DIR}
   chown -R ${REDMINE_USER}: ${REDMINE_ATTACHMENTS_DIR}
 
   # create backups directory
   mkdir -p ${REDMINE_BACKUPS_DIR}
-  chmod -R 0755 ${REDMINE_BACKUPS_DIR}
+  chmod -R u+rw,go+r ${REDMINE_BACKUPS_DIR}
   chown -R ${REDMINE_USER}: ${REDMINE_BACKUPS_DIR}
 
   if [[ -d /redmine/files ]]; then # deprecated
@@ -757,20 +757,20 @@ initialize_datadir() {
 
   # create dotfiles directory
   mkdir -p ${REDMINE_DOTFILES_DIR}
-  chmod -R 0755 ${REDMINE_DOTFILES_DIR}
+  chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}
   chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}
 
   mkdir -p ${REDMINE_DOTFILES_DIR}/.ssh
-  chmod -R 0700 ${REDMINE_DOTFILES_DIR}/.ssh
+  chmod -R u+rw,go-rwx ${REDMINE_DOTFILES_DIR}/.ssh
   chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.ssh
 
   mkdir -p ${REDMINE_DOTFILES_DIR}/.subversion
-  chmod -R 0755 ${REDMINE_DOTFILES_DIR}/.subversion
+  chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}/.subversion
   chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.subversion
 
   # create tmp directory
   mkdir -p ${REDMINE_DATA_DIR}/tmp
-  chmod -R 0755 ${REDMINE_DATA_DIR}/tmp
+  chmod -R u+rw,go+r ${REDMINE_DATA_DIR}/tmp
   chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}/tmp
 }
 
@@ -888,7 +888,7 @@ migrate_database() {
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/thumbnails
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/plugin_assets
-    exec_as_redmine chmod -R 0755 ${REDMINE_DATA_DIR}/tmp
+    exec_as_redmine chmod -R u+rw,go+r ${REDMINE_DATA_DIR}/tmp
 
     echo "Migrating database. Please be patient, this could take a while..."
     exec_as_redmine bundle exec rake db:create >/dev/null
