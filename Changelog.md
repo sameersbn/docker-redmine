@@ -1,5 +1,9 @@
 # Changelog
 
+**latest**
+- added `IMAP_STARTTLS`, `IMAP_FOLDER`, `IMAP_MOVE_ON_SUCCESS`, `IMAP_MOVE_ON_FAILURE` configuration parameters
+- upgrade to ruby2.3
+
 **3.3.0**
 - redmine: upgrade to v.3.3.0
 

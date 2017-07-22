@@ -623,7 +623,11 @@ Below is the complete list of parameters that can be set using environment varia
 - **IMAP_HOST**: IMAP server host. Defaults to `imap.gmail.com`.
 - **IMAP_PORT**: IMAP server port. Defaults to `993`.
 - **IMAP_SSL**: IMAP enable SSL. Defaults to `true`.
+- **IMAP_STARTTLS**: IMAP enabled STARTTLS. Defaults to `false`.
 - **IMAP_INTERVAL**: The interval in minutes between checking emails. Defaults to `30`. Values allowed in the range `1 - 60`.
+- **IMAP_FOLDER**: IMAP folder to read. Defaults to `INBOX`.
+- **IMAP_MOVE_ON_SUCCESS**: Move emails that were successfully received to `MAILBOX` instead of deleting them.
+- **IMAP_MOVE_ON_FAILURE**: Move emails that were ignored to `MAILBOX`.
 - **INCOMING_EMAIL_UNKNOWN_USER**: How to handle emails from an unknown user. Accepted values are `ignore`, `accept` and `create`. Defaults to `ignore`.
 - **INCOMING_EMAIL_NO_PERMISSION_CHECK**: Disable permission checking when receiving the email. Defaults to `false`.
 - **INCOMING_EMAIL_NO_ACCOUNT_NOTICE**: Disable new user account notification. Defaults to `true`.
