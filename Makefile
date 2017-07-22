@@ -11,7 +11,9 @@ help:
 	@echo "   5. make purge       - stop and remove the container"
 
 build:
-	@docker build --tag=sameersbn/redmine .
+	@docker build --tag=sameersbn/redmine \
+								--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+								--build-arg VCS_REF=`git rev-parse --short HEAD` .
 
 release:
 	@docker build --tag=sameersbn/redmine:$(shell cat VERSION) .
