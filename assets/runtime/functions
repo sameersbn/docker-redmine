@@ -467,70 +467,6 @@ redmine_configure_backups() {
   redmine_configure_backups_schedule
 }
 
-nginx_configure_redmine_ssl() {
-  if [[ ${REDMINE_HTTPS} == true && -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
-    echo "Configuring nginx::redmine::ssl..."
-
-    if [[ ! -f ${SSL_CA_CERTIFICATES_PATH} ]]; then
-      sed -i "/{{SSL_CA_CERTIFICATES_PATH}}/d" ${REDMINE_NGINX_CONFIG}
-    fi
-
-    if [[ ! -f ${SSL_DHPARAM_PATH} ]]; then
-      sed -i "/{{SSL_DHPARAM_PATH}}/d" ${REDMINE_NGINX_CONFIG}
-    fi
-
-    update_template ${REDMINE_NGINX_CONFIG} \
-      SSL_CERTIFICATE_PATH \
-      SSL_KEY_PATH \
-      SSL_DHPARAM_PATH \
-      SSL_VERIFY_CLIENT \
-      SSL_CA_CERTIFICATES_PATH
-  fi
-}
-
-nginx_configure_redmine_hsts() {
-  if [[ ${REDMINE_HTTPS} == true ]]; then
-    echo "Configuring nginx::redmine::hsts..."
-    if [[ ${NGINX_HSTS_ENABLED} != true ]]; then
-      sed -i "/{{NGINX_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
-    fi
-    update_template ${REDMINE_NGINX_CONFIG} NGINX_HSTS_MAXAGE
-  else
-    sed -i "/{{NGINX_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
-  fi
-}
-
-nginx_configure_redmine_relative_url() {
-  if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
-    echo "Configuring nginx::redmine::relative_url..."
-  fi
-  update_template ${REDMINE_NGINX_CONFIG} REDMINE_RELATIVE_URL_ROOT
-}
-
-nginx_configure_redmine_ipv6() {
-  if [[ ! -f /proc/net/if_inet6 ]]; then
-    sed -i \
-      -e "/listen \[::\]:80/d" \
-      -e "/listen \[::\]:443/d" \
-      ${REDMINE_NGINX_CONFIG}
-  fi
-}
-
-nginx_configure_redmine() {
-  echo "Configuring nginx::redmine..."
-  update_template ${REDMINE_NGINX_CONFIG} \
-    REDMINE_INSTALL_DIR \
-    REDMINE_LOG_DIR \
-    REDMINE_PORT \
-    NGINX_MAX_UPLOAD_SIZE \
-    NGINX_X_FORWARDED_PROTO
-
-  nginx_configure_redmine_ssl
-  nginx_configure_redmine_hsts
-  nginx_configure_redmine_relative_url
-  nginx_configure_redmine_ipv6
-}
-
 backup_dump_database() {
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
   eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
@@ -860,6 +796,73 @@ configure_redmine() {
 
   # remove stale redmine.socket
   rm -rf ${REDMINE_INSTALL_DIR}/tmp/sockets/redmine.socket
+}
+
+nginx_configure_redmine_ssl() {
+  if [[ ${REDMINE_HTTPS} == true && -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} ]]; then
+    echo "Configuring nginx::redmine::ssl..."
+
+    if [[ ! -f ${SSL_CA_CERTIFICATES_PATH} ]]; then
+      sed -i "/{{SSL_CA_CERTIFICATES_PATH}}/d" ${REDMINE_NGINX_CONFIG}
+    fi
+
+    if [[ ! -f ${SSL_DHPARAM_PATH} ]]; then
+      sed -i "/{{SSL_DHPARAM_PATH}}/d" ${REDMINE_NGINX_CONFIG}
+    fi
+
+    update_template ${REDMINE_NGINX_CONFIG} \
+      SSL_CERTIFICATE_PATH \
+      SSL_KEY_PATH \
+      SSL_DHPARAM_PATH \
+      SSL_VERIFY_CLIENT \
+      SSL_CA_CERTIFICATES_PATH
+  fi
+}
+
+nginx_configure_redmine_hsts() {
+  if [[ ${REDMINE_HTTPS} == true ]]; then
+    echo "Configuring nginx::redmine::hsts..."
+    if [[ ${NGINX_HSTS_ENABLED} != true ]]; then
+      sed -i "/{{NGINX_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
+    fi
+    update_template ${REDMINE_NGINX_CONFIG} NGINX_HSTS_MAXAGE
+  else
+    sed -i "/{{NGINX_HSTS_MAXAGE}}/d" ${REDMINE_NGINX_CONFIG}
+  fi
+}
+
+nginx_configure_redmine_relative_url() {
+  if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
+    echo "Configuring nginx::redmine::relative_url..."
+    sed -i "s/## rewrite/rewrite/g ${REDMINE_NGINX_CONFIG}
+  fi
+
+
+  update_template ${REDMINE_NGINX_CONFIG} REDMINE_RELATIVE_URL_ROOT
+}
+
+nginx_configure_redmine_ipv6() {
+  if [[ ! -f /proc/net/if_inet6 ]]; then
+    sed -i \
+      -e "/listen \[::\]:80/d" \
+      -e "/listen \[::\]:443/d" \
+      ${REDMINE_NGINX_CONFIG}
+  fi
+}
+
+nginx_configure_redmine() {
+  echo "Configuring nginx::redmine..."
+  update_template ${REDMINE_NGINX_CONFIG} \
+    REDMINE_INSTALL_DIR \
+    REDMINE_LOG_DIR \
+    REDMINE_PORT \
+    NGINX_MAX_UPLOAD_SIZE \
+    NGINX_X_FORWARDED_PROTO
+
+  nginx_configure_redmine_ssl
+  nginx_configure_redmine_hsts
+  nginx_configure_redmine_relative_url
+  nginx_configure_redmine_ipv6
 }
 
 configure_nginx() {
