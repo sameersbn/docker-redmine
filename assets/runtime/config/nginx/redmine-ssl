@@ -66,10 +66,11 @@ server {
   access_log  {{REDMINE_LOG_DIR}}/nginx/redmine_access.log;
   error_log   {{REDMINE_LOG_DIR}}/nginx/redmine_error.log;
 
-  location ~ ^{{REDMINE_RELATIVE_URL_ROOT}}(.*) {
+  location {{REDMINE_RELATIVE_URL_ROOT}} {
     ## Serve static files from defined root folder.
     ## @redmine is a named location for the upstream fallback, see below.
-    try_files $1 index.html $1.html @redmine;
+    rewrite ^{{REDMINE_RELATIVE_URL_ROOT}}(.*)$ $1 break;
+    try_files $uri index.html $uri.html @redmine;
   }
 
   ## If a file, which is not found in the root folder is requested,
