@@ -66,6 +66,19 @@ server {
   access_log  {{REDMINE_LOG_DIR}}/nginx/redmine_access.log;
   error_log   {{REDMINE_LOG_DIR}}/nginx/redmine_error.log;
 
+  # Based on http://www.redmine.org/projects/redmine/wiki/BrowserCaching
+  # the regex logic: after either /javascripts/ or /stylesheets/ find the suffixes we want, followed by any quantity of numbers 0-9
+  # This works because the files we want to cache always appear after one of those 2 directories:  but not the files we want to ignore
+  # /journals/edit/24174.js   and /uploads.js?attachment_id=1&filename=my-file-to-upload.png
+  location ~* /redmine(?<file>/(?:(?:plugin_assets/|themes/).+)?(?:javascripts|stylesheets|images)/.+(?:css|js|jpe?g|gif|ico|png)(\?[0-9]+)?$) {
+
+    expires 365d;
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    try_files $file @redmine;
+  }
+
   location {{REDMINE_RELATIVE_URL_ROOT}} {
     ## Serve static files from defined root folder.
     ## @redmine is a named location for the upstream fallback, see below.
