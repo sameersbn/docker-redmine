@@ -1,0 +1,19 @@
+{
+  "name": "docker-redmine-test",
+  "version": "0.0.1",
+  "description": "This Tests https://github.com/sameersbn/docker-redmine",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sameersbn/docker-redmine.git"
+  },
+  "author": "Frank Lemanschik <frank@dspeed.eu>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/sameersbn/docker-redmine/issues"
+  },
+  "homepage": "https://github.com/sameersbn/docker-redmine#readme"
+}
