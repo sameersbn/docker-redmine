@@ -15,11 +15,12 @@ REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 # Read YAML file from Bash script
 # Credits: https://gist.github.com/pkuczynski/8665367
 parse_yaml() {
-   local prefix=$2
-   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   local prefix="$2"
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*'
+   local fs=$(echo @|tr @ '\034')
    sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
         -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" $1 |
-   awk -F$fs '{
+   awk -F"$fs" '{
       indent = length($1)/2;
       vname[indent] = $2;
       for (i in vname) {if (i > indent) {delete vname[i]}}
@@ -44,10 +45,10 @@ vercmp() {
 
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
-  if [[ $(whoami) == ${REDMINE_USER} ]]; then
-    $@
+  if [[ $(whoami) == "${REDMINE_USER}" ]]; then
+    "$@"
   else
-    sudo -HEu ${REDMINE_USER} "$@"
+    sudo -HEu "${REDMINE_USER}" "$@"
   fi
 }
 
@@ -58,96 +59,96 @@ exec_as_redmine() {
 # $3: destination location
 # $4: mode of destination
 install_template() {
-  local OWNERSHIP=${1}
-  local SRC=${2}
-  local DEST=${3}
-  local MODE=${4:-0644}
-  if [[ -f ${USERCONF_TEMPLATES_DIR}/${SRC} ]]; then
-    cp ${USERCONF_TEMPLATES_DIR}/${SRC} ${DEST}
-  elif [[ -f ${SYSCONF_TEMPLATES_DIR}/${SRC} ]]; then
-    cp ${SYSCONF_TEMPLATES_DIR}/${SRC} ${DEST}
+  local OWNERSHIP="${1}"
+  local SRC="${2}"
+  local DEST="${3}"
+  local MODE="${4:-0644}"
+  if [[ -f "${USERCONF_TEMPLATES_DIR}"/"${SRC}" ]]; then
+    cp "${USERCONF_TEMPLATES_DIR}"/"${SRC}" "${DEST}"
+  elif [[ -f ${SYSCONF_TEMPLATES_DIR}/"${SRC}" ]]; then
+    cp ${SYSCONF_TEMPLATES_DIR}/"${SRC}" "${DEST}"
   fi
-  chmod ${MODE} ${DEST}
-  chown ${OWNERSHIP} ${DEST}
+  chmod "${MODE}" "${DEST}"
+  chown "${OWNERSHIP}" "${DEST}"
 }
 
 ## Replace placeholders with values
 # $1: file with placeholders to replace
 # $x: placeholders to replace
 update_template() {
-  local FILE=${1?missing argument}
+  local FILE="${1?missing argument}"
   shift
 
-  [[ ! -f ${FILE} ]] && return 1
+  [[ ! -f "${FILE}" ]] && return 1
 
-  local VARIABLES=($@)
-  local USR=$(stat -c %U ${FILE})
-  local tmp_file=$(mktemp)
-  cp -a "${FILE}" ${tmp_file}
+  local VARIABLES="($@)"
+  local USR="$(stat -c %U ${FILE})"
+  local tmp_file="$(mktemp)"
+  cp -a "${FILE}" "${tmp_file}"
 
   local variable
-  for variable in ${VARIABLES[@]}; do
+  for variable in "${VARIABLES[@]}"; do
     # Keep the compatibilty: {{VAR}} => ${VAR}
-    sed -ri "s/[{]{2}$variable[}]{2}/\${$variable}/g" ${tmp_file}
+    sed -ri "s/[{]{2}$variable[}]{2}/\${$variable}/g" "${tmp_file}"
   done
 
   # Replace placeholders
   (
     export ${VARIABLES[@]}
-    local IFS=":"; sudo -HEu ${USR} envsubst "${VARIABLES[*]/#/$}" < ${tmp_file} > ${FILE}
+    local IFS=":"; sudo -HEu ${USR} envsubst "${VARIABLES[*]/#/$}" < "${tmp_file}" > ${FILE}
   )
-  rm -f ${tmp_file}
+  rm -f "${tmp_file}"
 }
 
 redmine_finalize_database_parameters() {
   # is a mysql or postgresql database linked?
   # requires that the mysql or postgresql containers have exposed
   # port 3306 and 5432 respectively.
-  if [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
-    DB_ADAPTER=${DB_ADAPTER:-mysql2}
-    DB_HOST=${DB_HOST:-mysql}
-    DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
+  if [[ -n "${MYSQL_PORT_3306_TCP_ADDR}" ]]; then
+    DB_ADAPTER="${DB_ADAPTER:-mysql2}"
+    DB_HOST="${DB_HOST:-mysql}"
+    DB_PORT="${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}"
 
     # support for linked sameersbn/mysql image
-    DB_USER=${DB_USER:-${MYSQL_ENV_DB_USER}}
-    DB_PASS=${DB_PASS:-${MYSQL_ENV_DB_PASS}}
-    DB_NAME=${DB_NAME:-${MYSQL_ENV_DB_NAME}}
+    DB_USER="${DB_USER:-${MYSQL_ENV_DB_USER}}"
+    DB_PASS="${DB_PASS:-${MYSQL_ENV_DB_PASS}}"
+    DB_NAME="${DB_NAME:-${MYSQL_ENV_DB_NAME}}"
 
     # support for linked orchardup/mysql and centurylink/mysql image
     # also supports official mysql image
-    DB_USER=${DB_USER:-${MYSQL_ENV_MYSQL_USER}}
-    DB_PASS=${DB_PASS:-${MYSQL_ENV_MYSQL_PASSWORD}}
-    DB_NAME=${DB_NAME:-${MYSQL_ENV_MYSQL_DATABASE}}
+    DB_USER="${DB_USER:-${MYSQL_ENV_MYSQL_USER}}"
+    DB_PASS="${DB_PASS:-${MYSQL_ENV_MYSQL_PASSWORD}}"
+    DB_NAME="${DB_NAME:-${MYSQL_ENV_MYSQL_DATABASE}}"
   elif [[ -n ${POSTGRESQL_PORT_5432_TCP_ADDR} ]]; then
-    DB_ADAPTER=${DB_ADAPTER:-postgresql}
-    DB_HOST=${DB_HOST:-postgresql}
-    DB_PORT=${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}
+    DB_ADAPTER="${DB_ADAPTER:-postgresql}"
+    DB_HOST="${DB_HOST:-postgresql}"
+    DB_PORT="${DB_PORT:-${POSTGRESQL_PORT_5432_TCP_PORT}}"
 
     # support for linked official postgres image
-    DB_USER=${DB_USER:-${POSTGRESQL_ENV_POSTGRES_USER}}
-    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_POSTGRES_PASSWORD}}
-    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_DB}}
-    #TODO: Probally BUG Let See if some one has errors 
+    DB_USER="${DB_USER:-${POSTGRESQL_ENV_POSTGRES_USER}}"
+    DB_PASS="${DB_PASS:-${POSTGRESQL_ENV_POSTGRES_PASSWORD}}"
+    DB_NAME="${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_DB}}"
+    #TODO: Probally BUG Let See if some one has errors
     #i don't get errors
-    #DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_USER}}
+    #DB_NAME="${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_USER}}"
 
     # support for linked sameersbn/postgresql image
-    DB_USER=${DB_USER:-${POSTGRESQL_ENV_DB_USER}}
-    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_DB_PASS}}
-    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB_NAME}}
+    DB_USER="${DB_USER:-${POSTGRESQL_ENV_DB_USER}}"
+    DB_PASS="${DB_PASS:-${POSTGRESQL_ENV_DB_PASS}}"
+    DB_NAME="${DB_NAME:-${POSTGRESQL_ENV_DB_NAME}}"
 
     # support for linked orchardup/postgresql image
-    DB_USER=${DB_USER:-${POSTGRESQL_ENV_POSTGRESQL_USER}}
-    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_POSTGRESQL_PASS}}
-    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRESQL_DB}}
+    DB_USER="${DB_USER:-${POSTGRESQL_ENV_POSTGRESQL_USER}}"
+    DB_PASS="${DB_PASS:-${POSTGRESQL_ENV_POSTGRESQL_PASS}}"
+    DB_NAME="${DB_NAME:-${POSTGRESQL_ENV_POSTGRESQL_DB}}"
 
     # support for linked paintedfox/postgresql image
-    DB_USER=${DB_USER:-${POSTGRESQL_ENV_USER}}
-    DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
-    DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
+    DB_USER="${DB_USER:-${POSTGRESQL_ENV_USER}}"
+    DB_PASS="${DB_PASS:-${POSTGRESQL_ENV_PASS}}"
+    DB_NAME="${DB_NAME:-${POSTGRESQL_ENV_DB}}"
   fi
 
-  if [[ -z ${DB_HOST} ]]; then
+  if [[ -z "${DB_HOST}" ]]; then
     echo
     echo "ERROR: "
     echo "  Please configure the database connection."
@@ -179,8 +180,8 @@ redmine_finalize_database_parameters() {
   esac
 
   # set default user and database
-  DB_USER=${DB_USER:-root}
-  DB_NAME=${DB_NAME:-redmine_production}
+  DB_USER="${DB_USER:-root}"
+  DB_NAME="${DB_NAME:-redmine_production}"
 }
 
 redmine_check_database_connection() {
@@ -249,7 +250,7 @@ redmine_configure_memcached() {
 
   if [[ ${MEMCACHE_ENABLED} == true ]]; then
     echo "Configuring redmine::memcached..."
-    install_template ${REDMINE_USER}: redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG} 0644
+    install_template "${REDMINE_USER}": redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG} 0644
     update_template ${REDMINE_MEMCACHED_CONFIG} \
       MEMCACHE_HOST \
       MEMCACHE_PORT
@@ -377,8 +378,8 @@ redmine_configure_email_delivery() {
 redmine_configure_incoming_email() {
   if [[ ${IMAP_ENABLED} == true ]]; then
     echo "Configuring redmine::incoming_email..."
-    crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
-    if ! grep -q 'redmine:email:receive_imap' /tmp/cron.${REDMINE_USER}; then
+    crontab -u "${REDMINE_USER}" -l >/tmp/cron."${REDMINE_USER}"
+    if ! grep -q 'redmine:email:receive_imap' /tmp/cron."${REDMINE_USER}"; then
       case ${INCOMING_EMAIL_NO_PERMISSION_CHECK} in
         true)  INCOMING_EMAIL_NO_PERMISSION_CHECK=1 ;;
         false) INCOMING_EMAIL_NO_PERMISSION_CHECK=0 ;;
@@ -403,34 +404,34 @@ redmine_configure_incoming_email() {
         ${INCOMING_EMAIL_PRIORITY:+priority=${INCOMING_EMAIL_PRIORITY}} \
         ${INCOMING_EMAIL_PRIVATE:+private=${INCOMING_EMAIL_PRIVATE}} \
         ${INCOMING_EMAIL_ALLOW_OVERRIDE:+allow_override=${INCOMING_EMAIL_ALLOW_OVERRIDE}}"
-      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} starttls=${IMAP_STARTTLS} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} starttls=${IMAP_STARTTLS} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron."${REDMINE_USER}"
     fi
-    crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
-    rm -rf /tmp/cron.${REDMINE_USER}
+    crontab -u "${REDMINE_USER}" /tmp/cron."${REDMINE_USER}"
+    rm -rf /tmp/cron."${REDMINE_USER}"
   fi
 }
 
 redmine_configure_fetch_commits() {
   case ${REDMINE_FETCH_COMMITS} in
     hourly|daily|monthly)
-      crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
-      if ! grep -q 'Repository.fetch_changesets' /tmp/cron.${REDMINE_USER}; then
+      crontab -u "${REDMINE_USER}" -l >/tmp/cron."${REDMINE_USER}"
+      if ! grep -q 'Repository.fetch_changesets' /tmp/cron."${REDMINE_USER}"; then
         echo "Configuring redmine::fetch_commits..."
         case ${REDMINE_VERSION} in
           2.*)
-            echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+            echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./script/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron."${REDMINE_USER}"
             ;;
           3.*)
-            echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+            echo "@${REDMINE_FETCH_COMMITS} cd ${REDMINE_HOME}/redmine && ./bin/rails runner \"Repository.fetch_changesets\" -e ${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron."${REDMINE_USER}"
             ;;
           *)
             echo "ERROR: Unsupported Redmine version (${REDMINE_VERSION})"
             return 1
             ;;
         esac
-        crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+        crontab -u "${REDMINE_USER}" /tmp/cron."${REDMINE_USER}"
       fi
-      rm -rf /tmp/cron.${REDMINE_USER}
+      rm -rf /tmp/cron."${REDMINE_USER}"
       ;;
   esac
 }
@@ -438,8 +439,8 @@ redmine_configure_fetch_commits() {
 redmine_configure_backups_schedule() {
   case ${REDMINE_BACKUP_SCHEDULE} in
     daily|weekly|monthly)
-      crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
-      if ! grep -q '/usr/bin/redmine-backup-create' /tmp/cron.${REDMINE_USER}; then
+      crontab -u "${REDMINE_USER}" -l >/tmp/cron."${REDMINE_USER}"
+      if ! grep -q '/usr/bin/redmine-backup-create' /tmp/cron."${REDMINE_USER}"; then
         echo "Configuring redmine::backups::schedule..."
         read hour min <<< ${REDMINE_BACKUP_TIME//[:]/ }
         day_of_month=*
@@ -450,17 +451,17 @@ redmine_configure_backups_schedule() {
           weekly) day_of_week=0 ;;
           monthly) day_of_month=01 ;;
         esac
-        echo "$min $hour $day_of_month $month $day_of_week /usr/bin/redmine-backup-create >> ${REDMINE_LOG_DIR}/redmine/backups.log 2>&1" >> /tmp/cron.${REDMINE_USER}
-        crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
+        echo "$min $hour $day_of_month $month $day_of_week /usr/bin/redmine-backup-create >> ${REDMINE_LOG_DIR}/redmine/backups.log 2>&1" >> /tmp/cron."${REDMINE_USER}"
+        crontab -u "${REDMINE_USER}" /tmp/cron."${REDMINE_USER}"
       fi
-      rm -rf /tmp/cron.${REDMINE_USER}
+      rm -rf /tmp/cron."${REDMINE_USER}"
       ;;
   esac
 }
 
 redmine_configure_backups() {
   echo "Configuring redmine::backups..."
-  update_template ${REDMINE_CONFIG} \
+  update_template "${REDMINE_CONFIG}" \
     REDMINE_BACKUPS_DIR \
     REDMINE_BACKUP_EXPIRY
 
@@ -486,16 +487,16 @@ backup_dump_database() {
         ${database_production_database} > ${config_default_backup_storage_path}/database.sql
       ;;
   esac
-  chown ${REDMINE_USER}: ${config_default_backup_storage_path}/database.sql
+  chown "${REDMINE_USER}": ${config_default_backup_storage_path}/database.sql
   exec_as_redmine gzip -f ${config_default_backup_storage_path}/database.sql
 }
 
 backup_dump_directory() {
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
-  local directory=${1}
+  local directory="${1}"
   local dirname=$(basename ${directory})
-  local extension=${2}
+  local extension="${2}"
 
   echo "Dumping ${dirname}..."
   exec_as_redmine tar -cf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory} .
@@ -510,7 +511,7 @@ backup_dump_information() {
     echo "  database_adapter: ${database_production_adapter}"
     echo "  created_at: $(date)"
   ) > ${config_default_backup_storage_path}/backup_information.yml
-  chown ${REDMINE_USER}: ${config_default_backup_storage_path}/backup_information.yml
+  chown "${REDMINE_USER}": ${config_default_backup_storage_path}/backup_information.yml
 }
 
 backup_create_archive() {
@@ -547,7 +548,7 @@ backup_purge_expired() {
 }
 
 backup_restore_unpack() {
-  local backup=${1}
+  local backup="${1}"
   echo "Unpacking ${backup}..."
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
   tar -xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
@@ -614,9 +615,9 @@ backup_restore_database() {
 backup_restore_directory() {
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
-  local directory=${1}
+  local directory="${1}"
   local dirname=$(basename ${directory})
-  local extension=${2}
+  local extension="${2}"
 
   echo "Restoring ${dirname}..."
   files=($(shopt -s nullglob;shopt -s dotglob;echo ${directory}/*))
@@ -637,15 +638,15 @@ backup_restore_directory() {
 # _|          _|_|_|  _|_|_|    _|  _|    _|_|_|
 
 map_uidgid() {
-  USERMAP_ORIG_UID=$(id -u ${REDMINE_USER})
-  USERMAP_ORIG_GID=$(id -g ${REDMINE_USER})
+  USERMAP_ORIG_UID=$(id -u "${REDMINE_USER}")
+  USERMAP_ORIG_GID=$(id -g "${REDMINE_USER}")
   USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
   USERMAP_UID=${USERMAP_UID:-$USERMAP_ORIG_UID}
   if [[ ${USERMAP_UID} != ${USERMAP_ORIG_UID} ]] || [[ ${USERMAP_GID} != ${USERMAP_ORIG_GID} ]]; then
-    echo "Mapping UID and GID for ${REDMINE_USER}:${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
-    groupmod -g ${USERMAP_GID} ${REDMINE_USER}
+    echo "Mapping UID and GID for "${REDMINE_USER}":${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
+    groupmod -g ${USERMAP_GID} "${REDMINE_USER}"
     sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
-    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${REDMINE_USER}:
+    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h "${REDMINE_USER}":
   fi
 }
 
@@ -657,37 +658,37 @@ initialize_logdir() {
 
   mkdir -p ${REDMINE_LOG_DIR}/nginx
   chmod -R u+rw,go+r ${REDMINE_LOG_DIR}/nginx
-  chown -R ${REDMINE_USER}: ${REDMINE_LOG_DIR}/nginx
+  chown -R "${REDMINE_USER}": ${REDMINE_LOG_DIR}/nginx
 
   mkdir -p ${REDMINE_LOG_DIR}/redmine
   chmod -R u+rw,go+r ${REDMINE_LOG_DIR}/redmine
-  chown -R ${REDMINE_USER}: ${REDMINE_LOG_DIR}/redmine
+  chown -R "${REDMINE_USER}": ${REDMINE_LOG_DIR}/redmine
 }
 
 initialize_datadir() {
   echo "Initializing datadir..."
   chmod -R u+rw,go+r ${REDMINE_DATA_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}
+  chown -R "${REDMINE_USER}": ${REDMINE_DATA_DIR}
 
   # create plugins directory
   mkdir -p ${REDMINE_PLUGINS_DIR}
   chmod -R u+rw,go+r ${REDMINE_PLUGINS_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_PLUGINS_DIR}
+  chown -R "${REDMINE_USER}": ${REDMINE_PLUGINS_DIR}
 
   # create themes directory
   mkdir -p ${REDMINE_THEMES_DIR}
   chmod -R u+rw,go+r ${REDMINE_THEMES_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_THEMES_DIR}
+  chown -R "${REDMINE_USER}": ${REDMINE_THEMES_DIR}
 
   # create attachments directory
   mkdir -p ${REDMINE_ATTACHMENTS_DIR}
   chmod -R u+rw,go+r ${REDMINE_ATTACHMENTS_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_ATTACHMENTS_DIR}
+  chown -R "${REDMINE_USER}": ${REDMINE_ATTACHMENTS_DIR}
 
   # create backups directory
   mkdir -p ${REDMINE_BACKUPS_DIR}
   chmod -R u+rw,go+r ${REDMINE_BACKUPS_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_BACKUPS_DIR}
+  chown -R "${REDMINE_USER}": ${REDMINE_BACKUPS_DIR}
 
   if [[ -d /redmine/files ]]; then # deprecated
     echo "WARNING: "
@@ -699,20 +700,20 @@ initialize_datadir() {
   # create dotfiles directory
   mkdir -p ${REDMINE_DOTFILES_DIR}
   chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}
+  chown -R "${REDMINE_USER}": ${REDMINE_DOTFILES_DIR}
 
   mkdir -p ${REDMINE_DOTFILES_DIR}/.ssh
   chmod -R u+rw,go-rwx ${REDMINE_DOTFILES_DIR}/.ssh
-  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.ssh
+  chown -R "${REDMINE_USER}": ${REDMINE_DOTFILES_DIR}/.ssh
 
   mkdir -p ${REDMINE_DOTFILES_DIR}/.subversion
   chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}/.subversion
-  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.subversion
+  chown -R "${REDMINE_USER}": ${REDMINE_DOTFILES_DIR}/.subversion
 
   # create tmp directory
   mkdir -p ${REDMINE_DATA_DIR}/tmp
   chmod -R u+rw,go+r ${REDMINE_DATA_DIR}/tmp
-  chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}/tmp
+  chown -R "${REDMINE_USER}": ${REDMINE_DATA_DIR}/tmp
 }
 
 generate_ssh_client_keys() {
@@ -739,13 +740,13 @@ symlink_dotfiles() {
 install_configuration_templates() {
   echo "Installing configuration templates..."
 
-  install_template ${REDMINE_USER}: redmine/configuration.yml ${REDMINE_CONFIG} 0640
-  install_template ${REDMINE_USER}: redmine/database.yml ${REDMINE_DATABASE_CONFIG} 0640
-  install_template ${REDMINE_USER}: redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG} 0644
-  install_template ${REDMINE_USER}: redmine/secret_token.rb ${REDMINE_SECRET_CONFIG} 0644
+  install_template "${REDMINE_USER}": redmine/configuration.yml ${REDMINE_CONFIG} 0640
+  install_template "${REDMINE_USER}": redmine/database.yml ${REDMINE_DATABASE_CONFIG} 0640
+  install_template "${REDMINE_USER}": redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG} 0644
+  install_template "${REDMINE_USER}": redmine/secret_token.rb ${REDMINE_SECRET_CONFIG} 0644
 
   if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
-    install_template ${REDMINE_USER}: redmine/config.ru ${REDMINE_INSTALL_DIR}/config.ru 0644
+    install_template "${REDMINE_USER}": redmine/config.ru ${REDMINE_INSTALL_DIR}/config.ru 0644
   fi
 
   if [[ ${REDMINE_HTTPS} == true ]]; then
