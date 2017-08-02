@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-source ${REDMINE_RUNTIME_DIR}/env-defaults
+source "${REDMINE_RUNTIME_DIR}/env-defaults"
 
 SYSCONF_TEMPLATES_DIR="${REDMINE_RUNTIME_DIR}/config"
 USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
@@ -19,7 +19,7 @@ parse_yaml() {
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*'
    local fs=$(echo @|tr @ '\034')
    sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" $1 |
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$1" |
    awk -F"$fs" '{
       indent = length($1)/2;
       vname[indent] = $2;
@@ -64,9 +64,9 @@ install_template() {
   local DEST="${3}"
   local MODE="${4:-0644}"
   if [[ -f "${USERCONF_TEMPLATES_DIR}"/"${SRC}" ]]; then
-    cp "${USERCONF_TEMPLATES_DIR}"/"${SRC}" "${DEST}"
+    cp "${USERCONF_TEMPLATES_DIR}/${SRC}" "${DEST}"
   elif [[ -f ${SYSCONF_TEMPLATES_DIR}/"${SRC}" ]]; then
-    cp ${SYSCONF_TEMPLATES_DIR}/"${SRC}" "${DEST}"
+    cp "${SYSCONF_TEMPLATES_DIR}/${SRC}" "${DEST}"
   fi
   chmod "${MODE}" "${DEST}"
   chown "${OWNERSHIP}" "${DEST}"
@@ -81,8 +81,8 @@ update_template() {
 
   [[ ! -f "${FILE}" ]] && return 1
 
-  local VARIABLES="($@)"
-  local USR="$(stat -c %U ${FILE})"
+  local VARIABLES=($@)
+  local USR=$(stat -c %U "${FILE}")
   local tmp_file="$(mktemp)"
   cp -a "${FILE}" "${tmp_file}"
 
@@ -94,8 +94,10 @@ update_template() {
 
   # Replace placeholders
   (
-    export ${VARIABLES[@]}
-    local IFS=":"; sudo -HEu ${USR} envsubst "${VARIABLES[*]/#/$}" < "${tmp_file}" > ${FILE}
+    # shellcheck disable=SC2086
+    export "${VARIABLES[@]}"
+    local IFS=":";
+    sudo -HEu "${USR}" envsubst "${VARIABLES[*]/#/$}" < "${tmp_file}" > "${FILE}"
   )
   rm -f "${tmp_file}"
 }
@@ -197,7 +199,7 @@ redmine_check_database_connection() {
   timeout=60
   while ! ${prog} >/dev/null 2>&1
   do
-    timeout=$(expr $timeout - 1)
+    timeout=$((timeout - 1))
     if [[ $timeout -eq 0 ]]; then
       echo
       echo "Could not connect to database server. Aborting..."
@@ -215,7 +217,7 @@ redmine_configure_database() {
   redmine_finalize_database_parameters
   redmine_check_database_connection
 
-  update_template ${REDMINE_DATABASE_CONFIG} \
+  update_template "${REDMINE_DATABASE_CONFIG}" \
     DB_ADAPTER \
     DB_ENCODING \
     DB_HOST \
@@ -226,7 +228,7 @@ redmine_configure_database() {
     DB_POOL
 
   if [[ ${DB_ADAPTER} == postgresql ]]; then
-    exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
+    exec_as_redmine sed -i "/reconnect: /d" "${REDMINE_DATABASE_CONFIG}"
   fi
 }
 
@@ -250,8 +252,8 @@ redmine_configure_memcached() {
 
   if [[ ${MEMCACHE_ENABLED} == true ]]; then
     echo "Configuring redmine::memcached..."
-    install_template "${REDMINE_USER}": redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG} 0644
-    update_template ${REDMINE_MEMCACHED_CONFIG} \
+    install_template "${REDMINE_USER}": redmine/additional_environment.rb "${REDMINE_MEMCACHED_CONFIG}" 0644
+    update_template "${REDMINE_MEMCACHED_CONFIG}" \
       MEMCACHE_HOST \
       MEMCACHE_PORT
   fi
@@ -260,15 +262,15 @@ redmine_configure_memcached() {
 redmine_configure_unicorn() {
   echo "Configuring redmine::unicorn..."
   if [[ ${REDMINE_RELATIVE_URL_ROOT} == / ]]; then
-    exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' ${REDMINE_UNICORN_CONFIG}
+    exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' "${REDMINE_UNICORN_CONFIG}"
   fi
 
   if [[ ${NGINX_ENABLED} != true ]]; then
     # nginx has been disabled, configure unicorn to listen on all interfaces
-    exec_as_redmine sed -i "s|127.0.0.1:8080|0.0.0.0:8080|" ${REDMINE_UNICORN_CONFIG}
+    exec_as_redmine sed -i "s|127.0.0.1:8080|0.0.0.0:8080|" "${REDMINE_UNICORN_CONFIG}"
   fi
 
-  update_template ${REDMINE_UNICORN_CONFIG} \
+  update_template "${REDMINE_UNICORN_CONFIG}" \
     REDMINE_INSTALL_DIR \
     REDMINE_USER \
     REDMINE_RELATIVE_URL_ROOT \
@@ -284,26 +286,26 @@ redmine_configure_secret_token() {
     echo "  All old sessions will become invalid."
     echo "  Please specify the REDMINE_SECRET_TOKEN parameter for persistence."
     echo "  **SHOULD** be defined if you have a load-balancing Redmine cluster."
-    REDMINE_SECRET_TOKEN=$(< /dev/urandom tr -dc [:alnum:] | head -c64)
+    REDMINE_SECRET_TOKEN=$(< /dev/urandom tr -dc '[:alnum:]' | head -c64)
   fi
-  update_template ${REDMINE_SECRET_CONFIG} REDMINE_SECRET_TOKEN
+  update_template "${REDMINE_SECRET_CONFIG}" REDMINE_SECRET_TOKEN
 }
 
 redmine_configure_concurrent_uploads() {
   echo "Configuring redmine::max_concurrent_ajax_uploads..."
-  update_template ${REDMINE_CONFIG} REDMINE_CONCURRENT_UPLOADS
+  update_template "${REDMINE_CONFIG}" REDMINE_CONCURRENT_UPLOADS
 }
 
 redmine_configure_sudo_mode() {
   echo "Configuring redmine::sudo_mode..."
-  update_template ${REDMINE_CONFIG} \
+  update_template "${REDMINE_CONFIG}" \
     REDMINE_SUDO_MODE_ENABLED \
     REDMINE_SUDO_MODE_TIMEOUT
 }
 
 redmine_configure_autologin_cookie() {
   echo "Configuring redmine::autologin_cookie..."
-  update_template ${REDMINE_CONFIG} \
+  update_template "${REDMINE_CONFIG}" \
     REDMINE_AUTOLOGIN_COOKIE_NAME \
     REDMINE_AUTOLOGIN_COOKIE_PATH \
     REDMINE_AUTOLOGIN_COOKIE_SECURE
@@ -324,7 +326,7 @@ redmine_configure_email_delivery() {
       -e "/{{SMTP_TLS}}/d" \
       -e "/{{SMTP_CA_PATH}}/d" \
       -e "/{{SMTP_CA_FILE}}/d" \
-      ${REDMINE_CONFIG}
+      "${REDMINE_CONFIG}"
   else
     echo "Configuring redmine::email_delivery..."
 
@@ -332,22 +334,22 @@ redmine_configure_email_delivery() {
       exec_as_redmine sed -i \
         -e '/{{SMTP_USER}}/d' \
         -e '/{{SMTP_PASS}}/d' \
-        ${REDMINE_CONFIG}
+        "${REDMINE_CONFIG}"
     else
       if [[ -z "${SMTP_PASS}" ]]; then
-        exec_as_redmine sed -i '/{{SMTP_PASS}}/d' ${REDMINE_CONFIG}
+        exec_as_redmine sed -i '/{{SMTP_PASS}}/d' "${REDMINE_CONFIG}"
       fi
     fi
 
     if [[ -z "${SMTP_AUTHENTICATION}" ]]; then
-      exec_as_redmine sed -i '/{{SMTP_AUTHENTICATION}}/d' ${REDMINE_CONFIG}
+      exec_as_redmine sed -i '/{{SMTP_AUTHENTICATION}}/d' "${REDMINE_CONFIG}"
     fi
 
     if [[ -z "${SMTP_OPENSSL_VERIFY_MODE}" ]]; then
-      exec_as_redmine sed -i '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' ${REDMINE_CONFIG}
+      exec_as_redmine sed -i '/{{SMTP_OPENSSL_VERIFY_MODE}}/d' "${REDMINE_CONFIG}"
     fi
 
-    update_template ${REDMINE_CONFIG} \
+    update_template "${REDMINE_CONFIG}" \
       SMTP_METHOD \
       SMTP_HOST \
       SMTP_PORT \
@@ -361,16 +363,16 @@ redmine_configure_email_delivery() {
 
     if [[ ${SMTP_CA_ENABLED} == true ]]; then
       if [[ -d ${SMTP_CA_PATH} ]]; then
-        update_template ${REDMINE_CONFIG} SMTP_CA_PATH
+        update_template "${REDMINE_CONFIG}" SMTP_CA_PATH
       fi
       if [[ -f ${SMTP_CA_FILE} ]]; then
-        update_template ${REDMINE_CONFIG} SMTP_CA_FILE
+        update_template "${REDMINE_CONFIG}" SMTP_CA_FILE
       fi
     else
       exec_as_redmine sed -i \
         -e "/{{SMTP_CA_PATH}}/d" \
         -e "/{{SMTP_CA_FILE}}/d" \
-        ${REDMINE_CONFIG}
+        "${REDMINE_CONFIG}"
     fi
   fi
 }
@@ -443,9 +445,9 @@ redmine_configure_backups_schedule() {
       if ! grep -q '/usr/bin/redmine-backup-create' /tmp/cron."${REDMINE_USER}"; then
         echo "Configuring redmine::backups::schedule..."
         read hour min <<< ${REDMINE_BACKUP_TIME//[:]/ }
-        day_of_month=*
-        month=*
-        day_of_week=*
+        day_of_month="*"
+        month="*"
+        day_of_week="*"
         case ${REDMINE_BACKUP_SCHEDULE} in
           daily) ;;
           weekly) day_of_week=0 ;;
@@ -469,78 +471,78 @@ redmine_configure_backups() {
 }
 
 backup_dump_database() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
-  case ${database_production_adapter} in
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
+  eval "$(parse_yaml "${REDMINE_DATABASE_CONFIG}" database_)"
+  case "${database_production_adapter}" in
     postgresql)
       echo "Dumping PostgreSQL database ${database_production_database}..."
-      PGPASSWORD=${database_production_password} pg_dump --clean \
-        --host ${database_production_host} --port ${database_production_port} \
-        --username ${database_production_username} \
-        ${database_production_database} > ${config_default_backup_storage_path}/database.sql
+      PGPASSWORD="${database_production_password}" pg_dump --clean \
+        --host "${database_production_host}" --port "${database_production_port}" \
+        --username "${database_production_username}" \
+        "${database_production_database}" > "${config_default_backup_storage_path}/database.sql"
       ;;
     mysql2)
       echo "Dumping MySQL database ${database_production_database}..."
       MYSQL_PWD=${database_production_password} mysqldump --lock-tables --add-drop-table \
-        --host ${database_production_host} --port ${database_production_port} \
-        --user ${database_production_username} --default-character-set ${database_production_encoding} \
-        ${database_production_database} > ${config_default_backup_storage_path}/database.sql
+        --host "${database_production_host}" --port "${database_production_port}" \
+        --user "${database_production_username}" --default-character-set "${database_production_encoding}" \
+        "${database_production_database}" > "${config_default_backup_storage_path}/database.sql"
       ;;
   esac
-  chown "${REDMINE_USER}": ${config_default_backup_storage_path}/database.sql
-  exec_as_redmine gzip -f ${config_default_backup_storage_path}/database.sql
+  chown "${REDMINE_USER}": "${config_default_backup_storage_path}/database.sql"
+  exec_as_redmine gzip -f "${config_default_backup_storage_path}/database.sql"
 }
 
 backup_dump_directory() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
 
   local directory="${1}"
-  local dirname=$(basename ${directory})
+  local dirname=$(basename "${directory}")
   local extension="${2}"
 
   echo "Dumping ${dirname}..."
-  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory} .
+  exec_as_redmine tar -cf "${config_default_backup_storage_path}/${dirname}${extension}" -C "${directory}" .
 }
 
 backup_dump_information() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
+  eval "$(parse_yaml "${REDMINE_DATABASE_CONFIG}" database_)"
   (
     echo "info:"
     echo "  redmine_version: ${REDMINE_VERSION}"
     echo "  database_adapter: ${database_production_adapter}"
     echo "  created_at: $(date)"
-  ) > ${config_default_backup_storage_path}/backup_information.yml
-  chown "${REDMINE_USER}": ${config_default_backup_storage_path}/backup_information.yml
+  ) > "${config_default_backup_storage_path}/backup_information.yml"
+  chown "${REDMINE_USER}": "${config_default_backup_storage_path}/backup_information.yml"
 }
 
 backup_create_archive() {
   local tar_file="$(date +%s)_redmine_backup.tar"
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
 
   echo "Creating backup archive: ${tar_file}..."
-  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
-  exec_as_redmine chmod 0644 ${config_default_backup_storage_path}/${tar_file}
+  exec_as_redmine tar -cf "${config_default_backup_storage_path}/${tar_file}" -C "${config_default_backup_storage_path}" "$@"
+  exec_as_redmine chmod 0644 "${config_default_backup_storage_path}/${tar_file}"
 
-  for f in $@
+  for f in "$@"
   do
-    exec_as_redmine rm -rf ${config_default_backup_storage_path}/${f}
+    exec_as_redmine rm -rf "${config_default_backup_storage_path}/${f}"
   done
 }
 
 backup_purge_expired() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  if [[ ${config_default_backup_expiry} -gt 0 ]]; then
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
+  if [[ "${config_default_backup_expiry}" -gt 0 ]]; then
     echo -n "Deleting old backups... "
     local removed=0
     local now=$(date +%s)
-    local cutoff=$(expr ${now} - ${config_default_backup_expiry})
-    for backup in $(ls ${config_default_backup_storage_path}/*_redmine_backup.tar)
+    local cutoff=$((now - config_default_backup_expiry))
+    for backup in ${config_default_backup_storage_path}/*_redmine_backup.tar
     do
-      local timestamp=$(stat -c %Y ${backup})
+      local timestamp=$(stat -c %Y "${backup}")
       if [[ ${timestamp} -lt ${cutoff} ]]; then
-        rm ${backup}
-        removed=$(expr ${removed} + 1)
+        rm "${backup}"
+        removed=$((removed + 1))
       fi
     done
     echo "(${removed} removed)"
@@ -550,17 +552,17 @@ backup_purge_expired() {
 backup_restore_unpack() {
   local backup="${1}"
   echo "Unpacking ${backup}..."
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  tar -xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_))"
+  tar -xf "${config_default_backup_storage_path}/${backup}" -C "${config_default_backup_storage_path}"
 }
 
 backup_restore_validate() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
-  eval $(parse_yaml ${config_default_backup_storage_path}/backup_information.yml backup_)
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
+  eval "$(parse_yaml "${REDMINE_DATABASE_CONFIG}" database_)"
+  eval "$(parse_yaml "${config_default_backup_storage_path}/backup_information.yml" backup_)"
 
   ## version check
-  if [[ $(vercmp ${REDMINE_VERSION} ${backup_info_redmine_version}) -lt 0 ]]; then
+  if [[ $(vercmp "${REDMINE_VERSION}" "${backup_info_redmine_version}") -lt 0 ]]; then
     echo
     echo "ERROR: "
     echo "  Cannot restore backup for version ${backup_info_redmine_version} on a ${REDMINE_VERSION} instance."
@@ -581,54 +583,54 @@ backup_restore_validate() {
     echo
     return 1
   fi
-  exec_as_redmine rm -rf ${config_default_backup_storage_path}/backup_information.yml
+  exec_as_redmine rm -rf "${config_default_backup_storage_path}/backup_information.yml"
 }
 
 backup_restore_database() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
+  eval "$(parse_yaml "${REDMINE_DATABASE_CONFIG}" database_)"
   case ${database_production_adapter} in
     postgresql)
       echo "Restoring PostgreSQL database..."
-      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
-        PGPASSWORD=${database_production_password} psql \
-          --host ${database_production_host} --port ${database_production_port} \
-          --username ${database_production_username} \
-          ${database_production_database}
+      gzip -dc "${config_default_backup_storage_path}/database.sql.gz" | \
+        PGPASSWORD="${database_production_password}" psql \
+          --host "${database_production_host}" --port "${database_production_port}" \
+          --username "${database_production_username}" \
+          "${database_production_database}"
       ;;
     mysql2)
       echo "Restoring MySQL database..."
-      gzip -dc ${config_default_backup_storage_path}/database.sql.gz | \
-        MYSQL_PWD=${database_production_password} mysql \
-          --host ${database_production_host} --port ${database_production_port} \
-          --user ${database_production_username} --default-character-set ${database_production_encoding} \
-          ${database_production_database}
+      gzip -dc "${config_default_backup_storage_path}/database.sql.gz" | \
+        MYSQL_PWD="${database_production_password}" mysql \
+          --host "${database_production_host}" --port "${database_production_port}" \
+          --user "${database_production_username}" --default-character-set "${database_production_encoding}" \
+          "${database_production_database}"
       ;;
     *)
       echo "Database type ${database_production_adapter} not supported."
       return 1
       ;;
   esac
-  exec_as_redmine rm -rf ${config_default_backup_storage_path}/database.sql.gz
+  exec_as_redmine rm -rf "${config_default_backup_storage_path}/database.sql.gz"
 }
 
 backup_restore_directory() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval "$(parse_yaml "${REDMINE_CONFIG}" config_)"
 
   local directory="${1}"
-  local dirname=$(basename ${directory})
+  local dirname=$(basename "${directory}")
   local extension="${2}"
 
   echo "Restoring ${dirname}..."
-  files=($(shopt -s nullglob;shopt -s dotglob;echo ${directory}/*))
+  files=($(shopt -s nullglob;shopt -s dotglob;echo "${directory}"/*))
   if [[ ${#files[@]} -gt 0 ]]; then
-    exec_as_redmine mv ${directory} ${directory}.$(date +%s)
+    exec_as_redmine mv "${directory}" "${directory}.$(date +%s)"
   else
-    exec_as_redmine rm -rf ${directory}
+    exec_as_redmine rm -rf "${directory}"
   fi
-  exec_as_redmine mkdir -p ${directory}
-  exec_as_redmine tar -xf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory}
-  exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}${extension}
+  exec_as_redmine mkdir -p "${directory}"
+  exec_as_redmine tar -xf "${config_default_backup_storage_path}/${dirname}${extension}" -C "${directory}"
+  exec_as_redmine rm -rf "${config_default_backup_storage_path}/${dirname}${extension}"
 }
 
 # _|_|_|              _|        _|  _|
@@ -643,10 +645,10 @@ map_uidgid() {
   USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
   USERMAP_UID=${USERMAP_UID:-$USERMAP_ORIG_UID}
   if [[ ${USERMAP_UID} != ${USERMAP_ORIG_UID} ]] || [[ ${USERMAP_GID} != ${USERMAP_ORIG_GID} ]]; then
-    echo "Mapping UID and GID for "${REDMINE_USER}":${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
-    groupmod -g ${USERMAP_GID} "${REDMINE_USER}"
+    echo "Mapping UID and GID for ${REDMINE_USER}:${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
+    groupmod -g "${USERMAP_GID}" "${REDMINE_USER}"
     sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
-    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h "${REDMINE_USER}":
+    find "${REDMINE_HOME}" -path "${REDMINE_DATA_DIR}"/\* -prune -o -print0 | xargs -0 chown -h "${REDMINE_USER}":
   fi
 }
 
