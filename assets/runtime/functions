@@ -698,17 +698,17 @@ initialize_datadir() {
   fi
 
   # create dotfiles directory
-  mkdir -p ${REDMINE_DOTFILES_DIR}
-  chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}
-  chown -R "${REDMINE_USER}": ${REDMINE_DOTFILES_DIR}
+  mkdir -p "${REDMINE_DOTFILES_DIR}"
+  chmod -R u+rw,go+r "${REDMINE_DOTFILES_DIR}"
+  chown -R "${REDMINE_USER}": "${REDMINE_DOTFILES_DIR}"
 
-  mkdir -p ${REDMINE_DOTFILES_DIR}/.ssh
-  chmod -R u+rw,go-rwx ${REDMINE_DOTFILES_DIR}/.ssh
-  chown -R "${REDMINE_USER}": ${REDMINE_DOTFILES_DIR}/.ssh
+  mkdir -p "${REDMINE_DOTFILES_DIR}"/.ssh
+  chmod -R u+rw,go-rwx "${REDMINE_DOTFILES_DIR}"/.ssh
+  chown -R "${REDMINE_USER}": "${REDMINE_DOTFILES_DIR}"/.ssh
 
-  mkdir -p ${REDMINE_DOTFILES_DIR}/.subversion
-  chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}/.subversion
-  chown -R "${REDMINE_USER}": ${REDMINE_DOTFILES_DIR}/.subversion
+  mkdir -p "${REDMINE_DOTFILES_DIR}"/.subversion
+  chmod -R u+rw,go+r "${REDMINE_DOTFILES_DIR}"/.subversion
+  chown -R "${REDMINE_USER}": "${REDMINE_DOTFILES_DIR}"/.subversion
 
   # create tmp directory
   mkdir -p ${REDMINE_DATA_DIR}/tmp
@@ -717,20 +717,20 @@ initialize_datadir() {
 }
 
 generate_ssh_client_keys() {
-  if [[ ! -e ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa || ! -e ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa.pub ]]; then
+  if [[ ! -e "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa || ! -e "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa.pub ]]; then
     echo "Generating OpenSSH client keys..."
-    exec_as_redmine rm -rf ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa.pub
-    exec_as_redmine ssh-keygen -qt rsa -N '' -f ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa
+    exec_as_redmine rm -rf "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa.pub
+    exec_as_redmine ssh-keygen -qt rsa -N '' -f "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa
   fi
 
   # ensure existing host keys have the right permissions
-  chmod 0600 ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa ${REDMINE_DOTFILES_DIR}/.ssh/id_rsa.pub
-  chmod 0700 ${REDMINE_DOTFILES_DIR}/.ssh
+  chmod 0600 "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa "${REDMINE_DOTFILES_DIR}"/.ssh/id_rsa.pub
+  chmod 0700 "${REDMINE_DOTFILES_DIR}"/.ssh
 }
 
 symlink_dotfiles() {
   echo "Symlinking dotfiles..."
-  for dotfile in $(find ${REDMINE_DOTFILES_DIR} -maxdepth 1 -type d -not -path ${REDMINE_DOTFILES_DIR})
+  for dotfile in "$(find ${REDMINE_DOTFILES_DIR} -maxdepth 1 -type d -not -path ${REDMINE_DOTFILES_DIR})"
   do
     exec_as_redmine rm -rf ${REDMINE_HOME}/$(basename ${dotfile})
     exec_as_redmine ln -sf ${dotfile} ${REDMINE_HOME}/$(basename ${dotfile})
@@ -977,32 +977,32 @@ install_themes() {
 }
 
 execute_raketask() {
-  if [[ -z ${1} ]]; then
+  if [[ -z "${1}" ]]; then
     echo "Please specify the rake task to execute. See http://www.redmine.org/projects/redmine/wiki/RedmineRake."
     return 1
   fi
   echo "Running raketask ${1}..."
-  exec_as_redmine bundle exec rake $@
+  exec_as_redmine bundle exec rake "$@"
 }
 
 backup_create() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval "$(parse_yaml ${REDMINE_CONFIG} config_)"
   backup_dump_database
-  backup_dump_directory ${config_default_attachments_storage_path} .tar
-  backup_dump_directory ${REDMINE_DOTFILES_DIR} .tar.gz
-  backup_dump_directory ${REDMINE_PLUGINS_DIR} .tar.gz
-  backup_dump_directory ${REDMINE_THEMES_DIR} .tar.gz
+  backup_dump_directory "${config_default_attachments_storage_path}" .tar
+  backup_dump_directory "${REDMINE_DOTFILES_DIR}" .tar.gz
+  backup_dump_directory "${REDMINE_PLUGINS_DIR}" .tar.gz
+  backup_dump_directory "${REDMINE_THEMES_DIR}" .tar.gz
   backup_dump_information
   backup_create_archive backup_information.yml database.sql.gz files.tar dotfiles.tar.gz plugins.tar.gz themes.tar.gz
   backup_purge_expired
 }
 
 backup_restore() {
-  eval $(parse_yaml ${REDMINE_CONFIG} config_)
+  eval "$(parse_yaml ${REDMINE_CONFIG} config_)"
 
   local tar_file=
   local interactive=true
-  for arg in $@
+  for arg in "$@"
   do
     if [[ $arg == BACKUP=* ]]; then
       tar_file=${arg##BACKUP=}
@@ -1013,14 +1013,14 @@ backup_restore() {
 
   # user needs to select the backup to restore
   if [[ $interactive == true ]]; then
-    num_backups=$(ls ${config_default_backup_storage_path}/*_redmine_backup.tar | wc -l)
+    num_backups=$(find ${config_default_backup_storage_path}/*_redmine_backup.tar | wc -l)
     if [[ $num_backups -eq 0 ]]; then
       echo "No backups exist at ${config_default_backup_storage_path}. Cannot continue."
       return 1
     fi
 
     echo
-    for b in $(ls ${config_default_backup_storage_path} | grep _redmine_backup.tar | sort -r)
+    for b in $(find ${config_default_backup_storage_path}/*_redmine_backup.tar | sort -r)
     do
       echo "‣ $b (created at $(date --date="@${b%%_redmine_backup.tar}" +'%d %b, %G - %H:%M:%S %Z'))"
     done
@@ -1042,7 +1042,7 @@ backup_restore() {
   backup_restore_validate
   backup_restore_database
   backup_restore_directory ${config_default_attachments_storage_path} .tar
-  backup_restore_directory ${REDMINE_DOTFILES_DIR} .tar.gz
+  backup_restore_directory "${REDMINE_DOTFILES_DIR}" .tar.gz
   backup_restore_directory ${REDMINE_PLUGINS_DIR} .tar.gz
   backup_restore_directory ${REDMINE_THEMES_DIR} .tar.gz
 
