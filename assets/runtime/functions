@@ -127,7 +127,7 @@ redmine_finalize_database_parameters() {
     DB_USER=${DB_USER:-${POSTGRESQL_ENV_POSTGRES_USER}}
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_POSTGRES_PASSWORD}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_DB}}
-    #TODO: Probally BUG Let See if some one has errors 
+    #TODO: Probally BUG Let See if some one has errors
     #i don't get errors
     #DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_USER}}
 
@@ -397,6 +397,7 @@ redmine_configure_incoming_email() {
         ${INCOMING_EMAIL_NO_ACCOUNT_NOTICE:+no_account_notice=${INCOMING_EMAIL_NO_ACCOUNT_NOTICE}} \
         ${INCOMING_EMAIL_DEFAULT_GROUP:+default_group=${INCOMING_EMAIL_DEFAULT_GROUP}} \
         ${INCOMING_EMAIL_PROJECT:+project=${INCOMING_EMAIL_PROJECT}} \
+        ${INCOMING_EMAIL_PROJECT_FROM_SUBADDRESS:+project_from_subaddress=${INCOMING_EMAIL_PROJECT_FROM_SUBADDRESS}} \
         ${INCOMING_EMAIL_STATUS:+status=${INCOMING_EMAIL_STATUS}} \
         ${INCOMING_EMAIL_TRACKER:+tracker=${INCOMING_EMAIL_TRACKER}} \
         ${INCOMING_EMAIL_CATEGORY:+category=${INCOMING_EMAIL_CATEGORY}} \

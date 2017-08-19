@@ -635,6 +635,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **INCOMING_EMAIL_NO_ACCOUNT_NOTICE**: Disable new user account notification. Defaults to `true`.
 - **INCOMING_EMAIL_DEFAULT_GROUP**: Adds created user to foo and bar groups.
 - **INCOMING_EMAIL_PROJECT**: Identifier of the target project.
+- **INCOMING_EMAIL_PROJECT_FROM_SUBADDRESS**: Address from which project name will be extracted using sub-address part
 - **INCOMING_EMAIL_STATUS**: Name of the target status.
 - **INCOMING_EMAIL_TRACKER**: Name of the target tracker.
 - **INCOMING_EMAIL_CATEGORY**: Name of the target category.
