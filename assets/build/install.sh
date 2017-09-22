@@ -185,6 +185,19 @@ stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
+cat > /usr/local/bin/git <<EOF
+#!/bin/bash
+
+# The latest git version (2.14.1) removes the --no-color option which breaks existing redmine/git
+# support.  We remove this option from the provided arguments until redmine fixes this,
+# presumably in redmine 3.4.3
+# Issue #305
+
+REAL_GIT=/usr/bin/git
+\$REAL_GIT \${@%--no-color}
+EOF
+chmod +x /usr/local/bin/git
+
 # purge build dependencies and cleanup apt
 apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}
 rm -rf /var/lib/apt/lists/*
