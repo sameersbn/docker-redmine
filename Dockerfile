@@ -1,5 +1,5 @@
-FROM sameersbn/ubuntu:14.04.20170711
-MAINTAINER sameer@damagehead.com
+FROM redmine@3.4.3
+MAINTAINER frank@dspeed.eu
 
 ENV RUBY_VERSION=2.3 \
     REDMINE_VERSION=3.4.2 \
