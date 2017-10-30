@@ -194,7 +194,7 @@ cat > /usr/local/bin/git <<EOF
 # Issue #305
 
 REAL_GIT=/usr/bin/git
-\$REAL_GIT \${@%--no-color}
+\$REAL_GIT "\${@%--no-color}"
 EOF
 chmod +x /usr/local/bin/git
 
