@@ -791,7 +791,7 @@ configure_redmine() {
 
   # configure secure-cookie if using SSL/TLS
   if [[ ${REDMINE_HTTPS} == true ]]; then
-    exec_as_redmine sed -i "/:secure => true, :key => '_redmine_session'/! s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" ${REDMINE_INSTALL_DIR}/config/application.rb
+    exec_as_redmine sed -i "/.*:secure => true,.*:key => '_redmine_session'/! s/:key => '_redmine_session'/:secure => true, :key => '_redmine_session'/" ${REDMINE_INSTALL_DIR}/config/application.rb
   fi
 
   # remove stale redmine.socket
