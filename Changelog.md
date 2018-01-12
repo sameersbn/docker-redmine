@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.4**
+- redmine: upgrade to v.3.4.4
+
 **3.4.3**
 - Add docker-compose-mysql.yml
 - Fixes REDMINE_RELATIVE_URL_ROOT breaks nginx handling files #240
