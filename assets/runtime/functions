@@ -832,12 +832,6 @@ nginx_configure_redmine_hsts() {
 }
 
 nginx_configure_redmine_relative_url() {
-  if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
-    echo "Configuring nginx::redmine::relative_url..."
-    sed -i "s/## rewrite/rewrite/g" ${REDMINE_NGINX_CONFIG}
-  fi
-
-
   update_template ${REDMINE_NGINX_CONFIG} REDMINE_RELATIVE_URL_ROOT
 }
 
