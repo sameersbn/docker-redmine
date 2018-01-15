@@ -1,5 +1,9 @@
 # Changelog
 
+**3.4.4-1**
+- redmine: upgrade to v.3.4.4-1
+- nginx: Fix REDMINE_RELATIVE_URL_ROOT #324
+
 **3.4.4**
 - redmine: upgrade to v.3.4.4
 
