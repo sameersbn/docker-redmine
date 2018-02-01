@@ -702,6 +702,15 @@ wget http://goo.gl/iJcvCP -O - | sh
 
 *Please Note: this [plugin install script](https://gist.github.com/sameersbn/dd24dfdd13bc472d11a5) is not maintained and you would need to fix it if required (especially broken links)*
 
+### Reloading plugins for development
+
+Changing files in /srv/docker/redmine/redmine/plugins won't be automatically loaded. If you want
+to reload the plugins without restarting the docker, you can run the following.
+
+```bash
+docker exec -it redmine redmine_install_plugins
+```
+
 ## Uninstalling Plugins
 
 To uninstall plugins you need to first tell redmine about the plugin you need to uninstall. This is done via a rake task:
@@ -762,6 +771,15 @@ wget http://goo.gl/deKDpp -O - | sh
 ```
 
 *Please Note: this [theme install script](https://gist.github.com/sameersbn/aaa1b7bb064703c1e23c) is not maintained and you would need to fix it if required (especially broken links)*
+
+### Reloading themes for development
+
+Changing files in /srv/docker/redmine/redmine/themes won't be automatically loaded. If you want
+to reload the themes without restarting the docker, you can run the following.
+
+```bash
+docker exec -it redmine redmine_install_themes
+```
 
 ## Uninstalling Themes
 

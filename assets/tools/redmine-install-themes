@@ -5,3 +5,6 @@ set -e
 source ${REDMINE_RUNTIME_DIR}/functions
 
 install_themes
+
+# Restart unicorn
+supervisorctl restart unicorn
