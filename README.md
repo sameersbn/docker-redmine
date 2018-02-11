@@ -641,6 +641,8 @@ Below is the complete list of parameters that can be set using environment varia
 - **INCOMING_EMAIL_PRIORITY**: Name of the target priority.
 - **INCOMING_EMAIL_PRIVATE**: Create new issues as private.
 - **INCOMING_EMAIL_ALLOW_OVERRIDE**: Allow email content to override attributes specified by previous options. Value is a comma separated list of attributes. See [redmine documentation](http://www.redmine.org/projects/redmine/wiki/RedmineReceivingEmails#Fetching-emails-from-an-IMAP-server) for acceptable values.
+- **USERMAP_UID**: ID of user redmine inside container. Defaults to `1000`.
+- **USERMAP_GID**: ID of group redmine inside container. Defaults to `1000`.
 
 # Plugins
 
