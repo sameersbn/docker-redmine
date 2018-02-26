@@ -403,7 +403,20 @@ redmine_configure_incoming_email() {
         ${INCOMING_EMAIL_PRIORITY:+priority=${INCOMING_EMAIL_PRIORITY}} \
         ${INCOMING_EMAIL_PRIVATE:+private=${INCOMING_EMAIL_PRIVATE}} \
         ${INCOMING_EMAIL_ALLOW_OVERRIDE:+allow_override=${INCOMING_EMAIL_ALLOW_OVERRIDE}}"
-      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ssl=${IMAP_SSL} starttls=${IMAP_STARTTLS} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
+
+      # Issue #318
+      # Workaround for redmine issue http://www.redmine.org/issues/24503
+      # If ssl= is set to any value, then it is treated as true.  So don't set ssl= unless IMAP_SSL is true.
+      if [[ "${IMAP_SSL}" == true  ]]
+      then
+          SSL_OPTION="ssl=${IMAP_SSL}"
+      fi
+      if [[ "${IMAP_STARTTLS}" == true ]]
+      then
+        STARTTLS="starttls=${IMAP_STARTTLS}"
+      fi
+
+      echo "*/${IMAP_INTERVAL} * * * * cd ${REDMINE_HOME}/redmine && bundle exec rake redmine:email:receive_imap host=${IMAP_HOST} port=${IMAP_PORT} ${SSL_OPTION} ${STARTTLS} username=${IMAP_USER} password=${IMAP_PASS} ${INCOMING_EMAIL_OPTIONS} RAILS_ENV=${RAILS_ENV} >> ${REDMINE_LOG_DIR}/redmine/cron_rake.log 2>&1" >>/tmp/cron.${REDMINE_USER}
     fi
     crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
     rm -rf /tmp/cron.${REDMINE_USER}
