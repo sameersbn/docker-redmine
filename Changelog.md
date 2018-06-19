@@ -1,5 +1,8 @@
 # Changelog
 
+**3.3.7**
+- redmine: upgrade to v.3.3.7
+
 **3.3.6-1**
 - Retagging version to force docker hub to rebuilt. Issue #325
 
