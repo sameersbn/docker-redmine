@@ -11,7 +11,7 @@ services:
     - /srv/docker/redmine/mysql:/var/lib/mysql
 
   redmine:
-    image: sameersbn/redmine:3.4.5
+    image: sameersbn/redmine:3.4.6
     depends_on:
     - mysql
     environment:
