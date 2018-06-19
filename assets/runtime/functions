@@ -511,7 +511,7 @@ backup_dump_directory() {
   local extension=${2}
 
   echo "Dumping ${dirname}..."
-  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory} .
+  exec_as_redmine tar -caf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory} .
 }
 
 backup_dump_information() {
@@ -531,7 +531,7 @@ backup_create_archive() {
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
 
   echo "Creating backup archive: ${tar_file}..."
-  exec_as_redmine tar -cf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
+  exec_as_redmine tar -caf ${config_default_backup_storage_path}/${tar_file} -C ${config_default_backup_storage_path} $@
   exec_as_redmine chmod 0644 ${config_default_backup_storage_path}/${tar_file}
 
   for f in $@
@@ -563,7 +563,7 @@ backup_restore_unpack() {
   local backup=${1}
   echo "Unpacking ${backup}..."
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
-  tar -xf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
+  tar -xaf ${config_default_backup_storage_path}/${backup} -C ${config_default_backup_storage_path}
 }
 
 backup_restore_validate() {
@@ -639,7 +639,7 @@ backup_restore_directory() {
     exec_as_redmine rm -rf ${directory}
   fi
   exec_as_redmine mkdir -p ${directory}
-  exec_as_redmine tar -xf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory}
+  exec_as_redmine tar -xaf ${config_default_backup_storage_path}/${dirname}${extension} -C ${directory}
   exec_as_redmine rm -rf ${config_default_backup_storage_path}/${dirname}${extension}
 }
 
