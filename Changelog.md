@@ -1,5 +1,11 @@
 # Changelog
 
+**3.4.4-3**
+- Added commands to install plugins/themes on running docker
+- Only config ssl and starttls if configured as true. Fixes issue #318
+- functions: Fix no error message when mysql database can't be contacted
+- functions: Update tar commands to auto-detect compression
+
 **3.4.4-2**
 - Undo accidental change to REDMINE_VERSION
 
