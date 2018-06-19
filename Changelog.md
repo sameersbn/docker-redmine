@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.5**
+- redmine: upgrade to v.3.4.5
+
 **3.4.4-3**
 - Added commands to install plugins/themes on running docker
 - Only config ssl and starttls if configured as true. Fixes issue #318
