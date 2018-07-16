@@ -1,7 +1,7 @@
 FROM sameersbn/ubuntu:14.04.20170711
 MAINTAINER sameer@damagehead.com
 
-ENV RUBY_VERSION=2.3 \
+ENV RUBY_VERSION=2.4 \
     REDMINE_VERSION=3.4.6 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
