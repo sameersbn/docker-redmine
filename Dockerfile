@@ -1,6 +1,3 @@
-FROM sameersbn/ubuntu:14.04.20170711
-MAINTAINER sameer@damagehead.com
-
 FROM node:8.2-stretch
 # RUN apt update && apt-get install redmine -y
 ENV RUBY_VERSION=2.3 \
