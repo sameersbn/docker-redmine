@@ -3,7 +3,7 @@ set -e
 
 GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
 
-BUILD_DEPENDENCIES="libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+BUILD_DEPENDENCIES="wget libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
                     libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev"
 
 ## Execute a command as REDMINE_USER
