@@ -206,7 +206,7 @@ Assuming that your mysql data is available at `/srv/docker/redmine/mysql`
 ```bash
 docker run --name=mysql-redmine -d \
   --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  sameersbn/mysql:latest
+  sameersbn/mysql:5.7.22-1
 ```
 
 This will start a mysql container with your existing mysql data. Now login to the mysql container and create a user for the existing `redmine_production` database.
@@ -252,7 +252,7 @@ To illustrate linking with a mysql container, we will use the [sameersbn/mysql](
 First, lets pull the mysql image from the docker index.
 
 ```bash
-docker pull sameersbn/mysql:latest
+docker pull sameersbn/mysql:5.7.22-1
 ```
 
 For data persistence lets create a store for the mysql and start the container.
@@ -271,7 +271,7 @@ docker run --name=mysql-redmine -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  sameersbn/mysql:latest
+  sameersbn/mysql:5.7.22-1
 ```
 
 The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with full/remote access to the `redmine_production` database.
