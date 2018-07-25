@@ -2,7 +2,7 @@
 ## Script to generate backup of running Redmine instance from the BASH shell
 
 set -e
-source ${REDMINE_RUNTIME_DIR}/functions
+source ${REDMINE_RUNTIME_ASSETS_DIR}/functions
 
 install_themes
 

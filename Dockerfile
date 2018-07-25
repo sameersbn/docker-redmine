@@ -13,7 +13,7 @@ ENV RUBY_VERSION=2.3 \
 ENV REDMINE_INSTALL_DIR="${REDMINE_HOME}/redmine" \
     REDMINE_DATA_DIR="${REDMINE_HOME}/data" \
     REDMINE_BUILD_ASSETS_DIR="${REDMINE_ASSETS_DIR}/build" \
-    REDMINE_RUNTIME_DIR="${REDMINE_ASSETS_DIR}/runtime"
+    REDMINE_RUNTIME_ASSETS_DIR="${REDMINE_ASSETS_DIR}/runtime"
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -41,7 +41,7 @@ COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
 
 RUN bash ${REDMINE_BUILD_ASSETS_DIR}/install.sh
 
-COPY assets/runtime/ ${REDMINE_RUNTIME_DIR}/
+COPY assets/runtime/ ${REDMINE_RUNTIME_ASSETS_DIR}/
 
 COPY assets/tools/ /usr/bin/
 
