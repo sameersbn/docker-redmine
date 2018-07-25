@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
-source ${REDMINE_RUNTIME_DIR}/env-defaults
+source ${REDMINE_RUNTIME_ASSETS_DIR}/env-defaults
 
-SYSCONF_TEMPLATES_DIR="${REDMINE_RUNTIME_DIR}/config"
+SYSCONF_TEMPLATES_DIR="${REDMINE_RUNTIME_ASSETS_DIR}/config"
 USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
 
 REDMINE_CONFIG="${REDMINE_INSTALL_DIR}/config/configuration.yml"
@@ -127,7 +127,7 @@ redmine_finalize_database_parameters() {
     DB_USER=${DB_USER:-${POSTGRESQL_ENV_POSTGRES_USER}}
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_POSTGRES_PASSWORD}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_DB}}
-    #TODO: Probally BUG Let See if some one has errors 
+    #TODO: Probally BUG Let See if some one has errors
     #i don't get errors
     #DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_POSTGRES_USER}}
 

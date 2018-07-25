@@ -131,7 +131,7 @@ docker run --name=postgresql-redmine -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
-  sameersbn/postgresql:9.6-2
+  sameersbn/postgresql:9.6-4
 ```
 
 Step 2. Launch the redmine container
@@ -206,7 +206,7 @@ Assuming that your mysql data is available at `/srv/docker/redmine/mysql`
 ```bash
 docker run --name=mysql-redmine -d \
   --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  sameersbn/mysql:latest
+  sameersbn/mysql:5.7.22-1
 ```
 
 This will start a mysql container with your existing mysql data. Now login to the mysql container and create a user for the existing `redmine_production` database.
@@ -252,7 +252,7 @@ To illustrate linking with a mysql container, we will use the [sameersbn/mysql](
 First, lets pull the mysql image from the docker index.
 
 ```bash
-docker pull sameersbn/mysql:latest
+docker pull sameersbn/mysql:5.7.22-1
 ```
 
 For data persistence lets create a store for the mysql and start the container.
@@ -271,7 +271,7 @@ docker run --name=mysql-redmine -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  sameersbn/mysql:latest
+  sameersbn/mysql:5.7.22-1
 ```
 
 The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with full/remote access to the `redmine_production` database.
@@ -327,7 +327,7 @@ To illustrate linking with a postgresql container, we will use the [sameersbn/po
 First, lets pull the postgresql image from the docker index.
 
 ```bash
-docker pull sameersbn/postgresql:9.6-2
+docker pull sameersbn/postgresql:9.6-4
 ```
 
 For data persistence lets create a store for the postgresql and start the container.
@@ -346,7 +346,7 @@ docker run --name=postgresql-redmine -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
-  sameersbn/postgresql:9.6-2
+  sameersbn/postgresql:9.6-4
 ```
 
 The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with access to the `redmine_production` database.
@@ -391,7 +391,7 @@ To illustrate linking with a memcached container, we will use the [sameersbn/mem
 First, lets pull and launch the memcached image from the docker index.
 
 ```bash
-docker run --name=memcached-redmine -d sameersbn/memcached:latest
+docker run --name=memcached-redmine -d sameersbn/memcached:1.5.6
 ```
 
 Now you can link memcached to the redmine image:
