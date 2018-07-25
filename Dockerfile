@@ -51,8 +51,6 @@ RUN chmod 755 /sbin/entrypoint.sh
 
 EXPOSE 80/tcp 443/tcp
 
-VOLUME ["${REDMINE_DATA_DIR}", "${REDMINE_LOG_DIR}"]
-
 WORKDIR ${REDMINE_INSTALL_DIR}
 
 ENTRYPOINT ["/sbin/entrypoint.sh"]
