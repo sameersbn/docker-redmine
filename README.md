@@ -391,7 +391,7 @@ To illustrate linking with a memcached container, we will use the [sameersbn/mem
 First, lets pull and launch the memcached image from the docker index.
 
 ```bash
-docker run --name=memcached-redmine -d sameersbn/memcached:latest
+docker run --name=memcached-redmine -d sameersbn/memcached:1.5.6
 ```
 
 Now you can link memcached to the redmine image:
