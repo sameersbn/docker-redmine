@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-GEM_CACHE_DIR="${REDMINE_BUILD_DIR}/cache"
+GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
 
 BUILD_DEPENDENCIES="libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
                     libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev"
@@ -32,8 +32,8 @@ rm -rf /tmp/cron.${REDMINE_USER}
 
 # install redmine, use local copy if available
 exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}
-if [[ -f ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
-  exec_as_redmine tar -zvxf ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
+if [[ -f ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
+  exec_as_redmine tar -zvxf ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
   echo "Downloading Redmine ${REDMINE_VERSION}..."
   exec_as_redmine wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O /tmp/redmine-${REDMINE_VERSION}.tar.gz

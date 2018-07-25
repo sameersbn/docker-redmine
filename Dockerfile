@@ -12,7 +12,7 @@ ENV RUBY_VERSION=2.3 \
 
 ENV REDMINE_INSTALL_DIR="${REDMINE_HOME}/redmine" \
     REDMINE_DATA_DIR="${REDMINE_HOME}/data" \
-    REDMINE_BUILD_DIR="${REDMINE_ASSETS_DIR}/build" \
+    REDMINE_BUILD_ASSETS_DIR="${REDMINE_ASSETS_DIR}/build" \
     REDMINE_RUNTIME_DIR="${REDMINE_ASSETS_DIR}/runtime"
 
 RUN apt-get update \
@@ -37,9 +37,9 @@ RUN apt-get update \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
-COPY assets/build/ ${REDMINE_BUILD_DIR}/
+COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
 
-RUN bash ${REDMINE_BUILD_DIR}/install.sh
+RUN bash ${REDMINE_BUILD_ASSETS_DIR}/install.sh
 
 COPY assets/runtime/ ${REDMINE_RUNTIME_DIR}/
 
