@@ -2,7 +2,7 @@ version: '2'
 
 services:
   mysql:
-    image: sameersbn/mysql:5.7.22-1-1
+    image: sameersbn/mysql:5.7.22-1
     environment:
     - DB_USER=redmine
     - DB_PASS=password
