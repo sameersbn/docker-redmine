@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+  redmine:
+    image: minematrix/redmine:1.0
+    environment:
+    - TZ=Asia/Kolkata
+    - DB_ADAPTER=sqlite3
+    - DB_NAME=sqlite/redmine.db
+    - DB_HOST=localhost
+    - DB_ENCODING=utf8
+    - DB_USER=redmine
+    - DB_PASS=
+    - DB_PORT=
+
+    - REDMINE_PORT=10083
+    - REDMINE_HTTPS=false
+    - REDMINE_RELATIVE_URL_ROOT=
+    - REDMINE_SECRET_TOKEN=
+
+    - REDMINE_SUDO_MODE_ENABLED=false
+    - REDMINE_SUDO_MODE_TIMEOUT=15
+
+    - REDMINE_CONCURRENT_UPLOADS=2
+
+    - REDMINE_BACKUP_SCHEDULE=
+    - REDMINE_BACKUP_EXPIRY=
+    - REDMINE_BACKUP_TIME=
+
+    - SMTP_ENABLED=true
+    - SMTP_METHOD=smtp
+    - SMTP_DOMAIN=www.gmail.com
+    - SMTP_HOST=example.com
+    - SMTP_PORT=587
+    - SMTP_USER=user@gmail.com
+    - SMTP_PASS=
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=:login
+
+    - IMAP_ENABLED=true
+    - IMAP_HOST=
+    - IMAP_PORT=993
+    - IMAP_USER=example@gmail.com
+    - IMAP_PASS=
+    - IMAP_SSL=true
+    - IMAP_INTERVAL=30
+    # to reuse the sqlite redmine.db
+    - USERMAP_UID=
+    - USERMAP_GID=
+
+    ports:
+    - "10083:80"
+    volumes:
+    - /srv/docker/redmine/redminesqlite:/home/redmine/data
+    - /srv/docker/redmine/sqlite:/home/redmine/redmine/sqlite

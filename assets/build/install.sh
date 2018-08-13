@@ -49,15 +49,19 @@ fi
 #       are both installed.
 PG_GEM=$(grep 'gem "pg"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 MYSQL2_GEM=$(grep 'gem "mysql2"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+SQLITE3_GEM=$(grep -A 1 'gem "sqlite3"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+
 
 sed -i \
   -e '/gem "pg"/d' \
   -e '/gem "mysql2"/d' \
+  -e '/gem "sqlite3"/,+1d' \
   ${REDMINE_INSTALL_DIR}/Gemfile
 
 (
   echo "${PG_GEM}";
   echo "${MYSQL2_GEM}";
+  echo "${SQLITE3_GEM}";
   echo 'gem "unicorn"';
   echo 'gem "dalli", "~> 2.7.0"';
 ) >> ${REDMINE_INSTALL_DIR}/Gemfile

@@ -145,6 +145,13 @@ redmine_finalize_database_parameters() {
     DB_USER=${DB_USER:-${POSTGRESQL_ENV_USER}}
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
+
+    # fall back using sqlite3
+  else
+    echo "fall back using sqlite3"
+    DB_USER=${DB_USER}
+    DB_PASS=${DB_PASS}
+    DB_NAME=${DB_NAME}
   fi
 
   if [[ -z ${DB_HOST} ]]; then
@@ -167,6 +174,10 @@ redmine_finalize_database_parameters() {
     postgresql)
       DB_ENCODING=${DB_ENCODING:-unicode}
       DB_PORT=${DB_PORT:-5432}
+      ;;
+    sqlite3)
+      DB_ENCODING=${DB_ENCODING:-utf8}
+      DB_PORT=${DB_PORT}
       ;;
     *)
       echo
@@ -192,6 +203,7 @@ redmine_check_database_connection() {
       prog=$(find /usr/lib/postgresql/ -name pg_isready)
       prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
       ;;
+    # todo (add support for sqlite3 connection)
   esac
   timeout=60
   while ! ${prog} >/dev/null 2>&1
@@ -209,7 +221,7 @@ redmine_check_database_connection() {
 }
 
 redmine_configure_database() {
-  echo -n "Configuring redmine::database"
+  echo "Configuring redmine::database"
 
   redmine_finalize_database_parameters
   redmine_check_database_connection
@@ -226,6 +238,9 @@ redmine_configure_database() {
 
   if [[ ${DB_ADAPTER} == postgresql ]]; then
     exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
+  elif [[ ${DB_ADAPTER} == "sqlite3" ]]; then
+    exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
+    exec_as_redmine sed -i "/pool: /d" ${REDMINE_DATABASE_CONFIG}
   fi
 }
 
@@ -898,6 +913,7 @@ migrate_database() {
       echo
       return 1
     fi
+
 
     # recreate the tmp directory
     rm -rf ${REDMINE_DATA_DIR}/tmp
