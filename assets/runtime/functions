@@ -147,13 +147,12 @@ redmine_finalize_database_parameters() {
     DB_USER=${DB_USER:-${POSTGRESQL_ENV_USER}}
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
-  elif [[ "${DB_ADAPTER}" == sqlite3 ]]; then
-    # Assign DB_HOST here to avoid configure database error below
-    DB_HOST=${DB_HOST:-db.sqlite}
-    DB_HOST="${REDMINE_DATA_DIR}/${DB_HOST}"
   fi
 
-  if [[ -z ${DB_HOST} ]]; then
+  if [[ "${DB_ADAPTER}" == sqlite3 ]]; then
+    # Catch so we don't error for sqlite database, there is no DB_HOST for sqlite
+    DB_HOST=
+  elif [[ -z ${DB_HOST}  ]]; then
     echo
     echo "ERROR: "
     echo "  Please configure the database connection."
@@ -175,6 +174,10 @@ redmine_finalize_database_parameters() {
       DB_PORT=${DB_PORT:-5432}
       ;;
     sqlite3)
+      DB_ENCODING=${DB_ENCODING:-utf8}
+      DB_NAME=${DB_NAME:-db.sqlite3}
+      # Ensure we store the database in the data directory
+      DB_NAME="${REDMINE_DATA_DIR}/${DB_NAME}"
       ;;
     *)
       echo
@@ -201,6 +204,7 @@ redmine_check_database_connection() {
       prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
       ;;
     sqlite3)
+      # No need to wait for sqlite db to start up
       prog="true"
       ;;
   esac

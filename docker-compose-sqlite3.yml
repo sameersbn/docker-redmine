@@ -8,11 +8,7 @@ services:
     - TZ=Asia/Kolkata
 
     - DB_ADAPTER=sqlite3
-    - DB_HOST=
-    - DB_PORT=
-    - DB_USER=
-    - DB_PASS=
-    - DB_NAME=redmine_production
+    - DB_NAME=db.sqlite3
 
     - REDMINE_PORT=10083
     - REDMINE_HTTPS=false
