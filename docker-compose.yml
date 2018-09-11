@@ -11,11 +11,11 @@ services:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 
   redmine:
-    image: sameersbn/redmine:3.4.6
+    image: easyredmine:3.4.6
     depends_on:
     - postgresql
     environment:
-    - TZ=Asia/Kolkata
+    - TZ=Europe/Paris
 
     - DB_ADAPTER=postgresql
     - DB_HOST=postgresql

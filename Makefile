@@ -1,4 +1,4 @@
-IMAGE:=sameersbn/redmine
+IMAGE:=easyredmine
 all: build
 
 help:
