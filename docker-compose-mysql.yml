@@ -11,11 +11,11 @@ services:
     - /srv/docker/redmine/mysql:/var/lib/mysql
 
   redmine:
-    image: easyredmine:3.4.6
+    image: easyredmine:EASY2018_1.2_P4.2
     depends_on:
     - mysql
     environment:
-    - TZ=Asia/Kolkata
+    - TZ=Europe/Paris
 
     - DB_ADAPTER=mysql2
     - DB_HOST=mysql
