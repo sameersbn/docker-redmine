@@ -11,6 +11,7 @@ help:
 	@echo "   4. make logs        - view logs"
 	@echo "   5. make purge       - stop and remove the container"
 	@echo "   6. make push        - push image docker to einea registry"
+
 build:
 	@docker build --tag=$(IMAGE) .
 
@@ -18,7 +19,7 @@ release:
 	@docker build --tag=$(IMAGE):$(shell cat VERSION) .
 
 push:
-        @docker push $(IMAGE):$(shell cat VERSION)
+	@docker push $(IMAGE):$(shell cat VERSION)
 
 quickstart:
 	@echo "Starting redmine..."
