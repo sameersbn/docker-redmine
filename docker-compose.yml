@@ -11,7 +11,7 @@ services:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 
   redmine:
-    image: easyredmine:EASY2018_1.2_P4.2
+    image: easyredmine:EASY2018_1.2_P4.2A
     depends_on:
     - postgresql
     environment:

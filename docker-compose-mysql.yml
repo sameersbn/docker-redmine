@@ -11,7 +11,7 @@ services:
     - /srv/docker/redmine/mysql:/var/lib/mysql
 
   redmine:
-    image: easyredmine:EASY2018_1.2_P4.2
+    image: easyredmine:EASY2018_1.2_P4.2A
     depends_on:
     - mysql
     environment:

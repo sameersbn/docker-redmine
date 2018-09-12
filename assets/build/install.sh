@@ -27,7 +27,7 @@ REDMINE_DATA_DIR=${REDMINE_DATA_DIR}
 REDMINE_RUNTIME_ASSETS_DIR=${REDMINE_RUNTIME_ASSETS_DIR}
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 EOF
-cat > /tmp/cron.${REDMINE_USER} <<EOF
+cat >> /tmp/cron.${REDMINE_USER} <<EOF
 */5 * * * * cd $REDMINE_INSTALL_DIR && bundle exec rack easyproject:scheduler:run_tasks RAILS_ENV=${RAILS_ENV}
 EOF
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
