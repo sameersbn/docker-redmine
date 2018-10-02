@@ -53,8 +53,8 @@ COPY assets/tools/ /usr/bin/
 
 COPY entrypoint.sh /sbin/entrypoint.sh
 
-RUN chmod 755 /sbin/entrypoint.sh
-
+RUN chmod 755 /sbin/entrypoint.sh \
+ && sed -i '/session    required     pam_loginuid.so/c\#session    required   pam_loginuid.so' /etc/pam.d/cron
 EXPOSE 80/tcp 443/tcp
 
 WORKDIR ${REDMINE_INSTALL_DIR}
