@@ -9,7 +9,8 @@ RUN apt-get update \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv 8B3981E7A6852F782CC4951600A6F0A3C300EE8C \
  && echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu xenial main" >> /etc/apt/sources.list \
  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
- && echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' > /etc/apt/sources.list.d/pgdg.list
+ && echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' > /etc/apt/sources.list.d/pgdg.list\
+ && wget --quiet http://launchpadlibrarian.net/212189159/libmysqlclient18_5.6.25-0ubuntu1_amd64.deb
 
 FROM ubuntu:xenial-20180705
 
@@ -32,6 +33,8 @@ COPY --from=add-apt-repositories /etc/apt/trusted.gpg /etc/apt/trusted.gpg
 
 COPY --from=add-apt-repositories /etc/apt/sources.list /etc/apt/sources.list
 
+COPY --from=add-apt-repositories libmysqlclient18_5.6.25-0ubuntu1_amd64.deb libmysqlclient18_5.6.25-0ubuntu1_amd64.deb
+
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       supervisor logrotate nginx mysql-client postgresql-client ca-certificates sudo tzdata \
@@ -39,6 +42,7 @@ RUN apt-get update \
       gcc g++ make patch pkg-config gettext-base ruby${RUBY_VERSION}-dev libc6-dev zlib1g-dev libxml2-dev \
       libmysqlclient20 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 uuid-dev xz-utils \
       libxslt1.1 libffi6 zlib1g gsfonts \
+ && dpkg -i libmysqlclient18_5.6.25-0ubuntu1_amd64.deb \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
