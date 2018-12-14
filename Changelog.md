@@ -1,5 +1,17 @@
 # Changelog
 
+**3.4.7**
+- redmine: upgrade to v3.4.7
+- Update mysql image
+- Update memcache image
+- Update postgresql image
+- switch to `ubuntu:trusty-20180712` base image
+- renamed `REDMINE_CACHE_DIR` to `REDMINE_ASSETS_DIR`, `REDMINE_BUILD_DIR` to `REDMINE_BUILD_ASSETS_DIR`, `REDMINE_RUNTIME_DIR` to `REDMINE_RUNTIME_ASSETS_DIR`
+- upgrade to `ubuntu:xenial-20180705`
+- Add: IMAP configuration parameter PROJECT_FROM_SUBADRESS
+- Fix mysql version in docker-compose-mysql.yml
+- Comment out pam_loginuid.so so cron jobs work
+
 **3.4.6**
 - redmine: upgrade to v3.4.6
 
