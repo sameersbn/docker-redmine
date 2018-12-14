@@ -955,6 +955,10 @@ make release
 sudo rm -rf /srv/docker/redmine/ # Clean old run
 docker-compose down
 docker-compose up # Test new build
+git ci -sS -m "release: $(cat VERSION)"
+git tag $(cat VERSION) -m "$(cat VERSION)"
+git push origin master:master
+git push origin --tags
 ```
 
 # References
