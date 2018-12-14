@@ -48,6 +48,7 @@
     - [Rake Tasks](#rake-tasks)
     - [Upgrading](#upgrading)
     - [Shell Access](#shell-access)
+- [Development](#development)
 - [References](#references)
 
 # Introduction
@@ -945,7 +946,7 @@ docker exec -it redmine bash
 
 ## Upgrading to next redmine release
 
-Commands to run to update image to next redmine release, examples are from 3.4.6 to 3.4.7
+* Commands to run to update image to next redmine release, examples are from 3.4.6 to 3.4.7
 
 ```bash
 sed -i 's/3.4.6/3.4.7/' VERSION README.md docker-compose-mysql.yml Dockerfile docker-compose.yml
@@ -960,6 +961,11 @@ git tag $(cat VERSION) -m "$(cat VERSION)"
 git push origin master:master
 git push origin --tags
 ```
+
+* Open https://github.com/sameersbn/docker-redmine/releases and Draft new release
+* Select tag 3.4.7 and set release title to 3.4.7
+* Publish release
+* Check https://quay.io/repository/sameersbn/redmine?tab=info  and https://hub.docker.com/r/sameersbn/redmine/builds for build progress
 
 # References
     * http://www.redmine.org/
