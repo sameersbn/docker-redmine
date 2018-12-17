@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.7-1**
+- Fix app:backup:create by installing latest postgresql-client. Issue #364
+
 **3.4.7**
 - redmine: upgrade to v3.4.7
 - Update mysql image
