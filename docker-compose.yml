@@ -11,6 +11,7 @@ services:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 
   redmine:
+    build: ./
     image: sameersbn/redmine:3.4.7
     depends_on:
     - postgresql
