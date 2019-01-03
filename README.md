@@ -549,6 +549,20 @@ Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.
 
 **Note**: *The `REDMINE_RELATIVE_URL_ROOT` parameter should always begin with a slash and **SHOULD NOT** have any trailing slashes.*
 
+### Apache Proxy as frontend
+
+Ref #370
+
+Apache config
+```
+# REDMINE Pass connections to docker
+ProxyRequests Off
+ProxyPass /redmine http://127.0.0.1:10083/redmine/
+ProxyPassReverse /redmine http://127.0.0.1:10083/redmine/
+```
+
+Note the following should be set: ```REDMINE_RELATIVE_URL_ROOT=/redmine```  and port mapped ```--publish=10083:80```
+
 ### Mapping host user and group
 
 Per default the container is configured to run redmine as user and group `redmine` with `uid` and `gid` `1000`. The host possibly uses this ids for different purposes leading to unfavorable effects. From the host it appears as if the mounted data volumes are owned by the host's user/group `1000`.
