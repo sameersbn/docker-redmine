@@ -15,7 +15,7 @@ FROM ubuntu:xenial-20180705
 
 LABEL maintainer="sameer@damagehead.com"
 
-ENV RUBY_VERSION=2.3 \
+ENV RUBY_VERSION=2.5 \
     REDMINE_VERSION=4.0.0 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \

@@ -2,6 +2,7 @@
 **4.0.0**
 - redmine: upgrade to v.4.0.0
 - Fix function tmp:sessions:clear
+- Update to ruby 2.5
 
 **3.4.7-1**
 - Fix app:backup:create by installing latest postgresql-client. Issue #364
