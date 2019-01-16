@@ -44,8 +44,6 @@ RUN apt-get update \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
-
 COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
 
 RUN bash ${REDMINE_BUILD_ASSETS_DIR}/install.sh
