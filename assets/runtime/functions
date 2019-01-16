@@ -912,7 +912,7 @@ migrate_database() {
 
     # clear sessions and application cache
     exec_as_redmine bundle exec rake tmp:cache:clear >/dev/null
-    exec_as_redmine bundle exec rake tmp:sessions:clear >/dev/null
+    exec_as_redmine bundle exec rake tmp:sockets:clear >/dev/null
 
     # update version file
     echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
