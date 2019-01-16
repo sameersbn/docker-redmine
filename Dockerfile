@@ -16,7 +16,7 @@ FROM ubuntu:xenial-20180705
 LABEL maintainer="sameer@damagehead.com"
 
 ENV RUBY_VERSION=2.3 \
-    REDMINE_VERSION=3.4.7 \
+    REDMINE_VERSION=4.0.0 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
@@ -44,6 +44,8 @@ RUN apt-get update \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+
 COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
 
 RUN bash ${REDMINE_BUILD_ASSETS_DIR}/install.sh
@@ -56,6 +58,7 @@ COPY entrypoint.sh /sbin/entrypoint.sh
 
 RUN chmod 755 /sbin/entrypoint.sh \
  && sed -i '/session    required     pam_loginuid.so/c\#session    required   pam_loginuid.so' /etc/pam.d/cron
+
 EXPOSE 80/tcp 443/tcp
 
 WORKDIR ${REDMINE_INSTALL_DIR}
