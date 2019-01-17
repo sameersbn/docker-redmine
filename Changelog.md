@@ -1,5 +1,9 @@
 # Changelog
 
+**3.4.7-2**
+- config: Use single quotes in yml files to avoid interpretting escape characters Fixes: #373
+- Add vim-tiny
+
 **3.4.7-1**
 - Fix app:backup:create by installing latest postgresql-client. Issue #364
 
