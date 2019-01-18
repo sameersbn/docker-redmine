@@ -41,7 +41,7 @@ RUN apt-get update \
       libmysqlclient20 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 uuid-dev xz-utils \
       libxslt1.1 libffi6 zlib1g gsfonts vim-tiny \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
- && gem install --no-document bundler \
+ && gem install --no-document bundler -v '< 2.0, >= 1.3.0' \
  && rm -rf /var/lib/apt/lists/*
 
 COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
