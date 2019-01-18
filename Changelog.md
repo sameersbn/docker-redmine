@@ -1,5 +1,9 @@
 # Changelog
 
+**3.4.7-3**
+- functions: Fix parse_yaml to support single quotes in yml files. Fixes: #378
+- Limit bundler version to < 2.0 to meet requirements for rails 4.2.11 used by redmine 3.4
+
 **3.4.7-2**
 - config: Use single quotes in yml files to avoid interpretting escape characters Fixes: #373
 - Add vim-tiny
