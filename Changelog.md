@@ -3,6 +3,7 @@
 - redmine: upgrade to v.4.0.0
 - Fix function tmp:sessions:clear
 - Update ruby to v2.4
+- Support single quotes in yaml to fix issue #378
 
 **3.4.7-1**
 - Fix app:backup:create by installing latest postgresql-client. Issue #364
