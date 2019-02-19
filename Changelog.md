@@ -1,4 +1,8 @@
 # Changelog
+
+**4.0.0-1**
+- Fix REDMINE_FETCH_COMMITS for redmine 4.x
+
 **4.0.0**
 - redmine: upgrade to v.4.0.0
 - Fix function tmp:sessions:clear
