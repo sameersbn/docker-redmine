@@ -966,11 +966,11 @@ docker exec -it redmine bash
 ```bash
 sed -i 's/3.4.7/4.0.0/' VERSION README.md docker-compose-mysql.yml Dockerfile docker-compose.yml
 vim Changelog.md # Update change log
-make
-make release
 sudo rm -rf /srv/docker/redmine/ # Clean old run
 docker-compose down
+docker-compose build
 docker-compose up # Test new build
+git add -p
 git ci -sS -m "release: $(cat VERSION)"
 git tag $(cat VERSION) -m "$(cat VERSION)"
 git push origin master:master
