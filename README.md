@@ -727,7 +727,7 @@ Changing files in /srv/docker/redmine/redmine/plugins won't be automatically loa
 to reload the plugins without restarting the docker, you can run the following.
 
 ```bash
-docker exec -it redmine redmine_install_plugins
+docker exec -it redmine redmine-install-plugins
 ```
 
 ## Uninstalling Plugins
@@ -797,7 +797,7 @@ Changing files in /srv/docker/redmine/redmine/themes won't be automatically load
 to reload the themes without restarting the docker, you can run the following.
 
 ```bash
-docker exec -it redmine redmine_install_themes
+docker exec -it redmine redmine-install-themes
 ```
 
 ## Uninstalling Themes
