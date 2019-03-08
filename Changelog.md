@@ -1,5 +1,9 @@
 # Changelog
 
+**4.0.0-2**
+- Improve cipher suite, based on Mozilla's TLS recommendations. Issue #226
+- Fix to avoid adding double "secure" flags for cookies. Issue #297
+
 **4.0.0-1**
 - Fix REDMINE_FETCH_COMMITS for redmine 4.x
 
