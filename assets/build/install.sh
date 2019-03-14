@@ -58,7 +58,8 @@ sed -i \
 (
   echo "${PG_GEM}";
   echo "${MYSQL2_GEM}";
-  echo 'gem "unicorn"';
+  echo '# unicorn 5.5.0 has a bug in unicorn_rails. See issue #392';
+  echo 'gem "unicorn", "~> 5.4", "!=5.5.0"';
   echo 'gem "dalli", "~> 2.7.0"';
 ) >> ${REDMINE_INSTALL_DIR}/Gemfile
 
