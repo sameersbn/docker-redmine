@@ -1,5 +1,8 @@
 # Changelog
 
+**4.0.0-3**
+- Fix unicorn crash by avoiding version 5.5.0, Issue #292
+
 **4.0.0-2**
 - Improve cipher suite, based on Mozilla's TLS recommendations. Issue #226
 - Fix to avoid adding double "secure" flags for cookies. Issue #297
