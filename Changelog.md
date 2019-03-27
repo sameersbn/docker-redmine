@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.7-4**
+- Fix unicorn crash by avoiding version 5.5.0, Issue #292
+
 **3.4.7-3**
 - functions: Fix parse_yaml to support single quotes in yml files. Fixes: #378
 - Limit bundler version to < 2.0 to meet requirements for rails 4.2.11 used by redmine 3.4
