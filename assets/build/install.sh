@@ -62,6 +62,11 @@ sed -i \
   echo 'gem "dalli", "~> 2.7.0"';
 ) >> ${REDMINE_INSTALL_DIR}/Gemfile
 
+# HACK: rmagick 3.0.0 requires ImageMagick 6.8.9 or later which ubuntu 14.04 doesn't provide.
+# So pin rmagick to last working version
+sed -i 's/gem "rmagick", ">= 2.14.0"/gem "rmagick", "~> 2.16"/' ${REDMINE_INSTALL_DIR}/Gemfile
+grep rmagick ${REDMINE_INSTALL_DIR}/Gemfile
+
 ## some gems complain about missing database.yml, shut them up!
 exec_as_redmine cp ${REDMINE_INSTALL_DIR}/config/database.yml.example ${REDMINE_INSTALL_DIR}/config/database.yml
 
