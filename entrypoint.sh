@@ -13,6 +13,7 @@ case ${1} in
 
     case ${1} in
       app:start)
+        version_check
         migrate_database
         install_plugins
         install_themes
@@ -26,6 +27,7 @@ case ${1} in
         exec /usr/bin/supervisord -nc /etc/supervisor/supervisord.conf
         ;;
       app:init)
+        version_check
         migrate_database
         install_plugins
         install_themes
