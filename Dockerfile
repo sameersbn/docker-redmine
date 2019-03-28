@@ -29,7 +29,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv E1DD270288B4E6030699E45F
       libmysqlclient18 libpq5 libyaml-0-2 libcurl3 libssl1.0.0 uuid-dev xz-utils \
       libxslt1.1 libffi6 zlib1g gsfonts \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
- && gem install --no-document bundler \
+# Pin bundler to 1.16.6 to fix dependency issue with rails 4.2.7.1 required by redmine 3.3.x
+ && gem install --no-document bundler -v1.16.6 \
  && rm -rf /var/lib/apt/lists/*
 
 COPY assets/build/ ${REDMINE_BUILD_DIR}/
