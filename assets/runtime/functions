@@ -888,7 +888,7 @@ configure_nginx() {
   update_template /etc/supervisor/conf.d/nginx.conf NGINX_ENABLED
 }
 
-migrate_database() {
+version_check() {
   CACHE_VERSION=
   [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
   if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
@@ -903,25 +903,16 @@ migrate_database() {
       return 1
     fi
 
-    # recreate the tmp directory
+    # If REDMINE_VERSION has changed, we need to clear the cache
+    echo "New redmine version. Clearing cache"
     rm -rf ${REDMINE_DATA_DIR}/tmp
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/thumbnails
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/plugin_assets
     exec_as_redmine chmod -R u+rw,go+r ${REDMINE_DATA_DIR}/tmp
-
-    echo "Migrating database. Please be patient, this could take a while..."
-    exec_as_redmine bundle exec rake db:create >/dev/null
-    exec_as_redmine bundle exec rake db:migrate >/dev/null
-
-    # clear sessions and application cache
-    exec_as_redmine bundle exec rake tmp:cache:clear >/dev/null
-    exec_as_redmine bundle exec rake tmp:sockets:clear >/dev/null
-
-    # update version file
-    echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
   fi
 
+  # Setup cache
   # copy the installed gems and Gemfile.lock to ${REDMINE_DATA_DIR}/tmp/
   if [[ ! -d ${REDMINE_DATA_DIR}/tmp/bundle ]]; then
     exec_as_redmine cp -a ${REDMINE_INSTALL_DIR}/vendor/bundle ${REDMINE_DATA_DIR}/tmp/
@@ -932,6 +923,23 @@ migrate_database() {
   # symlink to ${REDMINE_DATA_DIR}/tmp/bundle
   ln -sf ${REDMINE_DATA_DIR}/tmp/bundle ${REDMINE_INSTALL_DIR}/vendor/bundle
   ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock ${REDMINE_INSTALL_DIR}/Gemfile.lock
+}
+
+migrate_database() {
+  CACHE_VERSION=
+  [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
+  if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
+    echo "Migrating database. Please be patient, this could take a while..."
+    exec_as_redmine bundle exec rake db:create >/dev/null
+    exec_as_redmine bundle exec rake db:migrate >/dev/null
+
+    # clear sessions and application cache
+    exec_as_redmine bundle exec rake tmp:cache:clear >/dev/null
+    exec_as_redmine bundle exec rake tmp:sockets:clear >/dev/null
+
+    # Now that database has been migrated, update version file
+    echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
+  fi
 }
 
 install_plugins() {
