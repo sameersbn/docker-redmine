@@ -1,5 +1,12 @@
 # Changelog
 
+**3.3.9**
+- redmine: upgrade to v.3.3.9
+- Fix unicorn crash by avoiding version 5.5.0, Issue #292
+- Fix bundler dependency for ruby 4.2.7.1
+- Fix build dependencies for rmagick
+- Clear tmp directory earlier when redmine version is updated 
+
 **3.3.8**
 - redmine: upgrade to v.3.3.8
 
