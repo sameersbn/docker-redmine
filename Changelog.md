@@ -1,7 +1,11 @@
 # Changelog
 
+**3.4.9**
+- redmine: upgrade to v3.4.9
+
 **3.4.8**
 - redmine: upgrade to v3.4.8
+- Clear tmp directory earlier when redmine version is updated
 
 **3.4.7-4**
 - Fix unicorn crash by avoiding version 5.5.0, Issue #292
