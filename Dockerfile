@@ -1,4 +1,4 @@
-FROM ubuntu:xenial-20180705 AS add-apt-repositories
+FROM ubuntu:xenial-20190222 AS add-apt-repositories
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y wget \
@@ -11,7 +11,7 @@ RUN apt-get update \
  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
  && echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' > /etc/apt/sources.list.d/pgdg.list
 
-FROM ubuntu:xenial-20180705
+FROM ubuntu:xenial-20190222
 
 LABEL maintainer="sameer@damagehead.com"
 
