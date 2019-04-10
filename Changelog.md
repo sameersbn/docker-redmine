@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.10-1**
+- Update xenial to 20190222. PR: #397
+
 **3.4.10**
 - redmine: upgrade to v3.4.10
 
