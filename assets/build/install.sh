@@ -106,9 +106,14 @@ sed -i \
   -e "s|error_log /var/log/nginx/error.log;|error_log ${REDMINE_LOG_DIR}/nginx/error.log;|" \
   /etc/nginx/nginx.conf
 
+# Set log rotate to use root:utmp to match permissions in /var/log
+# Fixes issue #402
+sed -i 's|su root syslog|su root utmp|' /etc/logrotate.conf
+
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
 ${REDMINE_LOG_DIR}/redmine/*.log {
+  su root redmine
   weekly
   missingok
   rotate 52
@@ -122,6 +127,7 @@ EOF
 # setup log rotation for redmine vhost logs
 cat > /etc/logrotate.d/redmine-vhost <<EOF
 ${REDMINE_LOG_DIR}/nginx/*.log {
+  su redmine redmine
   weekly
   missingok
   rotate 52
@@ -135,6 +141,7 @@ EOF
 # configure supervisord log rotation
 cat > /etc/logrotate.d/supervisord <<EOF
 ${REDMINE_LOG_DIR}/supervisor/*.log {
+  su root redmine
   weekly
   missingok
   rotate 52
