@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.11**
+- redmine: upgrade to v3.4.11
+
 **3.4.10-2**
 - Fix logrotate. Issue #402
 
