@@ -2,6 +2,7 @@
 
 **3.4.12**
 - redmine: upgrade to v3.4.12
+- Fix "CRIT Server 'unix_http_server' running without any HTTP authentication checking"
 
 **3.4.11**
 - redmine: upgrade to v3.4.11
