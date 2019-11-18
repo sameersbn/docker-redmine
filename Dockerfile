@@ -2,7 +2,7 @@ FROM sameersbn/ubuntu:14.04.20170711
 MAINTAINER sameer@damagehead.com
 
 ENV RUBY_VERSION=2.3 \
-    REDMINE_VERSION=3.3.9 \
+    REDMINE_VERSION=3.3.10 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \

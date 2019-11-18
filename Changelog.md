@@ -1,5 +1,8 @@
 # Changelog
 
+**3.3.10**
+- redmine: upgrade to v.3.3.10
+
 **3.3.9**
 - redmine: upgrade to v.3.3.9
 - Fix unicorn crash by avoiding version 5.5.0, Issue #292
