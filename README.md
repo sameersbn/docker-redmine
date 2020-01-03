@@ -973,7 +973,7 @@ docker-compose up # Test new build
 git add -p
 git commit -sS -m "release: $(cat VERSION)"
 git tag -s $(cat VERSION) -m "$(cat VERSION)"
-git push origin master:master
+git push
 git push origin --tags
 ```
 
