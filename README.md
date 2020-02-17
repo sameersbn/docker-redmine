@@ -500,6 +500,8 @@ docker run --name=redmine -d \
 
 In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
 
+Note: If startup prints ```SSL keys and certificates were not found.``` refer to [SSL](#ssl) and verify you put the certs in the correct place.  Unless your trying to setup for [Using HTTPS with a load balancer](#using-https-with-a-load-balancer)
+
 #### Configuring HSTS
 
 HSTS if supported by the browsers makes sure that your users will only reach your server via HTTPS. When the user comes for the first time it sees a header from the server which states for how long from now this site should only be reachable via HTTPS - that's the HSTS max-age value.
