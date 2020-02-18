@@ -4,4 +4,7 @@
 set -e
 source ${REDMINE_RUNTIME_ASSETS_DIR}/functions
 
-backup_create $@
+install_plugins
+
+# Restart unicorn
+supervisorctl restart unicorn

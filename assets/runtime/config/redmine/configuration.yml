@@ -16,15 +16,15 @@ default:
     delivery_method: :{{SMTP_METHOD}}
     {{SMTP_METHOD}}_settings:
       enable_starttls_auto: {{SMTP_STARTTLS}}
-      address: "{{SMTP_HOST}}"
+      address: '{{SMTP_HOST}}'
       port: {{SMTP_PORT}}
-      domain: "{{SMTP_DOMAIN}}"
+      domain: '{{SMTP_DOMAIN}}'
       authentication: {{SMTP_AUTHENTICATION}}
-      user_name: "{{SMTP_USER}}"
-      password: "{{SMTP_PASS}}"
-      openssl_verify_mode: "{{SMTP_OPENSSL_VERIFY_MODE}}"
-      ca_path: "{{SMTP_CA_PATH}}"
-      ca_file: "{{SMTP_CA_FILE}}"
+      user_name: '{{SMTP_USER}}'
+      password: '{{SMTP_PASS}}'
+      openssl_verify_mode: '{{SMTP_OPENSSL_VERIFY_MODE}}'
+      ca_path: '{{SMTP_CA_PATH}}'
+      ca_file: '{{SMTP_CA_FILE}}'
       tls: {{SMTP_TLS}}
 
   # Absolute path to the directory where attachments are stored.

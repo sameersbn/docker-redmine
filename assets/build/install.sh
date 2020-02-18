@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-GEM_CACHE_DIR="${REDMINE_BUILD_DIR}/cache"
+GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
 
-BUILD_DEPENDENCIES="libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+BUILD_DEPENDENCIES="wget libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
                     libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev"
 
 ## Execute a command as REDMINE_USER
@@ -24,7 +24,7 @@ cat > /tmp/cron.${REDMINE_USER} <<EOF
 REDMINE_USER=${REDMINE_USER}
 REDMINE_INSTALL_DIR=${REDMINE_INSTALL_DIR}
 REDMINE_DATA_DIR=${REDMINE_DATA_DIR}
-REDMINE_RUNTIME_DIR=${REDMINE_RUNTIME_DIR}
+REDMINE_RUNTIME_ASSETS_DIR=${REDMINE_RUNTIME_ASSETS_DIR}
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 EOF
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
@@ -32,8 +32,8 @@ rm -rf /tmp/cron.${REDMINE_USER}
 
 # install redmine, use local copy if available
 exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}
-if [[ -f ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
-  exec_as_redmine tar -zvxf ${REDMINE_BUILD_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
+if [[ -f ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
+  exec_as_redmine tar -zvxf ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
   echo "Downloading Redmine ${REDMINE_VERSION}..."
   exec_as_redmine wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O /tmp/redmine-${REDMINE_VERSION}.tar.gz
@@ -111,9 +111,14 @@ sed -i \
   -e "s|error_log /var/log/nginx/error.log;|error_log ${REDMINE_LOG_DIR}/nginx/error.log;|" \
   /etc/nginx/nginx.conf
 
+# Set log rotate to use root:utmp to match permissions in /var/log
+# Fixes issue #402
+sed -i 's|su root syslog|su root utmp|' /etc/logrotate.conf
+
 # setup log rotation for redmine application logs
 cat > /etc/logrotate.d/redmine <<EOF
 ${REDMINE_LOG_DIR}/redmine/*.log {
+  su root redmine
   weekly
   missingok
   rotate 52
@@ -127,6 +132,7 @@ EOF
 # setup log rotation for redmine vhost logs
 cat > /etc/logrotate.d/redmine-vhost <<EOF
 ${REDMINE_LOG_DIR}/nginx/*.log {
+  su redmine redmine
   weekly
   missingok
   rotate 52
@@ -140,6 +146,7 @@ EOF
 # configure supervisord log rotation
 cat > /etc/logrotate.d/supervisord <<EOF
 ${REDMINE_LOG_DIR}/supervisor/*.log {
+  su root redmine
   weekly
   missingok
   rotate 52
@@ -190,6 +197,11 @@ autorestart=true
 stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
+
+# silence "CRIT Server 'unix_http_server' running without any HTTP authentication checking" message
+# https://github.com/Supervisor/supervisor/issues/717
+sed -i '/\.sock/a password=dummy' /etc/supervisor/supervisord.conf
+sed -i '/\.sock/a username=dummy' /etc/supervisor/supervisord.conf
 
 # purge build dependencies and cleanup apt
 apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}

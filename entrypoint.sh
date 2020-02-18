@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-source ${REDMINE_RUNTIME_DIR}/functions
+source ${REDMINE_RUNTIME_ASSETS_DIR}/functions
 
 [[ $DEBUG == true ]] && set -x
 

@@ -1,3 +1,4 @@
+IMAGE:=sameersbn/redmine
 all: build
 
 help:
@@ -11,17 +12,17 @@ help:
 	@echo "   5. make purge       - stop and remove the container"
 
 build:
-	@docker build --tag=sameersbn/redmine .
+	@docker build --tag=$(IMAGE) .
 
 release:
-	@docker build --tag=sameersbn/redmine:$(shell cat VERSION) .
+	@docker build --tag=$(IMAGE):$(shell cat VERSION) .
 
 quickstart:
 	@echo "Starting redmine..."
 	@docker run --name=redmine-demo -d -p 10080:80 \
 		-v /var/run/docker.sock:/run/docker.sock \
 		-v $(shell which docker):/bin/docker \
-		sameersbn/redmine:latest >/dev/null
+		$(IMAGE) >/dev/null
 	@echo "Please be patient. This could take a while..."
 	@echo "Redmine will be available at http://localhost:10080"
 	@echo "Type 'make logs' for the logs"

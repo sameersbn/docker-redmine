@@ -1,0 +1,11 @@
+sudo: true
+dist: trusty
+
+jobs:
+  include:
+    - stage: test
+      script:
+      - docker build -t docker-redmine .
+      - docker build -t docker-redmine-test ./test
+      - echo docker run -d docker-redmine
+      - docker run --rm docker-redmine-test

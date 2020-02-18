@@ -1,3 +1,4 @@
 *.zip
 *.tar.gz
 *.gem
+node_modules
