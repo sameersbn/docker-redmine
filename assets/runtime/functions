@@ -869,7 +869,11 @@ nginx_configure_redmine() {
     REDMINE_LOG_DIR \
     REDMINE_PORT \
     NGINX_MAX_UPLOAD_SIZE \
-    NGINX_X_FORWARDED_PROTO
+    NGINX_X_FORWARDED_PROTO \
+    NGINX_CORS_ALLOW_ORIGIN \
+    NGINX_CORS_ALLOW_METHODS \
+    NGINX_CORS_ALLOW_HEADERS \
+    NGINX_CORS_ALLOW_CREDENTIALS
 
   nginx_configure_redmine_ssl
   nginx_configure_redmine_hsts

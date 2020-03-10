@@ -614,6 +614,10 @@ Below is the complete list of parameters that can be set using environment varia
 - **NGINX_X_FORWARDED_PROTO**: Advanced configuration option for the `proxy_set_header X-Forwarded-Proto` setting in the redmine nginx vHost configuration. Defaults to `https` when `REDMINE_HTTPS` is `true`, else defaults to `$scheme`.
 - **NGINX_HSTS_ENABLED**: Advanced configuration option for turning off the HSTS configuration. Applicable only when SSL is in use. Defaults to `true`. See [#138](https://github.com/sameersbn/docker-gitlab/issues/138) for use case scenario.
 - **NGINX_HSTS_MAXAGE**: Advanced configuration option for setting the HSTS max-age in the redmine nginx vHost configuration. Applicable only when SSL is in use. Defaults to `31536000`.
+- **NGINX_CORS_ALLOW_ORIGIN**: Sets `Access-Control-Allow-Origin` response header to indicate that the response can be shared with requesting code from the given origin.
+- **NGINX_CORS_ALLOW_METHODS**: Sets `Access-Control-Allow-Methods` response header to specify the methods allowed when accessing the resource in response to a preflight request.
+- **NGINX_CORS_ALLOW_HEADERS**: Sets `Access-Control-Allow-Headers` response header to specify which headers can be used during the actual request.
+- **NGINX_CORS_ALLOW_CREDENTIALS**: Sets `Access-Control-Allow-Credentials` response header to tell browsers whether to expose the response to frontend JavaScript code when the request's credentials mode (Request.credentials) is include.
 - **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to `2`.
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
 - **MEMCACHE_HOST**: The host name of the memcached server. No defaults.
