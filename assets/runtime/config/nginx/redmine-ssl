@@ -11,7 +11,7 @@ server {
   listen [::]:80 default_server;
   server_name _;
   server_tokens off;
-  
+
   ## Redirects all traffic to the HTTPS host
   return 301 https://$host:{{REDMINE_PORT}}$request_uri;
 }
@@ -74,6 +74,14 @@ server {
     ## Serve static files from defined root folder.
     ## @redmine is a named location for the upstream fallback, see below.
     try_files $file @redmine;
+  }
+
+  add_header Access-Control-Allow-Origin '{{NGINX_CORS_ALLOW_ORIGIN}}';
+  add_header Access-Control-Allow-Methods '{{NGINX_CORS_ALLOW_METHODS}}';
+  add_header Access-Control-Allow-Headers '{{NGINX_CORS_ALLOW_HEADERS}}';
+  add_header Access-Control-Allow-Credentials '{{NGINX_CORS_ALLOW_CREDENTIALS}}';
+  if ($request_method = 'OPTIONS' ) {
+    return 204 no-content;
   }
 
   ## If a file, which is not found in the root folder is requested,
