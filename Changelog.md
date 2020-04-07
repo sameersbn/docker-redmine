@@ -1,5 +1,7 @@
 # Changelog
 
+- Fix bundler deprecation warnings #417
+
 **4.1.1**
 - redmine: upgrade to v4.1.1
 
