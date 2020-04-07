@@ -1,5 +1,8 @@
 # Changelog
 
+**4.0.7**
+- redmine: upgrade to v4.0.7
+
 **4.0.6**
 - redmine: upgrade to v4.0.6
 
