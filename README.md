@@ -970,7 +970,7 @@ docker exec -it redmine bash
 * Commands to run to update image to next redmine release, examples are from 4.1.1-1 to 4.1.1
 
 ```bash
-sed -i 's/4.1.1-1/4.1.1/' VERSION README.md docker-compose-mysql.yml docker-compose-ssl.yml Dockerfile docker-compose.yml
+sed -i 's/4.1.1-1/4.1.1-1/' VERSION README.md docker-compose-mysql.yml docker-compose-ssl.yml Dockerfile docker-compose.yml
 vim Changelog.md # Update change log
 sudo rm -rf /srv/docker/redmine/ # Clean old run
 docker-compose down
@@ -984,7 +984,7 @@ git push origin --tags
 ```
 
 * Open https://github.com/sameersbn/docker-redmine/releases and Draft new release
-* Select tag 4.1.1-1 and set release title to 4.1.0
+* Select tag 4.1.1-1 and set release title to 4.1.1-1
 * Publish release
 * Check https://quay.io/repository/sameersbn/redmine?tab=info  and https://hub.docker.com/r/sameersbn/redmine/builds for build progress
 
