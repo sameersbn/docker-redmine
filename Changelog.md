@@ -1,5 +1,7 @@
 # Changelog
 
+**4.1.1-1**
+- Install ghostscript to enable ImageMagick PDF support #420
 - Fix bundler deprecation warnings #417
 
 **4.1.1**
