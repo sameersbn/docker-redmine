@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.1-2**
+- Update ImageMagick policy to allow PDF read for thumbnail generation. (#421)
+
 **4.1.1-1**
 - Install ghostscript to enable ImageMagick PDF support #420
 - Fix bundler deprecation warnings #417
