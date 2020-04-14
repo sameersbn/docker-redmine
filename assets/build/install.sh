@@ -200,6 +200,10 @@ EOF
 sed -i '/\.sock/a password=dummy' /etc/supervisor/supervisord.conf
 sed -i '/\.sock/a username=dummy' /etc/supervisor/supervisord.conf
 
+# update ImageMagick policy to allow PDF read for thumbnail generation.
+# https://github.com/sameersbn/docker-redmine/pull/421
+sed -i 's/ domain="coder" rights="none" pattern="PDF" / domain="coder" rights="read" pattern="PDF" /g' /etc/ImageMagick-*/policy.xml
+
 # purge build dependencies and cleanup apt
 apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}
 rm -rf /var/lib/apt/lists/*
