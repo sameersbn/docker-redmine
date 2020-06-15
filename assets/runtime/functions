@@ -376,6 +376,16 @@ redmine_configure_email_delivery() {
   fi
 }
 
+redmine_configure_cron_tz() {
+  # Ensure cron uses same timezone as redmine, issue #257
+  crontab -u "${REDMINE_USER}" -l >"/tmp/cron.${REDMINE_USER}"
+  if [ -n "${TZ}" ] && ! grep -q 'TZ' "/tmp/cron.${REDMINE_USER}"; then
+    echo "TZ=${TZ}" >> "/tmp/cron.${REDMINE_USER}"
+    crontab -u "${REDMINE_USER}" "/tmp/cron.${REDMINE_USER}"
+  fi
+  rm -rf "/tmp/cron.${REDMINE_USER}"
+}
+
 redmine_configure_incoming_email() {
   if [[ ${IMAP_ENABLED} == true ]]; then
     echo "Configuring redmine::incoming_email..."
@@ -801,6 +811,7 @@ configure_redmine() {
   redmine_configure_sudo_mode
   redmine_configure_autologin_cookie
   redmine_configure_email_delivery
+  redmine_configure_cron_tz
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
   redmine_configure_backups
