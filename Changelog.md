@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.1-3**
+- Ensure cron uses same timezone as rest of redmine, issue #257
+
 **4.1.1-2**
 - Update ImageMagick policy to allow PDF read for thumbnail generation. (#421)
 
