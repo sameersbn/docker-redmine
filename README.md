@@ -143,6 +143,7 @@ docker run --name=redmine -d \
   --link=postgresql-redmine:postgresql --publish=10083:80 \
   --env='REDMINE_PORT=10083' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -166,6 +167,7 @@ You now have the Redmine application up and ready for testing. If you want to us
 For the file storage we need to mount a volume at the following location.
 
 * `/home/redmine/data`
+* `/var/log/redmine` for server logs
 
 > **NOTE**
 >
@@ -188,6 +190,7 @@ Volumes can be mounted in docker by specifying the **'-v'** option in the docker
 ```bash
 docker run --name=redmine -it --rm \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -238,6 +241,7 @@ docker run --name=redmine -it --rm \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -283,6 +287,7 @@ We are now ready to start the redmine application.
 ```bash
 docker run --name=redmine -it --rm --link=mysql-redmine:mysql \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -313,6 +318,7 @@ docker run --name=redmine -it --rm \
   --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -358,6 +364,7 @@ We are now ready to start the redmine application.
 ```bash
 docker run --name=redmine -it --rm --link=postgresql-redmine:postgresql \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -413,6 +420,7 @@ Please refer the [Available Configuration Parameters](#available-configuration-p
 docker run --name=redmine -it --rm \
   --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -495,6 +503,7 @@ docker run --name=redmine -d \
   --publish=10083:80 --publish 10445:443 \
   --env='REDMINE_PORT=10445' --env='REDMINE_HTTPS=true' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -513,6 +522,7 @@ docker run --name=redmine -d \
   --env='REDMINE_HTTPS=true' \
   --env='NGINX_HSTS_MAXAGE=2592000'
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -532,6 +542,7 @@ In summation, when using a load balancer, the docker command would look for the 
 docker run --name=redmine -d --publish=10083:80 \
   --env='REDMINE_HTTPS=true' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -545,6 +556,7 @@ Let's assume we want to deploy our application to '/redmine'. Redmine needs to k
 docker run --name=redmine -d --publish=10083:80 \
   --env='REDMINE_RELATIVE_URL_ROOT=/redmine' \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3
 ```
 
@@ -743,6 +755,7 @@ To uninstall plugins you need to first tell redmine about the plugin you need to
 ```bash
 docker run --name=redmine -it --rm \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3 \
   app:rake redmine:plugins:migrate NAME=plugin_name VERSION=0
 ```
@@ -760,6 +773,7 @@ For example, to remove the recurring tasks plugin:
 ```bash
 docker run --name=redmine -it --rm \
   --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
   sameersbn/redmine:4.1.1-3 \
   app:rake redmine:plugins:migrate NAME=recurring_tasks VERSION=0
 rm -rf /srv/docker/redmine/redmine/plugins/recurring_tasks
