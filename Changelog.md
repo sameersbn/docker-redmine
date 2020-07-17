@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.1-4**
+- Add sqlite support, issue #350
+
 **4.1.1-3**
 - Ensure cron uses same timezone as rest of redmine, issue #257
 
