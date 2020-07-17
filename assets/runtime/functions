@@ -525,7 +525,8 @@ backup_dump_database() {
         "${database_production_database}" > "${config_default_backup_storage_path}/database.sql"
       ;;
     sqlite3)
-      echo "TODO"
+      echo "Dumping SQLite database ${database_production_database}..."
+      sqlite3 "${database_production_database}" .dump > "${config_default_backup_storage_path}/database.sql"
       ;;
   esac
   chown "${REDMINE_USER}:" "${config_default_backup_storage_path}/database.sql"
@@ -646,7 +647,9 @@ backup_restore_database() {
           "${database_production_database}"
       ;;
     sqlite3)
-      echo "TODO"
+      echo "Restoring SQLite database..."
+      gzip -dc "${config_default_backup_storage_path}/database.sql.gz" | \
+        sqlite3 "${database_production_database}"
       ;;
     *)
       echo "Database type ${database_production_adapter} not supported."
