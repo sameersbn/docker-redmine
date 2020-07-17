@@ -4,7 +4,8 @@ set -e
 GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
 
 BUILD_DEPENDENCIES="wget libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-                    libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev"
+                    libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev \
+                    libsqlite3-dev"
 
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
@@ -49,15 +50,33 @@ fi
 #       are both installed.
 PG_GEM=$(grep 'gem "pg"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 MYSQL2_GEM=$(grep 'gem "mysql2"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+# SQLITE line spans 2 lines until after this commit: https://github.com/redmine/redmine/commit/dc05c52e5a25b43c49246a952607551bf0d96f29#diff-8b7db4d5cc4b8f6dc8feb7030baa2478
+# The 2 lines one has RUBY_VERSION in it
+SQLITE3_2LINES_GEM=$(grep -A1 -e 'gem "sqlite3".*RUBY_VERSION' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t ]+|[ \t ]+$/,    ""); print;}')
+SQLITE3_GEM=$(grep 'gem "sqlite3"' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 
 sed -i \
   -e '/gem "pg"/d' \
   -e '/gem "mysql2"/d' \
   ${REDMINE_INSTALL_DIR}/Gemfile
 
+if [ -z "$SQLITE3_2LINES_GEM" ]
+then
+  sed -i \
+    -e '/gem "sqlite3"/d' \
+    "${REDMINE_INSTALL_DIR}/Gemfile"
+else
+  # Delete 2 lines
+  sed -i \
+    -e '/gem "sqlite3"/ { N; d; }' \
+    "${REDMINE_INSTALL_DIR}/Gemfile"
+  SQLITE3_GEM=${SQLITE3_2LINES_GEM}
+fi
+
 (
   echo "${PG_GEM}";
   echo "${MYSQL2_GEM}";
+  echo "${SQLITE3_GEM}";
   echo '# unicorn 5.5.0 has a bug in unicorn_rails. See issue #392';
   echo 'gem "unicorn", "~> 5.4", "!=5.5.0"';
   echo 'gem "dalli", "~> 2.7.0"';

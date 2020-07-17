@@ -147,6 +147,10 @@ redmine_finalize_database_parameters() {
     DB_USER=${DB_USER:-${POSTGRESQL_ENV_USER}}
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
+  elif [[ "${DB_ADAPTER}" == sqlite3 ]]; then
+    # Assign DB_HOST here to avoid configure database error below
+    DB_HOST=${DB_HOST:-db.sqlite}
+    DB_HOST="${REDMINE_DATA_DIR}/${DB_HOST}"
   fi
 
   if [[ -z ${DB_HOST} ]]; then
@@ -170,11 +174,13 @@ redmine_finalize_database_parameters() {
       DB_ENCODING=${DB_ENCODING:-unicode}
       DB_PORT=${DB_PORT:-5432}
       ;;
+    sqlite3)
+      ;;
     *)
       echo
       echo "ERROR: "
       echo "  Please specify the database type in use via the DB_ADAPTER configuration option."
-      echo "  Accepted values are \"postgresql\" or \"mysql2\". Aborting..."
+      echo "  Accepted values are \"postgresql\" or \"mysql2\" or \"sqlite3\". Aborting..."
       echo
       return 1
       ;;
@@ -193,6 +199,9 @@ redmine_check_database_connection() {
     postgresql)
       prog=$(find /usr/lib/postgresql/ -name pg_isready)
       prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
+      ;;
+    sqlite3)
+      prog="true"
       ;;
   esac
   timeout=60
@@ -226,7 +235,7 @@ redmine_configure_database() {
     DB_PASS \
     DB_POOL
 
-  if [[ ${DB_ADAPTER} == postgresql ]]; then
+  if [[ ${DB_ADAPTER} != mysql2 ]]; then
     exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
   fi
 }
@@ -511,6 +520,9 @@ backup_dump_database() {
         --user ${database_production_username} --default-character-set ${database_production_encoding} \
         ${database_production_database} > ${config_default_backup_storage_path}/database.sql
       ;;
+    sqlite3)
+      echo "TODO"
+      ;;
   esac
   chown ${REDMINE_USER}: ${config_default_backup_storage_path}/database.sql
   exec_as_redmine gzip -f ${config_default_backup_storage_path}/database.sql
@@ -628,6 +640,9 @@ backup_restore_database() {
           --host ${database_production_host} --port ${database_production_port} \
           --user ${database_production_username} --default-character-set ${database_production_encoding} \
           ${database_production_database}
+      ;;
+    sqlite3)
+      echo "TODO"
       ;;
     *)
       echo "Database type ${database_production_adapter} not supported."
