@@ -113,11 +113,11 @@ default:
   # scm_cvs_command:        cvs                                       # (default: cvs)
   # scm_bazaar_command:     bzr.exe                                   # (default: bzr)
   #
-  scm_subversion_command: svn
-  scm_mercurial_command: hg
-  scm_git_command: git
-  scm_cvs_command: cvs
-  scm_bazaar_command: bzr
+  scm_subversion_command:
+  scm_mercurial_command:
+  scm_git_command:
+  scm_cvs_command:
+  scm_bazaar_command:
 
   # SCM paths validation.
   #
@@ -138,12 +138,12 @@ default:
   #
   # scm_git_path_regexp: /gitpath/%project%(\.[a-z0-9_])?/
   #
-  # scm_subversion_path_regexp:
-  # scm_mercurial_path_regexp:
-  # scm_git_path_regexp:
-  # scm_cvs_path_regexp:
-  # scm_bazaar_path_regexp:
-  # scm_filesystem_path_regexp:
+  scm_subversion_path_regexp:
+  scm_mercurial_path_regexp:
+  scm_git_path_regexp:
+  scm_cvs_path_regexp:
+  scm_bazaar_path_regexp:
+  scm_filesystem_path_regexp:
 
   # Absolute path to the SCM commands errors (stderr) log file.
   # The default is to log in the 'log' directory of your Redmine instance.
@@ -163,7 +163,7 @@ default:
   # * decrypt data using 'rake db:decrypt RAILS_ENV=production' first
   # * change the cipher key here in your configuration file
   # * encrypt data using 'rake db:encrypt RAILS_ENV=production'
-  # database_cipher_key:
+  database_cipher_key:
 
   # Set this to false to disable plugins' assets mirroring on startup.
   # You can use `rake redmine:plugins:assets` to manually mirror assets
@@ -214,7 +214,7 @@ default:
   #   Linux:
   #     minimagick_font_path: /usr/share/fonts/ipa-mincho/ipam.ttf
   #
-  # minimagick_font_path:
+  minimagick_font_path:
 
   # Maximum number of simultaneous AJAX uploads
   max_concurrent_ajax_uploads: {{REDMINE_CONCURRENT_UPLOADS}}
@@ -222,7 +222,7 @@ default:
   # Configure OpenIdAuthentication.store
   #
   # allowed values: :memory, :file, :memcache
-  openid_authentication_store: :memory
+  #openid_authentication_store: :memory
 
   # URL of the avatar server
   #
