@@ -1,11 +1,11 @@
 # = Redmine configuration file
 #
-# Each environment has it's own configuration options.  If you are only
+# Each environment has its own configuration options.  If you are only
 # running in production, only the production block needs to be configured.
 # Environment specific configuration options override the default ones.
 #
 # Note that this file needs to be a valid YAML file.
-# DO NOT USE TABS! Use 2 spaces instead of tabs for identation.
+# DO NOT USE TABS! Use 2 spaces instead of tabs for indentation.
 
 # default configuration options for all environments
 default:
@@ -13,6 +13,58 @@ default:
   # See the examples below and the Rails guide for more configuration options:
   # http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
   email_delivery:
+
+  # ==== Simple SMTP server at localhost
+  #
+  #  email_delivery:
+  #    delivery_method: :smtp
+  #    smtp_settings:
+  #      address: "localhost"
+  #      port: 25
+  #
+  # ==== SMTP server at example.com using LOGIN authentication and checking HELO for foo.com
+  #
+  #  email_delivery:
+  #    delivery_method: :smtp
+  #    smtp_settings:
+  #      address: "example.com"
+  #      port: 25
+  #      authentication: :login
+  #      domain: 'foo.com'
+  #      user_name: 'myaccount'
+  #      password: 'password'
+  #
+  # ==== SMTP server at example.com using PLAIN authentication
+  #
+  #  email_delivery:
+  #    delivery_method: :smtp
+  #    smtp_settings:
+  #      address: "example.com"
+  #      port: 25
+  #      authentication: :plain
+  #      domain: 'example.com'
+  #      user_name: 'myaccount'
+  #      password: 'password'
+  #
+  # ==== SMTP server at using TLS (GMail)
+  # This might require some additional configuration. See the guides at:
+  # http://www.redmine.org/projects/redmine/wiki/EmailConfiguration
+  #
+  #  email_delivery:
+  #    delivery_method: :smtp
+  #    smtp_settings:
+  #      enable_starttls_auto: true
+  #      address: "smtp.gmail.com"
+  #      port: 587
+  #      domain: "smtp.gmail.com" # 'your.domain.com' for GoogleApps
+  #      authentication: :plain
+  #      user_name: "your_email@gmail.com"
+  #      password: "your_password"
+  #
+  # ==== Sendmail command
+  #
+  #  email_delivery:
+  #    delivery_method: :sendmail
     delivery_method: :{{SMTP_METHOD}}
     {{SMTP_METHOD}}_settings:
       enable_starttls_auto: {{SMTP_STARTTLS}}
@@ -32,20 +84,40 @@ default:
   # Your Redmine instance needs to have write permission on this
   # directory.
   # Examples:
+  # attachments_storage_path: /var/redmine/files
+  # attachments_storage_path: D:/redmine/files
   attachments_storage_path: {{REDMINE_ATTACHMENTS_DIR}}
 
   # Configuration of the autologin cookie.
+  # autologin_cookie_name: the name of the cookie (default: autologin)
+  # autologin_cookie_path: the cookie path (default: /)
+  # autologin_cookie_secure: true sets the cookie secure flag (default: false)
   autologin_cookie_name: {{REDMINE_AUTOLOGIN_COOKIE_NAME}}
   autologin_cookie_path: {{REDMINE_AUTOLOGIN_COOKIE_PATH}}
   autologin_cookie_secure: {{REDMINE_AUTOLOGIN_COOKIE_SECURE}}
 
   # Configuration of SCM executable command.
-  scm_subversion_command: svn
-  scm_mercurial_command: hg
-  scm_git_command: git
-  scm_cvs_command: cvs
-  scm_bazaar_command: bzr
-  scm_darcs_command: darcs
+  #
+  # Absolute path (e.g. /usr/local/bin/hg) or command name (e.g. hg.exe, bzr.exe)
+  # On Windows + CRuby, *.cmd, *.bat (e.g. hg.cmd, bzr.bat) does not work.
+  #
+  # On Windows + JRuby 1.6.2, path which contains spaces does not work.
+  # For example, "C:\Program Files\TortoiseHg\hg.exe".
+  # If you want to this feature, you need to install to the path which does not contains spaces.
+  # For example, "C:\TortoiseHg\hg.exe".
+  #
+  # Examples:
+  # scm_subversion_command: svn                                       # (default: svn)
+  # scm_mercurial_command:  C:\Program Files\TortoiseHg\hg.exe        # (default: hg)
+  # scm_git_command:        /usr/local/bin/git                        # (default: git)
+  # scm_cvs_command:        cvs                                       # (default: cvs)
+  # scm_bazaar_command:     bzr.exe                                   # (default: bzr)
+  #
+  scm_subversion_command:
+  scm_mercurial_command:
+  scm_git_command:
+  scm_cvs_command:
+  scm_bazaar_command:
 
   # SCM paths validation.
   #
@@ -66,16 +138,17 @@ default:
   #
   # scm_git_path_regexp: /gitpath/%project%(\.[a-z0-9_])?/
   #
-  # scm_subversion_path_regexp:
-  # scm_mercurial_path_regexp:
-  # scm_git_path_regexp:
-  # scm_cvs_path_regexp:
-  # scm_bazaar_path_regexp:
-  # scm_darcs_path_regexp:
-  # scm_filesystem_path_regexp:
+  scm_subversion_path_regexp:
+  scm_mercurial_path_regexp:
+  scm_git_path_regexp:
+  scm_cvs_path_regexp:
+  scm_bazaar_path_regexp:
+  scm_filesystem_path_regexp:
 
   # Absolute path to the SCM commands errors (stderr) log file.
   # The default is to log in the 'log' directory of your Redmine instance.
+  # Example:
+  # scm_stderr_log_file: /var/log/redmine_scm_stderr.log
   scm_stderr_log_file: {{REDMINE_LOG_DIR}}/redmine/redmine_scm_stderr.log
 
   # Key used to encrypt sensitive data in the database (SCM and LDAP passwords).
@@ -90,7 +163,7 @@ default:
   # * decrypt data using 'rake db:decrypt RAILS_ENV=production' first
   # * change the cipher key here in your configuration file
   # * encrypt data using 'rake db:encrypt RAILS_ENV=production'
-  # database_cipher_key:
+  database_cipher_key:
 
   # Set this to false to disable plugins' assets mirroring on startup.
   # You can use `rake redmine:plugins:assets` to manually mirror assets
@@ -119,20 +192,29 @@ default:
   # the ImageMagick's `convert` binary. Used to generate attachment thumbnails.
   imagemagick_convert_command: /usr/bin/convert
 
-  # Configuration of RMagick font.
+  # Absolute path (e.g. /usr/bin/gs, c:/ghostscript/gs.exe) to
+  # the `gs` binary. Used to generate attachment thumbnails of PDF files.
+  #gs_command:
+
+  # Configuration of MiniMagick font.
   #
-  # Redmine uses RMagick in order to export gantt png.
-  # You don't need this setting if you don't install RMagick.
+  # Redmine uses MiniMagick in order to export a gantt chart to a PNG image.
+  # This setting is necessary to properly display CJK (Chinese, Japanese,
+  # and Korean) characters in the PNG image. Please make sure that the
+  # specified font is installed in the Redmine server.
   #
-  # In CJK (Chinese, Japanese and Korean),
-  # in order to show CJK characters correctly,
-  # you need to set this configuration.
+  # This setting is necessary only when CJK characters are used in gantt.
   #
-  # Because there is no standard font across platforms in CJK,
-  # you need to set a font installed in your server.
+  # Note that rmagick_font_path in prior to Redmine 4.1.0 has been renamed
+  # to minimagick_font_path.
   #
-  # This setting is not necessary in non CJK.
-  # rmagick_font_path:
+  # Examples for Japanese:
+  #   Windows:
+  #     minimagick_font_path: C:\windows\fonts\msgothic.ttc
+  #   Linux:
+  #     minimagick_font_path: /usr/share/fonts/ipa-mincho/ipam.ttf
+  #
+  minimagick_font_path:
 
   # Maximum number of simultaneous AJAX uploads
   max_concurrent_ajax_uploads: {{REDMINE_CONCURRENT_UPLOADS}}
@@ -140,7 +222,19 @@ default:
   # Configure OpenIdAuthentication.store
   #
   # allowed values: :memory, :file, :memcache
-  openid_authentication_store: :memory
+  #openid_authentication_store: :memory
+
+  # URL of the avatar server
+  #
+  # By default, Redmine uses Gravatar as the avatar server for displaying
+  # user icons. You can switch to another Gravatar-compatible server such
+  # as Libravatar and opensource servers listed on
+  # https://wiki.libravatar.org/running_your_own/
+  #
+  # URL of each avatar is: #{avatar_server_url}/avatar/#{hash}
+  #
+  #avatar_server_url: https://www.gravatar.com        # default
+  #avatar_server_url: https://seccdn.libravatar.org
 
   # Path to store backups (docker-redmine only)
   backup_storage_path: {{REDMINE_BACKUPS_DIR}}
