@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.1-5**
+- Fix sqlite image migration from older versions, issue #431
+
 **4.1.1-4**
 - Add sqlite support, issue #350
 
