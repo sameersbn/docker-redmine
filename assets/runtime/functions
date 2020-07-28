@@ -12,6 +12,8 @@ REDMINE_SECRET_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/secret_token.r
 REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
+IMAGE_VERSION=$(cat /VERSION)
+
 # Read YAML file from Bash script
 # Credits: https://gist.github.com/pkuczynski/8665367
 # Updated to support single quotes
@@ -927,39 +929,45 @@ configure_nginx() {
 
 version_check() {
   CACHE_VERSION=
-  [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
-  if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
-    ## version check, only upgrades are allowed
-    if [[ -n ${CACHE_VERSION} && $(vercmp ${REDMINE_VERSION} ${CACHE_VERSION}) -lt 0 ]]; then
-      echo
-      echo "ERROR: "
-      echo "  Cannot downgrade from Redmine version ${CACHE_VERSION} to ${REDMINE_VERSION}."
-      echo "  Only upgrades are allowed. Please use sameersbn/redmine:${CACHE_VERSION} or higher."
-      echo "  Cannot continue. Aborting!"
-      echo
-      return 1
-    fi
+  CACHE_IMAGE_VERSION=
+  [[ -f "${REDMINE_DATA_DIR}/tmp/VERSION" ]] && CACHE_VERSION=$(cat "${REDMINE_DATA_DIR}/tmp/VERSION")
+  [[ -f "${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION" ]] && CACHE_IMAGE_VERSION=$(cat "${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION")
 
-    # If REDMINE_VERSION has changed, we need to clear the cache
-    echo "New redmine version. Clearing cache"
-    rm -rf ${REDMINE_DATA_DIR}/tmp
-    exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp
-    exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/thumbnails
-    exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/plugin_assets
-    exec_as_redmine chmod -R u+rw,go+r ${REDMINE_DATA_DIR}/tmp
+  ## version check, only redmine upgrades are allowed
+  if [[ -n "${CACHE_VERSION}" && $(vercmp "${REDMINE_VERSION}" "${CACHE_VERSION}") -lt 0 ]]; then
+    echo
+    echo "ERROR: "
+    echo "  Cannot downgrade from Redmine version ${CACHE_VERSION} to ${REDMINE_VERSION}."
+    echo "  Only upgrades are allowed. Please use sameersbn/redmine:${CACHE_VERSION} or higher."
+    echo "  Cannot continue. Aborting!"
+    echo
+    return 1
+  fi
+
+  if [[ "${IMAGE_VERSION}" != "${CACHE_IMAGE_VERSION}" ]]; then
+    # If IMAGE_VERSION has changed, we need to clear the cache
+    echo "New image version. Clearing cache"
+    rm -rf "${REDMINE_DATA_DIR}/tmp"
+    exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp"
+    exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp/thumbnails"
+    exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp/plugin_assets"
+    exec_as_redmine chmod -R u+rw,go+r "${REDMINE_DATA_DIR}/tmp"
   fi
 
   # Setup cache
   # copy the installed gems and Gemfile.lock to ${REDMINE_DATA_DIR}/tmp/
   if [[ ! -d ${REDMINE_DATA_DIR}/tmp/bundle ]]; then
-    exec_as_redmine cp -a ${REDMINE_INSTALL_DIR}/vendor/bundle ${REDMINE_DATA_DIR}/tmp/
-    exec_as_redmine cp -a ${REDMINE_INSTALL_DIR}/Gemfile.lock ${REDMINE_DATA_DIR}/tmp/
+    exec_as_redmine cp -a "${REDMINE_INSTALL_DIR}/vendor/bundle" "${REDMINE_DATA_DIR}/tmp/"
+    exec_as_redmine cp -a "${REDMINE_INSTALL_DIR}/Gemfile.lock" "${REDMINE_DATA_DIR}/tmp/"
   fi
-  rm -rf ${REDMINE_INSTALL_DIR}/vendor/bundle ${REDMINE_INSTALL_DIR}/Gemfile.lock
+  rm -rf "${REDMINE_INSTALL_DIR}/vendor/bundle" "${REDMINE_INSTALL_DIR}/Gemfile.lock"
+
+  # Track docker image version in tmp cache
+  echo "${CACHE_IMAGE_VERSION}" > "${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION"
 
   # symlink to ${REDMINE_DATA_DIR}/tmp/bundle
-  ln -sf ${REDMINE_DATA_DIR}/tmp/bundle ${REDMINE_INSTALL_DIR}/vendor/bundle
-  ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock ${REDMINE_INSTALL_DIR}/Gemfile.lock
+  ln -sf "${REDMINE_DATA_DIR}/tmp/bundle" "${REDMINE_INSTALL_DIR}/vendor/bundle"
+  ln -sf "${REDMINE_DATA_DIR}/tmp/Gemfile.lock" "${REDMINE_INSTALL_DIR}/Gemfile.lock"
 }
 
 migrate_database() {
