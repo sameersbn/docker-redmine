@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.1-6**
+- Fix typo for saving IMAGE_VERSION, issue #435
+
 **4.1.1-5**
 - Fix sqlite image migration from older versions, issue #431
 
