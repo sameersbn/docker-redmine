@@ -963,7 +963,7 @@ version_check() {
   rm -rf "${REDMINE_INSTALL_DIR}/vendor/bundle" "${REDMINE_INSTALL_DIR}/Gemfile.lock"
 
   # Track docker image version in tmp cache
-  echo "${CACHE_IMAGE_VERSION}" > "${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION"
+  echo ${IMAGE_VERSION} | exec_as_redmine tee ${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION >/dev/null
 
   # symlink to ${REDMINE_DATA_DIR}/tmp/bundle
   ln -sf "${REDMINE_DATA_DIR}/tmp/bundle" "${REDMINE_INSTALL_DIR}/vendor/bundle"
