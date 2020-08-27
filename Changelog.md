@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.13-1**
+- functions: Clear tmp cache if image version changes, Issue #431
+
 **3.4.13**
 - redmine: upgrade to v3.4.13
 
