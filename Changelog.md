@@ -1,5 +1,8 @@
 # Changelog
 
+**3.4.13-2**
+- Add REDMINE_RMAGICK_FONT_PATH parameter for Redmine 3.4 (#439) 
+
 **3.4.13-1**
 - functions: Clear tmp cache if image version changes, Issue #431
 
