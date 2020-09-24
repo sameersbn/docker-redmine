@@ -214,9 +214,7 @@ default:
   #   Linux:
   #     minimagick_font_path: /usr/share/fonts/ipa-mincho/ipam.ttf
   #
-  minimagick_font_path:
-  # This setting is not necessary in non CJK.
-  rmagick_font_path: {{REDMINE_RMAGICK_FONT_PATH}}
+  minimagick_font_path: {{REDMINE_MINIMAGICK_FONT_PATH}}
 
   # Maximum number of simultaneous AJAX uploads
   max_concurrent_ajax_uploads: {{REDMINE_CONCURRENT_UPLOADS}}
