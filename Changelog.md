@@ -1,5 +1,11 @@
 # Changelog
 
+**4.0.7-1**
+- Fix to avoid adding double "secure" flags for cookies
+- Clear tmp directory earlier when redmine version is updated
+- functions: Clear tmp cache if image version changes, Issue #431
+- Add REDMINE_RMAGICK_FONT_PATH parameter for Redmine 3.4 (#439)
+
 **4.0.7**
 - redmine: upgrade to v4.0.7
 
