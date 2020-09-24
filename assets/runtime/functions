@@ -508,6 +508,12 @@ redmine_configure_backups() {
   redmine_configure_backups_schedule
 }
 
+redmine_configure_rmagick_font() {
+  echo "Configuring redmine::rmagic::font..."
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_RMAGICK_FONT_PATH
+}
+
 backup_dump_database() {
   eval $(parse_yaml "${REDMINE_CONFIG}" config_)
   eval $(parse_yaml "${REDMINE_DATABASE_CONFIG}" database_)
@@ -839,6 +845,7 @@ configure_redmine() {
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
   redmine_configure_backups
+  redmine_configure_rmagick_font
 
   # configure secure-cookie if using SSL/TLS
   if [[ ${REDMINE_HTTPS} == true ]]; then

@@ -135,3 +135,6 @@ if [[ $REDMINE_HTTPS == true ]]; then
 else
   NGINX_X_FORWARDED_PROTO=${NGINX_X_FORWARDED_PROTO:-\$scheme}
 fi
+
+## RMAGICK
+REDMINE_RMAGICK_FONT_PATH=${REDMINE_RMAGICK_FONT_PATH:-/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf}
