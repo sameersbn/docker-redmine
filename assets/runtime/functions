@@ -12,6 +12,8 @@ REDMINE_SECRET_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/secret_token.r
 REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
+IMAGE_VERSION=$(cat /VERSION)
+
 # Read YAML file from Bash script
 # Credits: https://gist.github.com/pkuczynski/8665367
 # Updated to support single quotes
@@ -483,6 +485,12 @@ redmine_configure_backups() {
   redmine_configure_backups_schedule
 }
 
+redmine_configure_rmagick_font() {
+  echo "Configuring redmine::rmagic::font..."
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_RMAGICK_FONT_PATH
+}
+
 backup_dump_database() {
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
   eval $(parse_yaml ${REDMINE_DATABASE_CONFIG} database_)
@@ -804,6 +812,7 @@ configure_redmine() {
   redmine_configure_incoming_email
   redmine_configure_fetch_commits
   redmine_configure_backups
+  redmine_configure_rmagick_font
 
   # configure secure-cookie if using SSL/TLS
   if [[ ${REDMINE_HTTPS} == true ]]; then
@@ -890,8 +899,9 @@ configure_nginx() {
 
 version_check() {
   CACHE_VERSION=
-  [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
-  if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
+  CACHE_IMAGE_VERSION=
+  [[ -f "${REDMINE_DATA_DIR}/tmp/VERSION" ]] && CACHE_VERSION=$(cat "${REDMINE_DATA_DIR}/tmp/VERSION")
+  [[ -f "${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION" ]] && CACHE_IMAGE_VERSION=$(cat "${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION")
     ## version check, only upgrades are allowed
     if [[ -n ${CACHE_VERSION} && $(vercmp ${REDMINE_VERSION} ${CACHE_VERSION}) -lt 0 ]]; then
       echo
@@ -903,8 +913,9 @@ version_check() {
       return 1
     fi
 
-    # If REDMINE_VERSION has changed, we need to clear the cache
-    echo "New redmine version. Clearing cache"
+    if [[ "${IMAGE_VERSION}" != "${CACHE_IMAGE_VERSION}" ]]; then
+    # If IMAGE_VERSION has changed, we need to clear the cache
+    echo "New image version. Clearing cache"
     rm -rf ${REDMINE_DATA_DIR}/tmp
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp
     exec_as_redmine mkdir -p ${REDMINE_DATA_DIR}/tmp/thumbnails
@@ -919,6 +930,9 @@ version_check() {
     exec_as_redmine cp -a ${REDMINE_INSTALL_DIR}/Gemfile.lock ${REDMINE_DATA_DIR}/tmp/
   fi
   rm -rf ${REDMINE_INSTALL_DIR}/vendor/bundle ${REDMINE_INSTALL_DIR}/Gemfile.lock
+
+  # Track docker image version in tmp cache
+  echo ${IMAGE_VERSION} | exec_as_redmine tee ${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION >/dev/null
 
   # symlink to ${REDMINE_DATA_DIR}/tmp/bundle
   ln -sf ${REDMINE_DATA_DIR}/tmp/bundle ${REDMINE_INSTALL_DIR}/vendor/bundle

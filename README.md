@@ -587,6 +587,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **REDMINE_RELATIVE_URL_ROOT**: The relative url of the Redmine server, e.g. `/redmine`. No default.
 - **REDMINE_ATTACHMENTS_DIR**: The attachments directory. Defaults to `/home/redmine/data/files`
 - **REDMINE_SECRET_TOKEN**: Secret key for verifying cookie session data integrity. Defaults to a random alphanumeric string.
+- **REDMINE_RMAGICK_FONT_PATH**: The rmagick_font_path for the png export function of GANTT to work. Defaults to `/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf`.
 - **REDMINE_CONCURRENT_UPLOADS**: Maximum number of simultaneous AJAX uploads. Defaults to `2`.
 - **REDMINE_SUDO_MODE_ENABLED**: Requires users to re-enter their password for sensitive actions. Defaults to `false`.
 - **REDMINE_SUDO_MODE_TIMEOUT**: Sudo mode timeout. Defaults to `15` minutes.
@@ -973,12 +974,12 @@ docker-compose up # Test new build
 git add -p
 git commit -sS -m "release: $(cat VERSION)"
 git tag -s $(cat VERSION) -m "$(cat VERSION)"
-git push origin master:master
+git push
 git push origin --tags
 ```
 
 * Open https://github.com/sameersbn/docker-redmine/releases and Draft new release
-* Select tag 4.0.7 and set release title to 4.0.6
+* Select tag 4.0.7 and set release title to 4.0.7
 * Publish release
 * Check https://quay.io/repository/sameersbn/redmine?tab=info  and https://hub.docker.com/r/sameersbn/redmine/builds for build progress
 
