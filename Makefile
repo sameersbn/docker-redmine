@@ -14,8 +14,16 @@ help:
 build:
 	@docker build --tag=$(IMAGE) .
 
+test-release:
+	@echo Clean old run
+	sudo rm -rf /srv/docker/redmine/
+	docker-compose down
+	docker-compose build
+	docker-compose up
+
 release:
-	@docker build --tag=$(IMAGE):$(shell cat VERSION) .
+	./make_release.sh
+	@echo "Open https://github.com/sameersbn/docker-redmine/releases and Draft new release"
 
 quickstart:
 	@echo "Starting redmine..."

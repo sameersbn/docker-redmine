@@ -1,5 +1,9 @@
 # Changelog
 
+**4.1.1-7**
+- Add REDMINE_RMAGICK_FONT_PATH parameter for Redmine 3.4 (#439)
+- Rename REDMINE_RMAGICK_FONT_PATH to REDMINE_MINIMAGICK_FONT_PATH for Redmine 4.1 (#443)
+
 **4.1.1-6**
 - Fix typo for saving IMAGE_VERSION, issue #435
 
