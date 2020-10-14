@@ -197,6 +197,12 @@ redmine_finalize_database_parameters() {
 }
 
 redmine_check_database_connection() {
+  if [ "$DB_SKIP_CHECK" = "true" ]; then
+    echo
+    echo "Skipping redmine::check_database_connection"
+    return 0
+  fi
+
   case ${DB_ADAPTER} in
     mysql2)
       prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"

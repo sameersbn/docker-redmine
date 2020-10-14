@@ -51,6 +51,7 @@ DB_NAME=${DB_NAME:-}
 DB_USER=${DB_USER:-}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
+DB_SKIP_CHECK=${DB_SKIP_CHECK:-false}
 
 # backward compatibility
 case ${DB_TYPE} in

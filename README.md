@@ -621,6 +621,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_USER**: The database user. Defaults to `root`
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to `5`.
+- **DB_SKIP_CHECK**: Skip waiting for the database to start. Defaults to `false`.
 - **NGINX_ENABLED**: Enable/disable the nginx server. Disabling Nginx is not recommended (see #148), use at your discretion. Defaults to `true`. When disabled publish port `8080` instead of the usual port `80` or `443`.
 - **NGINX_WORKERS**: The number of nginx workers to start. Defaults to `1`.
 - **NGINX_MAX_UPLOAD_SIZE**: Maximum acceptable upload size. Defaults to `20m`.
