@@ -1,5 +1,9 @@
 # Changelog
 
+**4.1.1-8**
+- Add DB_SKIP_CHECK (#445)
+- Run database check as redmine user (#445)
+
 **4.1.1-7**
 - Add REDMINE_RMAGICK_FONT_PATH parameter for Redmine 3.4 (#439)
 - Rename REDMINE_RMAGICK_FONT_PATH to REDMINE_MINIMAGICK_FONT_PATH for Redmine 4.1 (#443)
