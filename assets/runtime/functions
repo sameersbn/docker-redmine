@@ -211,7 +211,7 @@ redmine_check_database_connection() {
       ;;
   esac
   timeout=60
-  while ! ${prog} >/dev/null 2>&1
+  while ! exec_as_redmine ${prog} >/dev/null 2>&1
   do
     timeout=$((timeout - 1))
     if [[ $timeout -eq 0 ]]; then
