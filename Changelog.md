@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.1-9**
+- Upgrade to Ruby 2.6 as 2.4,2.5 are EOL
+
 **4.1.1-8**
 - Add DB_SKIP_CHECK (#445)
 - Run database check as redmine user (#445)
