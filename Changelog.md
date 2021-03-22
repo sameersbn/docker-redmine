@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.2**
+- redmine: upgrade to v4.1.2
+
 **4.1.1-9**
 - Upgrade to Ruby 2.6 as 2.4,2.5 are EOL
 
