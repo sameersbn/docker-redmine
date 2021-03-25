@@ -1,5 +1,8 @@
 # Changelog
 
+**4.0.8**
+- redmine: upgrade to v4.0.8
+
 **4.0.7-1**
 - Fix to avoid adding double "secure" flags for cookies
 - Clear tmp directory earlier when redmine version is updated
