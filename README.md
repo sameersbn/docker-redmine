@@ -656,8 +656,8 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_CA_PATH**: Specify the `ca_path` parameter for SMTP email configuration. Defaults to `/home/redmine/data/certs`.
 - **SMTP_CA_FILE**: Specify the `ca_file` parameter for SMTP email configuration. Defaults to `/home/redmine/data/certs/ca.crt`.
 - **IMAP_ENABLED**: Enable receiving email via IMAP. Defaults to `false`.
-- **IMAP_USER**: IMAP username. Defaults to value of `SMTP_USER`.
-- **IMAP_PASS**: IMAP password. Defaults to value of `SMTP_PASS`.
+- **IMAP_USER**: IMAP username. Defaults to value of `SMTP_USER`.  NOTE: May require escaping special characters for (CRON or Bash).  Currently known: '%' needs to be escaped '\%'
+- **IMAP_PASS**: IMAP password. Defaults to value of `SMTP_PASS`.  NOTE: May require escaping special characters for (CRON or Bash).  Currently known: '%' needs to be escaped '\%'
 - **IMAP_HOST**: IMAP server host. Defaults to `imap.gmail.com`.
 - **IMAP_PORT**: IMAP server port. Defaults to `993`.
 - **IMAP_SSL**: IMAP enable SSL. Defaults to `true`.
