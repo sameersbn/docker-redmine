@@ -1,5 +1,10 @@
 # Changelog
 
+**4.1.2**
+- redmine: upgrade to v4.1.2
+- use `ubuntu:focal-20210217` as docker base image
+- update system packages
+
 **4.1.1-9**
 - Upgrade to Ruby 2.6 as 2.4,2.5 are EOL
 
