@@ -1,5 +1,8 @@
 # Changelog
 
+**4.2.0**
+- redmine: upgrade to v4.2.0
+
 **4.1.2**
 - redmine: upgrade to v4.1.2
 - use `ubuntu:focal-20210217` as docker base image
