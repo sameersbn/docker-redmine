@@ -1,5 +1,8 @@
 # Changelog
 
+**4.2.0-1**
+- Fixed mysql-client version to 5.7, issue #463
+
 **4.2.0**
 - redmine: upgrade to v4.2.0
 
