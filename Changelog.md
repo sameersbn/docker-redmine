@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.2-1**
+- Fixed mysql-client version to 5.7, issue #463
+
 **4.1.2**
 - redmine: upgrade to v4.1.2
 - use `ubuntu:focal-20210217` as docker base image
