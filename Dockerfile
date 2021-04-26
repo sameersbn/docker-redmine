@@ -9,7 +9,9 @@ RUN apt-get update \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv 8B3981E7A6852F782CC4951600A6F0A3C300EE8C \
  && echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu focal main" >> /etc/apt/sources.list \
  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
- && echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' > /etc/apt/sources.list.d/pgdg.list
+ && echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
+ && apt-key adv --keyserver keys.gnupg.net --recv 8C718D3B5072E1F5 \
+ && echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-5.7" >> /etc/apt/sources.list
 
 FROM ubuntu:focal-20210217
 
@@ -35,7 +37,7 @@ COPY --from=add-apt-repositories /etc/apt/sources.list.d/pgdg.list /etc/apt/sour
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-      supervisor logrotate nginx mysql-client postgresql-client ca-certificates sudo tzdata \
+      supervisor logrotate nginx mysql-client=5.7.* postgresql-client ca-certificates sudo tzdata \
       imagemagick subversion git cvs bzr mercurial darcs rsync ruby${RUBY_VERSION} locales openssh-client \
       gcc g++ make patch pkg-config gettext-base ruby${RUBY_VERSION}-dev libc6-dev zlib1g-dev libxml2-dev \
       libmysqlclient21 libpq5 libyaml-0-2 libcurl4 libssl1.1 uuid-dev xz-utils \
