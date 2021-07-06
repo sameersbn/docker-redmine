@@ -1,5 +1,9 @@
 # Changelog
 
+**4.2.1-1**
+- Fix keyserver #470
+- Update to ubuntu focal-20210609 base image
+
 **4.2.1**
 - redmine: upgrade to v4.2.1
 
