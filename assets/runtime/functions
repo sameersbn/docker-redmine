@@ -245,7 +245,8 @@ redmine_configure_database() {
     DB_NAME \
     DB_USER \
     DB_PASS \
-    DB_POOL
+    DB_POOL \
+    DB_SSL_MODE
 
   if [[ ${DB_ADAPTER} != mysql2 ]]; then
     exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
