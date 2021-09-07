@@ -218,6 +218,8 @@ EOF
 # https://github.com/Supervisor/supervisor/issues/717
 sed -i '/\.sock/a password=dummy' /etc/supervisor/supervisord.conf
 sed -i '/\.sock/a username=dummy' /etc/supervisor/supervisord.conf
+# silence "CRIT Supervisor is running as root." message
+sed -i '/\[supervisord\]/a user=root' /etc/supervisor/supervisord.conf
 
 # update ImageMagick policy to allow PDF read for thumbnail generation.
 # https://github.com/sameersbn/docker-redmine/pull/421
