@@ -622,6 +622,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **DB_PASS**: The database password. Defaults to no password
 - **DB_POOL**: The database connection pool count. Defaults to `5`.
 - **DB_SKIP_CHECK**: Skip waiting for the database to start. Defaults to `false`.
+- **DB_SSL_MODE**:  Configures the database ssl mode. Valid options for [postgresql](https://www.postgresql.org/docs/9.1/libpq-ssl.html) (disable|allow|prefer|require|verify-ca|verify-full) and [mysql](https://dev.mysql.com/doc/refman/5.7/en/connection-options.html#option_general_ssl-mode) (disable||preferred|required|verify_ca|verify_identity). Defaults to ''
 - **NGINX_ENABLED**: Enable/disable the nginx server. Disabling Nginx is not recommended (see #148), use at your discretion. Defaults to `true`. When disabled publish port `8080` instead of the usual port `80` or `443`.
 - **NGINX_WORKERS**: The number of nginx workers to start. Defaults to `1`.
 - **NGINX_MAX_UPLOAD_SIZE**: Maximum acceptable upload size. Defaults to `20m`.
