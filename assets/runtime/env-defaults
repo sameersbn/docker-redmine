@@ -52,7 +52,7 @@ DB_USER=${DB_USER:-}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
 DB_SKIP_CHECK=${DB_SKIP_CHECK:-false}
-DB_SSL_MODE=${DB_SSL_MODE:-prefer}
+DB_SSL_MODE=${DB_SSL_MODE:-}
 
 # backward compatibility
 case ${DB_TYPE} in
@@ -60,6 +60,16 @@ case ${DB_TYPE} in
   postgres) DB_ADAPTER=${DB_ADAPTER:-postgresql} ;;
   sqlite3) DB_ADAPTER=${DB_ADAPTER:-sqlite3} ;;
 esac
+
+if [[ ! -z "${DB_SSL_MODE}" ]]
+then
+  # Add sslmode or ssl_mode depending on type
+  case ${DB_ADAPTER} in
+    mysql2) DB_SSL_MODE="ssl_mode: ${DB_SSL_MODE}" ;;
+    postgresql) DB_SSL_MODE="sslmode: ${DB_SSL_MODE}" ;;
+    sqlite3) DB_SSL_MODE= ;; # No ssl
+  esac
+fi
 
 ## UNICORN
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
