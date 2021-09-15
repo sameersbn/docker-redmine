@@ -1,5 +1,12 @@
 # Changelog
 
+**4.2.2-1**
+- Silence supervisord run as root warning
+- Add DB_SSL_MODE option for both postgresql and mysql
+
+**4.2.2**
+- redmine: upgrade to v4.2.2
+
 **4.2.1-1**
 - Fix keyserver #470
 - Update to ubuntu focal-20210609 base image
