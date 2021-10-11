@@ -1,5 +1,8 @@
 # Changelog
 
+**4.2.3**
+- redmine: upgrade to v4.2.3
+
 **4.2.2-1**
 - Silence supervisord run as root warning
 - Add DB_SSL_MODE option for both postgresql and mysql
