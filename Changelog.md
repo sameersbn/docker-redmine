@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.5-1**
+- Add DB_SSL_MODE option for both postgresql and mysql #479
+
 **4.1.5**
 - redmine: upgrade to v4.1.5
 
