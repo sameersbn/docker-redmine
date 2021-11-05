@@ -637,9 +637,9 @@ Below is the complete list of parameters that can be set using environment varia
 - **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
 - **MEMCACHE_HOST**: The host name of the memcached server. No defaults.
 - **MEMCACHE_PORT**: The connection port of the memcached server. Defaults to `11211`.
-- **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/app/setup/certs/redmine.crt`.
-- **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/app/setup/certs/redmine.key`.
-- **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/app/setup/certs/dhparam.pem`.
+- **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/home/redmine/data/certs/redmine.crt`.
+- **SSL_KEY_PATH**: The path to the SSL certificate's private key. Defaults to `/home/redmine/data/certs/redmine.key`.
+- **SSL_DHPARAM_PATH**: The path to the Diffie-Hellman parameter. Defaults to `/home/redmine/data/certs/dhparam.pem`.
 - **SSL_VERIFY_CLIENT**: Enable verification of client certificates using the `SSL_CA_CERTIFICATES_PATH` file. Configures [ssl_verify_client](http://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_verify_client) in nginx, options (`off`, `on`, `optional`, `optional_no_ca`). Defaults to `off`
 - **SSL_CA_CERTIFICATES_PATH**: List of SSL certificates to trust. Defaults to `/home/redmine/data/certs/ca.crt`.
 - **SMTP_ENABLED**: Enable mail delivery via SMTP. Defaults to `true` if `SMTP_USER` is defined, else defaults to `false`.
