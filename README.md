@@ -747,6 +747,8 @@ wget http://goo.gl/iJcvCP -O - | sh
 Changing files in /srv/docker/redmine/redmine/plugins won't be automatically loaded. If you want
 to reload the plugins without restarting the docker, you can run the following.
 
+Note: If your trying to remove plugins without restarting the docker, this won't remove any plugins that have already been copied.
+
 ```bash
 docker exec -it redmine redmine-install-plugins
 ```
