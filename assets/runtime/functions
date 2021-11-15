@@ -1004,7 +1004,9 @@ migrate_database() {
 install_plugins() {
   if [[ -d ${REDMINE_PLUGINS_DIR} ]]; then
     echo "Installing plugins..."
-    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_PLUGINS_DIR}/ ${REDMINE_INSTALL_DIR}/plugins/
+    # Copy plugins directory to container with correct permissions.
+    # Use --delete for cases where install_plugins is being called on an already running instance.
+    rsync -avq --delete --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_PLUGINS_DIR}/ ${REDMINE_INSTALL_DIR}/plugins/
 
     # plugins/init script is renamed to plugins/post-install.sh
     if [[ -f ${REDMINE_PLUGINS_DIR}/init ]]; then
