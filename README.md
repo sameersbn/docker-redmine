@@ -115,6 +115,8 @@ Alternately you can build the image yourself.
 docker build -t sameersbn/redmine github.com/sameersbn/docker-redmine
 ```
 
+Or Run without installation [![TeamCode try-it-now](https://static01.teamcode.com/badge/demo.svg)](https://www.teamcode.com/tin/clone?applicationId=273491598257844224)
+
 # Quick Start
 
 The quickest way to get started is using [docker-compose](https://docs.docker.com/compose/).
