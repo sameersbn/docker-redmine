@@ -10,7 +10,7 @@ RUN apt-get update \
  && echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu focal main" >> /etc/apt/sources.list \
  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
  && echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
- && apt-key adv --keyserver keyserver.ubuntu.com --recv 8C718D3B5072E1F5 \
+ && apt-key adv --keyserver keyserver.ubuntu.com --recv 467B942D3A79BD29 \
  && echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-5.7" >> /etc/apt/sources.list
 
 FROM ubuntu:focal-20210609
