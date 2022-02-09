@@ -1,5 +1,10 @@
 # Changelog
 
+**4.2.3-1**
+- Update to ubuntu focal-20220105 base image
+- Update to Ruby 2.7.5
+- Update gpg key for mysql
+
 **4.2.3**
 - redmine: upgrade to v4.2.3
 
