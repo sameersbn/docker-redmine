@@ -1,5 +1,8 @@
 # Changelog
 
+**4.2.3-2**
+- Revert to Ruby 2.6.3, issue [#488](https://github.com/sameersbn/docker-redmine/issues/488)
+
 **4.2.3-1**
 - Update to ubuntu focal-20220105 base image
 - Update to Ruby 2.7.5
