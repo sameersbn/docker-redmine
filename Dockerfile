@@ -13,7 +13,7 @@ RUN apt-get update \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv 467B942D3A79BD29 \
  && echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-5.7" >> /etc/apt/sources.list
 
-FROM ubuntu:focal-20210609
+FROM ubuntu:focal-20220105
 
 LABEL maintainer="sameer@damagehead.com"
 
