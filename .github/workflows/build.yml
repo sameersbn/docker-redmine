@@ -2,6 +2,9 @@ name: Build and Publish
 
 on:
   push:
+    paths:
+      - assets/
+      - Dockerfile
     branches:
       - master
     tags:
