@@ -1,5 +1,10 @@
 # Changelog
 
+**4.1.6**
+- redmine: upgrade to v4.1.6
+- Update to ubuntu focal-20220105
+- Update gpg key for mysql
+
 **4.1.5-1**
 - Add DB_SSL_MODE option for both postgresql and mysql #479
 
