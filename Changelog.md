@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.6-1**
+- Update tag to trigger github docker build
+
 **4.1.6**
 - redmine: upgrade to v4.1.6
 - Update to ubuntu focal-20220105
