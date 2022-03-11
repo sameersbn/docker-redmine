@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    tags:
-      - '*.*.*'
+  release:
+    types: [published]
   pull_request:
     branches:
       - master
