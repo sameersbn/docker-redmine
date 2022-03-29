@@ -1,5 +1,9 @@
 # Changelog
 
+**4.1.7**
+- redmine: upgrade to v4.1.7
+
+**4.1.6-rc2**
 **4.1.6-1**
 - Update tag to trigger github docker build
 
