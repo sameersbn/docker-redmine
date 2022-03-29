@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.0**
+- redmine: upgrade to v5.0.0
+
 **4.2.5**
 - redmine: upgrade to v4.2.5
 - Update to ubuntu:focal-20220316
