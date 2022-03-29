@@ -2,6 +2,7 @@
 
 **4.2.5**
 - redmine: upgrade to v4.2.5
+- Update to ubuntu:focal-20220316
 
 **4.2.4**
 - redmine: upgrade to v4.2.4
