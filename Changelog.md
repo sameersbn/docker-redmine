@@ -1,5 +1,8 @@
 # Changelog
 
+**4.2.5**
+- redmine: upgrade to v4.2.5
+
 **4.2.4**
 - redmine: upgrade to v4.2.4
 - Update to Ruby 2.7.5, issue [#488](https://github.com/sameersbn/docker-redmine/issues/488)
