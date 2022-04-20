@@ -13,6 +13,8 @@ services:
 
   memcached:
     image: memcached:alpine
+    # Debug memcache connection
+    #command: -vv
 
 
   redmine:
