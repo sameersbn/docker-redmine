@@ -10,11 +10,17 @@ services:
     volumes:
     - /srv/docker/redmine/postgresql:/var/lib/postgresql
 
+
+  memcached:
+    image: memcached:alpine
+
+
   redmine:
     build: ./
     image: sameersbn/redmine:5.0.0-1
     depends_on:
     - postgresql
+    - memcached
     environment:
     - TZ=Asia/Kolkata
 
@@ -57,6 +63,8 @@ services:
     - IMAP_PASS=password
     - IMAP_SSL=true
     - IMAP_INTERVAL=30
+
+    - MEMCACHE_HOST=memcached
 
     ports:
     - "10083:80"
