@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20220316 AS add-apt-repositories
+FROM ubuntu:focal-20220426 AS add-apt-repositories
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg2 \
@@ -13,12 +13,12 @@ RUN apt-get update \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv 467B942D3A79BD29 \
  && echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-5.7" >> /etc/apt/sources.list
 
-FROM ubuntu:focal-20220316
+FROM ubuntu:focal-20220426
 
 LABEL maintainer="sameer@damagehead.com"
 
 ENV RUBY_VERSION=2.7 \
-    REDMINE_VERSION=4.2.5 \
+    REDMINE_VERSION=4.2.6 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
