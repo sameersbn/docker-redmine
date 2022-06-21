@@ -12,7 +12,7 @@ services:
 
   redmine:
     build: ./
-    image: sameersbn/redmine:4.2.6
+    image: sameersbn/redmine:4.2.7
     depends_on:
     - mysql
     environment:
