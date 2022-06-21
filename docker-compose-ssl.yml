@@ -12,7 +12,7 @@ services:
 
   redmine:
     build: ./
-    image: sameersbn/redmine:5.0.0-1
+    image: sameersbn/redmine:5.0.1
     depends_on:
     - postgresql
     environment:

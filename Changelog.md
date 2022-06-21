@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.1**
+- redmine: upgrade to v5.0.1
+
 **5.0.0-1**
 - Add docker-compose-memcached.yml example
 - Switch cache_store from dalli_store to mem_cache_store, issue [#501](https://github.com/sameersbn/docker-redmine/issues/501)
@@ -365,4 +368,3 @@
 **v2.4.3**
 - upgraded to redmine-2.4.3
 - generate random root password
-
