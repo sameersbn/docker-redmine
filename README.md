@@ -427,6 +427,8 @@ If you are not using google mail, then please configure the SMTP host and port u
 
 If you are using a google apps account with a custom domain (other than google.com), you need to set the `SMTP_DOMAIN` parameters or else you will get internal server error when doing an action that would normally send a mail.
 
+Please see redmine email config for examples of different email configurations: https://www.redmine.org/projects/redmine/wiki/emailconfiguration
+
 Similary you can configure receiving emails using the `IMAP_` configuration options. Please refer [Available Configuration Parameters](#available-configuration-parameters) for details. When receiving emails is enabled users can comment on issues by replying to emails.
 
 *P.S. The receiving emails feature is only available since versions `2.6.6-2`, `3.0.4-2` and `3.1.0-2`. Refer the [Changelog](Changelog.md) for details.*
