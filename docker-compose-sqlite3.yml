@@ -3,47 +3,47 @@ version: '2'
 services:
   redmine:
     build: ./
-    image: sameersbn/redmine:5.0.2
+    image: sameersbn/redmine:5.0.3
     environment:
-    - TZ=Asia/Kolkata
+      - TZ=Asia/Kolkata
 
-    - DB_ADAPTER=sqlite3
-    - DB_NAME=db.sqlite3
+      - DB_ADAPTER=sqlite3
+      - DB_NAME=db.sqlite3
 
-    - REDMINE_PORT=10083
-    - REDMINE_HTTPS=false
-    - REDMINE_RELATIVE_URL_ROOT=
-    - REDMINE_SECRET_TOKEN=
+      - REDMINE_PORT=10083
+      - REDMINE_HTTPS=false
+      - REDMINE_RELATIVE_URL_ROOT=
+      - REDMINE_SECRET_TOKEN=
 
-    - REDMINE_SUDO_MODE_ENABLED=false
-    - REDMINE_SUDO_MODE_TIMEOUT=15
+      - REDMINE_SUDO_MODE_ENABLED=false
+      - REDMINE_SUDO_MODE_TIMEOUT=15
 
-    - REDMINE_CONCURRENT_UPLOADS=2
+      - REDMINE_CONCURRENT_UPLOADS=2
 
-    - REDMINE_BACKUP_SCHEDULE=
-    - REDMINE_BACKUP_EXPIRY=
-    - REDMINE_BACKUP_TIME=
+      - REDMINE_BACKUP_SCHEDULE=
+      - REDMINE_BACKUP_EXPIRY=
+      - REDMINE_BACKUP_TIME=
 
-    - SMTP_ENABLED=false
-    - SMTP_METHOD=smtp
-    - SMTP_DOMAIN=www.example.com
-    - SMTP_HOST=smtp.gmail.com
-    - SMTP_PORT=587
-    - SMTP_USER=mailer@example.com
-    - SMTP_PASS=password
-    - SMTP_STARTTLS=true
-    - SMTP_AUTHENTICATION=:login
+      - SMTP_ENABLED=false
+      - SMTP_METHOD=smtp
+      - SMTP_DOMAIN=www.example.com
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=mailer@example.com
+      - SMTP_PASS=password
+      - SMTP_STARTTLS=true
+      - SMTP_AUTHENTICATION=:login
 
-    - IMAP_ENABLED=false
-    - IMAP_HOST=imap.gmail.com
-    - IMAP_PORT=993
-    - IMAP_USER=mailer@example.com
-    - IMAP_PASS=password
-    - IMAP_SSL=true
-    - IMAP_INTERVAL=30
+      - IMAP_ENABLED=false
+      - IMAP_HOST=imap.gmail.com
+      - IMAP_PORT=993
+      - IMAP_USER=mailer@example.com
+      - IMAP_PASS=password
+      - IMAP_SSL=true
+      - IMAP_INTERVAL=30
 
     ports:
-    - "10083:80"
+      - "10083:80"
     volumes:
-    - /srv/docker/redmine/redmine_sqlite:/home/redmine/data
-    - /srv/docker/redmine/redmine-logs:/var/log/redmine
+      - /srv/docker/redmine/redmine_sqlite:/home/redmine/data
+      - /srv/docker/redmine/redmine-logs:/var/log/redmine
