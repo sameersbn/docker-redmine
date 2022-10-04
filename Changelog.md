@@ -3,6 +3,7 @@
 **5.0.3**
 
 - redmine: upgrade to v5.0.3
+- Update to ubuntu:focal-20220826
 
 **5.0.2**
 
