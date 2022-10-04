@@ -1,5 +1,9 @@
 # Changelog
 
+**4.2.8**
+- redmine: upgrade to v4.2.8
+- Update to ubuntu:focal-20220826
+
 **4.2.7**
 - redmine: upgrade to v4.2.7
 
