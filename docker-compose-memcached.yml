@@ -18,7 +18,7 @@ services:
 
   redmine:
     build: ./
-    image: sameersbn/redmine:5.0.3
+    image: sameersbn/redmine:5.0.3-1
     depends_on:
       - postgresql
       - memcached

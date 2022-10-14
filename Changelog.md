@@ -1,5 +1,11 @@
 # Changelog
 
+**5.0.3-1**
+
+- Actually update to ubuntu:focal-20220826
+- nginx: Update ssl config to disable TLSv1.0/1.1 and enable TLSv1.2/1.3
+- nginx: Set expires on static files and enable gzip
+
 **5.0.3**
 
 - redmine: upgrade to v5.0.3
