@@ -1,5 +1,9 @@
 # Changelog
 
+**4.2.9**
+- redmine: upgrade to v4.2.9
+- Update to ubuntu:focal-20221019 to address Text4Shell CVE
+
 **4.2.8-1**
 - nginx: Update ssl config to disable TLSv1.0/1.1 and enable TLSv1.2/1.3
 - nginx: Set expires on static files and enable gzip
