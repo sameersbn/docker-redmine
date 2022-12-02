@@ -3,7 +3,7 @@ version: '2'
 services:
   redmine:
     build: ./
-    image: sameersbn/redmine:5.0.3-1
+    image: sameersbn/redmine:5.0.4
     environment:
       - TZ=Asia/Kolkata
 

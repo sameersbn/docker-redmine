@@ -1,5 +1,10 @@
 # Changelog
 
+**5.0.4**
+
+- redmine: upgrade to v5.0.4
+- Update to ubuntu:focal-20221019 for Text4Shell CVE
+
 **5.0.3-1**
 
 - Actually update to ubuntu:focal-20220826
