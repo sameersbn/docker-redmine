@@ -659,6 +659,8 @@ Below is the complete list of parameters that can be set using environment varia
 - **SMTP_OPENSSL_VERIFY_MODE**: SMTP openssl verification mode. Accepted values are `none`, `peer`, `client_once` and `fail_if_no_peer_cert`. SSL certificate verification is performed by default.
 - **SMTP_STARTTLS**: Enable STARTTLS. Defaults to `true`.
 - **SMTP_TLS**: Enable SSL/TLS. Defaults to `false`.
+- **SMTP_SSL**: Enable SSL. Defaults to `false`.
+https://www.redmine.org/projects/redmine/wiki/EmailConfiguration#Error-TimeoutError-due-to-SSL-SMTP-server-connection
 - **SMTP_AUTHENTICATION**: Specify the SMTP authentication method. Defaults to `:login` if `SMTP_USER` is set.
 - **SMTP_CA_ENABLED**: Enable custom CA certificates for SMTP email configuration. Defaults to `false`.
 - **SMTP_CA_PATH**: Specify the `ca_path` parameter for SMTP email configuration. Defaults to `/home/redmine/data/certs`.

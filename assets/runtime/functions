@@ -403,6 +403,7 @@ redmine_configure_email_delivery() {
       -e "/{{SMTP_OPENSSL_VERIFY_MODE}}/d" \
       -e "/{{SMTP_STARTTLS}}/d" \
       -e "/{{SMTP_TLS}}/d" \
+      -e "/{{SMTP_SSL}}/d" \
       -e "/{{SMTP_CA_PATH}}/d" \
       -e "/{{SMTP_CA_FILE}}/d" \
       ${REDMINE_CONFIG}
@@ -438,7 +439,8 @@ redmine_configure_email_delivery() {
       SMTP_AUTHENTICATION \
       SMTP_OPENSSL_VERIFY_MODE \
       SMTP_STARTTLS \
-      SMTP_TLS
+      SMTP_TLS \
+      SMTP_SSL
 
     if [[ ${SMTP_CA_ENABLED} == true ]]; then
       if [[ -d ${SMTP_CA_PATH} ]]; then
