@@ -78,6 +78,7 @@ default:
       ca_path: '{{SMTP_CA_PATH}}'
       ca_file: '{{SMTP_CA_FILE}}'
       tls: {{SMTP_TLS}}
+      ssl: {{SMTP_SSL}}
 
   # Absolute path to the directory where attachments are stored.
   # The default is the 'files' directory in your Redmine instance.
