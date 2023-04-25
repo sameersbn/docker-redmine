@@ -1,5 +1,9 @@
 # Changelog
 
+**5.0.5-1**
+
+- Add SMTP_SSL option #513
+
 **5.0.5**
 
 - redmine: upgrade to v5.0.5
