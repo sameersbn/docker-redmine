@@ -135,7 +135,7 @@ docker run --name=postgresql-redmine -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
-  sameersbn/postgresql:9.6-4
+  sameersbn/postgresql:14-20230628
 ```
 
 Step 2. Launch the redmine container
@@ -337,7 +337,7 @@ To illustrate linking with a postgresql container, we will use the [sameersbn/po
 First, lets pull the postgresql image from the docker index.
 
 ```bash
-docker pull sameersbn/postgresql:9.6-4
+docker pull sameersbn/postgresql:14-20230628
 ```
 
 For data persistence lets create a store for the postgresql and start the container.
@@ -356,7 +356,7 @@ docker run --name=postgresql-redmine -d \
   --env='DB_NAME=redmine_production' \
   --env='DB_USER=redmine' --env='DB_PASS=password' \
   --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
-  sameersbn/postgresql:9.6-4
+  sameersbn/postgresql:14-20230628
 ```
 
 The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with access to the `redmine_production` database.
