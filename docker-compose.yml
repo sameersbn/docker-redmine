@@ -9,12 +9,18 @@ services:
       - DB_NAME=redmine_production
     volumes:
       - /srv/docker/redmine/postgresql:/var/lib/postgresql
-
+    healthcheck:
+      test: "psql -U postgres"
+      interval: 3s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
   redmine:
     build: ./
     image: sameersbn/redmine:5.0.5
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
     environment:
       - TZ=Asia/Kolkata
 
