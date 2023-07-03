@@ -150,20 +150,23 @@ redmine_finalize_database_parameters() {
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
   elif [[ -n ${DATABASE_URL} ]]; then
+    # Set environments for redmine_check_database_connection
     case $(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).scheme') in
-      postgres*)
+      postgres | postgresql)
         DB_ADAPTER=${DB_ADAPTER:-postgresql}
         DB_HOST=${DB_HOST:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).hostname')}
+        DB_PORT=${DB_PORT:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).port || 5432')}
         DB_USER=${DB_USER:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).user')}
-        DB_PASS=${DB_PASS:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).password')}
-        DB_NAME=${DB_NAME:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).path.delete_prefix("/")')}
         ;;
-      mysql*)
+      mysql2)
         DB_ADAPTER=${DB_ADAPTER:-mysql2}
         DB_HOST=${DB_HOST:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).hostname')}
+        DB_PORT=${DB_PORT:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).port || 3306')}
         DB_USER=${DB_USER:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).user')}
         DB_PASS=${DB_PASS:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).password')}
-        DB_NAME=${DB_NAME:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).path.delete_prefix("/")')}
+        ;;
+      sqlite3)
+        DB_ADAPTER=${DB_ADAPTER:-sqlite3}
         ;;
     esac
   fi
