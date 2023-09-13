@@ -23,6 +23,7 @@ test-release:
 	docker-compose build
 	docker-compose up
 
+
 release:
 	./make_release.sh
 	@echo "Open https://github.com/sameersbn/docker-redmine/releases and Draft new release"
