@@ -12,7 +12,7 @@ help:
 	@echo "   5. make purge       - stop and remove the container"
 
 build:
-	@docker build --tag=$(IMAGE) .
+	@docker buildx build --platform=linux/amd64,linux/arm64 --tag=$(IMAGE) .
 
 test-release:
 	@echo Clean old run
