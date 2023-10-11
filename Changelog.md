@@ -1,5 +1,9 @@
 # Changelog
 
+**4.2.11**
+- redmine: upgrade to v4.2.11
+- Update to ubuntu:focal-20230801
+
 **4.2.10**
 - redmine: upgrade to v4.2.10
 - Update to ubuntu:focal-20230301
