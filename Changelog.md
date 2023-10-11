@@ -1,5 +1,10 @@
 # Changelog
 
+**5.0.6**
+
+- redmine upgrade to v5.0.6
+- Update to ubuntu-focal-20230801
+
 **5.0.5**
 
 - redmine: upgrade to v5.0.5
