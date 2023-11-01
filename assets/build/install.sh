@@ -55,6 +55,10 @@ MYSQL2_GEM=$(grep 'gem "mysql2"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[
 SQLITE3_2LINES_GEM=$(grep -A1 -e 'gem "sqlite3".*RUBY_VERSION' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t ]+|[ \t ]+$/,    ""); print;}')
 SQLITE3_GEM=$(grep 'gem "sqlite3"' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 
+[ -z "$PG_GEM" ] && (echo "Error couldn't find gem pg, update instal.sh"; exit 1)
+[ -z "$MYSQL2_GEM" ] && (echo "Error couldn't find gem mysql2, update instal.sh"; exit 1)
+[ -z "$SQLITE3_GEM" ] && (echo "Error couldn't find gem sqlite3, update instal.sh"; exit 1)
+
 sed -i \
   -e '/gem "pg"/d' \
   -e '/gem "mysql2"/d' \
