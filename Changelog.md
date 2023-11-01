@@ -1,5 +1,12 @@
 # Changelog
 
+**5.1.0**
+
+- redmine upgrade to v5.1.0
+- Update to ubuntu-focal-20231003
+- Upgrade unicorn gem from 5.x to 6.x
+- Upgrade dalli gem from 2.x to 3.2.x
+
 **5.0.6**
 
 - redmine upgrade to v5.0.6
