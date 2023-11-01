@@ -48,31 +48,31 @@ fi
 # HACK: we want both the pg and mysql2 gems installed, so we remove the
 #       respective lines and add them at the end of the Gemfile so that they
 #       are both installed.
-PG_GEM=$(grep 'gem "pg"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
-MYSQL2_GEM=$(grep 'gem "mysql2"' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+PG_GEM=$(grep 'gem .pg.' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+MYSQL2_GEM=$(grep 'gem .mysql2.' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 # SQLITE line spans 2 lines until after this commit: https://github.com/redmine/redmine/commit/dc05c52e5a25b43c49246a952607551bf0d96f29#diff-8b7db4d5cc4b8f6dc8feb7030baa2478
 # The 2 lines one has RUBY_VERSION in it
-SQLITE3_2LINES_GEM=$(grep -A1 -e 'gem "sqlite3".*RUBY_VERSION' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t ]+|[ \t ]+$/,    ""); print;}')
-SQLITE3_GEM=$(grep 'gem "sqlite3"' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
+SQLITE3_2LINES_GEM=$(grep -A1 -e 'gem .sqlite3..*RUBY_VERSION' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t ]+|[ \t ]+$/,    ""); print;}')
+SQLITE3_GEM=$(grep 'gem .sqlite3.' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
 
 [ -z "$PG_GEM" ] && (echo "Error couldn't find gem pg, update instal.sh"; exit 1)
 [ -z "$MYSQL2_GEM" ] && (echo "Error couldn't find gem mysql2, update instal.sh"; exit 1)
 [ -z "$SQLITE3_GEM" ] && (echo "Error couldn't find gem sqlite3, update instal.sh"; exit 1)
 
 sed -i \
-  -e '/gem "pg"/d' \
-  -e '/gem "mysql2"/d' \
+  -e '/gem .pg./d' \
+  -e '/gem .mysql2./d' \
   ${REDMINE_INSTALL_DIR}/Gemfile
 
 if [ -z "$SQLITE3_2LINES_GEM" ]
 then
   sed -i \
-    -e '/gem "sqlite3"/d' \
+    -e '/gem .sqlite3./d' \
     "${REDMINE_INSTALL_DIR}/Gemfile"
 else
   # Delete 2 lines
   sed -i \
-    -e '/gem "sqlite3"/ { N; d; }' \
+    -e '/gem .sqlite3./ { N; d; }' \
     "${REDMINE_INSTALL_DIR}/Gemfile"
   SQLITE3_GEM=${SQLITE3_2LINES_GEM}
 fi
