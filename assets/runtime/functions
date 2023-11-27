@@ -271,6 +271,14 @@ redmine_configure_database() {
   if [[ ${DB_ADAPTER} != mysql2 ]]; then
     exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
   fi
+
+  # Set transaction isolation level for mysql to fix race condition
+  # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+  if [[ ${DB_ADAPTER} == mysql2 ]]; then
+    echo "  Setting transaction isolation level..."
+    echo "  variables:" >> "${REDMINE_DATABASE_CONFIG}"
+    echo '    transaction_isolation: "READ-COMMITTED"' >> "${REDMINE_DATABASE_CONFIG}"
+  fi
 }
 
 redmine_finalize_memcached_parameters() {
