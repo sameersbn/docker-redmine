@@ -5,6 +5,7 @@
 - redmine upgrade to v5.1.1
 - Set transaction isolation level for mysql to fix race condition
 https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+- Fix fetch commits cron job #526
 
 **5.1.0**
 
