@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.7-1**
+- Fix fetch commits cron job #526
+
 **5.0.7**
 - redmine upgrade to v5.0.7
 
