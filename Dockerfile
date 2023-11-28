@@ -18,7 +18,7 @@ FROM ubuntu:focal-20231003
 LABEL maintainer="sameer@damagehead.com"
 
 ENV RUBY_VERSION=2.7 \
-    REDMINE_VERSION=5.1.0 \
+    REDMINE_VERSION=5.1.1 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \

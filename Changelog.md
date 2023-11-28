@@ -1,5 +1,11 @@
 # Changelog
 
+**5.1.1**
+
+- redmine upgrade to v5.1.1
+- Set transaction isolation level for mysql to fix race condition
+https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+
 **5.1.0**
 
 - redmine upgrade to v5.1.0
