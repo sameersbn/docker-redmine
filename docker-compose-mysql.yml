@@ -26,7 +26,6 @@ services:
       - DB_USER=redmine
       - DB_PASS=password
       - DB_NAME=redmine_production
-      - DB_SSL_MODE=preferred
 
       - REDMINE_PORT=10083
       - REDMINE_HTTPS=false
