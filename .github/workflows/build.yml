@@ -35,6 +35,11 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             latest
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64'
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3.0.0
