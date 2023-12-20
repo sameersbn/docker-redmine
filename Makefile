@@ -1,6 +1,8 @@
 IMAGE:=sameersbn/redmine
 all: build
 
+PHONY: all build test-release release quickstart stop purge logs
+
 help:
 	@echo ""
 	@echo "-- Help Menu"
@@ -12,15 +14,17 @@ help:
 	@echo "   5. make purge       - stop and remove the container"
 
 build:
-	@docker build --tag=$(IMAGE) .
+ ## Install QEMU and cross platform packages
+ # sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross qemu-user-static qemu-system-i386 qemu-system-arm
+	@docker buildx inspect default > /dev/null || docker buildx create --use
+	@docker buildx build --platform=linux/amd64,linux/arm64  --tag=sameersbn/redmine:$(shell cat VERSION) .
 
-test-release:
+test-release: build
 	@echo Clean old run
 	sudo rm -rf /srv/docker/redmine/
 	sudo mkdir -p /src/docker/redmine/redmine
 	sudo cp -rf certs /src/docker/redmine/redmine/
 	docker-compose down
-	docker-compose build
 	docker-compose up
 
 release:

@@ -117,6 +117,18 @@ Alternately you can build the image yourself.
 docker build -t sameersbn/redmine github.com/sameersbn/docker-redmine
 ```
 
+To build the container for arm64, you'll need to install qemu-user-static and binfmt-support packages on your x86-64 host.
+  
+```bash
+sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross qemu-user-static qemu-system-i386 qemu-system-arm
+```
+
+And use buildx to build the image for arm64.
+
+```bash
+docker buildx build --platform linux/arm64 -t sameersbn/redmine github.com/sameersbn/docker-redmine
+```
+
 # Quick Start
 
 The quickest way to get started is using [docker-compose](https://docs.docker.com/compose/).
@@ -998,7 +1010,8 @@ sed -i 's/5.1.1/5.1.1/g' VERSION README.md docker-compose-memcached.yml docker-c
 vim Changelog.md # Update change log
 sudo rm -rf /srv/docker/redmine/ # Clean old run
 docker-compose down
-docker-compose build
+docker buildx inspect default > /dev/null || docker buildx create --use
+docker buildx build --platform=linux/amd64,linux/arm64 --tag=sameersbn/redmine:$(cat VERSION) .
 docker-compose up # Test new build
 git add -p
 git commit -sS -m "release: $(cat VERSION)"
