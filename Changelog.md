@@ -1,5 +1,11 @@
 # Changelog
 
+**5.0.7-2**
+- Update to ubuntu:focal-20231211
+- Fix mysql signing key
+- Pin bundler version to 2.4.22, as newer versions are not compatible with ruby 2.7
+
+
 **5.0.7-1**
 - Fix fetch commits cron job #526
 
