@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20231003 AS add-apt-repositories
+FROM ubuntu:focal-20231211 AS add-apt-repositories
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg2 \
@@ -13,7 +13,7 @@ RUN apt-get update \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv B7B3B788A8D3785C \
  && echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-5.7" >> /etc/apt/sources.list
 
-FROM ubuntu:focal-20231003
+FROM ubuntu:focal-20231211
 
 LABEL maintainer="sameer@damagehead.com"
 
