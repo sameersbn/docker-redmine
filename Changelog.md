@@ -1,5 +1,10 @@
 # Changelog
 
+**4.2.11-1**
+- Update to ubuntu:focal-20231211
+- Fix mysql signing key
+- Pin bundler version to 2.4.22, as newer versions are not compatible with ruby 2.7
+
 **4.2.11**
 - redmine: upgrade to v4.2.11
 - Update to ubuntu:focal-20230801
