@@ -17,6 +17,7 @@ FROM ubuntu:focal-20230801
 
 LABEL maintainer="sameer@damagehead.com"
 
+# bundler 2.4.22 is the last version that supports ruby 2.7
 ENV RUBY_VERSION=2.7 \
     REDMINE_VERSION=4.2.11 \
     REDMINE_USER="redmine" \
@@ -43,7 +44,7 @@ RUN apt-get update \
       libmysqlclient21 libpq5 libyaml-0-2 libcurl4 libssl1.1 uuid-dev xz-utils \
       libxslt1.1 libffi7 zlib1g gsfonts vim-tiny ghostscript sqlite3 libsqlite3-dev \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
- && gem install --no-document bundler \
+ && gem install --no-document bundler -v 2.4.22 \
  && rm -rf /var/lib/apt/lists/*
 
 COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
