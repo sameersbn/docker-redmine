@@ -1,5 +1,8 @@
 # Changelog
 
+**5.1.1-3**
+- Add SMTP_SSL option #513
+
 **5.1.1-2**
 - Instead of settings transaction isolation level, check and print a warning if it is not set to READ-COMMITTED. #531
 - Update mysql/mariadb docker compose examples to set transaction isolation level to READ-COMMITTED. #531
