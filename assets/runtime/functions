@@ -251,6 +251,42 @@ redmine_check_database_connection() {
   echo
 }
 
+redmine_check_mysql_database_tx_isolation() {
+  # Print warning if transaction isolation level in mysql is not READ-COMMITTED, which is required to avoid race conditions
+  # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+  if [[ ${DB_ADAPTER} == mysql2 ]]; then
+    echo -n "Checking transaction isolation level... "
+    mysql_cmd="mysql \
+          --host "${DB_HOST}" --port "${DB_PORT}" \
+          --user "${DB_USER}" --default-character-set "${DB_ENCODING}" \
+          --skip-column-names \
+          --silent "
+    isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
+          --execute="SELECT @@GLOBAL.tx_isolation;" )
+    
+    if [[ $? -ne 0 ]]; then
+      # try the new name of the variable, mysql 8+
+      isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
+            --execute="SELECT @@GLOBAL.transaction_isolation;" )
+
+      if [[ $? -ne 0 ]]; then
+        echo
+        echo "ERROR: Failed to check transaction isolation level" >&2
+        return 1
+      fi
+    fi
+
+    echo "$isolation_lvl"
+
+    if [[ ${isolation_lvl} != "READ-COMMITTED" ]]
+    then
+      echo "WARNING: transaction isolation level is not READ-COMMITTED" >&2
+      echo "WARNING: Read more about this issue at:" >&2
+      echo "https://www.redmine.org/projects/redmine/wiki/MySQL_configuration" >&2
+    fi
+  fi
+}
+
 redmine_configure_database() {
   echo -n "Configuring redmine::database"
 
@@ -272,13 +308,7 @@ redmine_configure_database() {
     exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
   fi
 
-  # Set transaction isolation level for mysql to fix race condition
-  # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
-  if [[ ${DB_ADAPTER} == mysql2 ]]; then
-    echo "  Setting transaction isolation level..."
-    echo "  variables:" >> "${REDMINE_DATABASE_CONFIG}"
-    echo '    transaction_isolation: "READ-COMMITTED"' >> "${REDMINE_DATABASE_CONFIG}"
-  fi
+  redmine_check_mysql_database_tx_isolation
 }
 
 redmine_finalize_memcached_parameters() {
