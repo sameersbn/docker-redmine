@@ -10,6 +10,8 @@ services:
       - MARIADB_RANDOM_ROOT_PASSWORD=1
     volumes:
       - /srv/docker/redmine/mariadb:/var/lib/mysql
+    # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+    command: mysqld --transaction-isolation=READ-COMMITTED
 
   redmine:
     build: ./

@@ -9,6 +9,8 @@ services:
       - DB_NAME=redmine_production
     volumes:
       - /srv/docker/redmine/mysql:/var/lib/mysql
+    # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+    command: --transaction-isolation=READ-COMMITTED
 
   redmine:
     build: ./
