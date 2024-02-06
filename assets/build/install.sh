@@ -3,9 +3,9 @@ set -e
 
 GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
 
-BUILD_DEPENDENCIES="wget libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-                    libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev \
-                    libsqlite3-dev"
+BUILD_DEPENDENCIES="curl libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
+                    libpq-dev libxslt1-dev libffi-dev libyaml-dev \
+                    "
 
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
@@ -14,6 +14,7 @@ exec_as_redmine() {
 
 # install build dependencies
 apt-get update
+apt-mark manual '.*' # Mark all packages installed manually so they are not removed when build dependencies are removed
 DEBIAN_FRONTEND=noninteractive apt-get install -y ${BUILD_DEPENDENCIES}
 
 # add ${REDMINE_USER} user
@@ -37,7 +38,7 @@ if [[ -f ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
   exec_as_redmine tar -zvxf ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 else
   echo "Downloading Redmine ${REDMINE_VERSION}..."
-  exec_as_redmine wget "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -O /tmp/redmine-${REDMINE_VERSION}.tar.gz
+  exec_as_redmine curl -fL "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -o /tmp/redmine-${REDMINE_VERSION}.tar.gz
 
   echo "Extracting..."
   exec_as_redmine tar -zxf /tmp/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}

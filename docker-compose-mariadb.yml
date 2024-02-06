@@ -2,16 +2,17 @@ version: '2'
 
 services:
   database:
-    image: mariadb:10.5
+    image: mariadb:11.2
     environment:
       - MARIADB_USER=redmine
       - MARIADB_PASSWORD=password
       - MARIADB_DATABASE=redmine_production
       - MARIADB_RANDOM_ROOT_PASSWORD=1
+      - MARIADB_AUTO_UPGRADE=1
     volumes:
       - /srv/docker/redmine/mariadb:/var/lib/mysql
     # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
-    command: mysqld --transaction-isolation=READ-COMMITTED
+    command: mariadbd --transaction-isolation=READ-COMMITTED
 
   redmine:
     build: ./
@@ -27,7 +28,6 @@ services:
       - DB_USER=redmine
       - DB_PASS=password
       - DB_NAME=redmine_production
-      - DB_SSL_MODE=preferred
 
       - REDMINE_PORT=10083
       - REDMINE_HTTPS=false
