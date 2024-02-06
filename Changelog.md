@@ -1,5 +1,10 @@
 # Changelog
 
+**5.1.1-4**
+- Switch to Ruby 3.2
+- Replace ubuntu as base image with ruby:3.2-slim-bookworm
+- Remove DB_SSL_MODE from mysql and mariadb example docker-compose files as mariadb does not support it
+
 **5.1.1-3**
 - Add SMTP_SSL option #513
 
