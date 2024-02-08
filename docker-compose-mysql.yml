@@ -7,6 +7,8 @@ services:
       - DB_USER=redmine
       - DB_PASS=password
       - DB_NAME=redmine_production
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
     volumes:
       - /srv/docker/redmine/mysql:/var/lib/mysql
     # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
@@ -21,6 +23,7 @@ services:
       - TZ=Asia/Kolkata
 
       - DB_ADAPTER=mysql2
+      - DB_ENCODING=utf8mb4
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USER=redmine

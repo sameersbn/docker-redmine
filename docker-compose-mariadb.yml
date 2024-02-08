@@ -12,7 +12,13 @@ services:
     volumes:
       - /srv/docker/redmine/mariadb:/var/lib/mysql
     # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
-    command: mariadbd --transaction-isolation=READ-COMMITTED
+    command:
+      - mariadbd
+      # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
+      - --transaction-isolation=READ-COMMITTED
+      # Configure 4byte utf8 support for full unicode support (all emojis), this requires manual conversion for existing tables. See README
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
 
   redmine:
     build: ./
@@ -23,6 +29,7 @@ services:
       - TZ=Asia/Kolkata
 
       - DB_ADAPTER=mysql2
+      - DB_ENCODING=utf8mb4
       - DB_HOST=database
       - DB_PORT=3306
       - DB_USER=redmine
