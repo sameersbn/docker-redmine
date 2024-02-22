@@ -410,6 +410,10 @@ redmine_configure_email_delivery() {
   else
     echo "Configuring redmine::email_delivery..."
 
+    if [[ -z "${SMTP_SSL}" ]]; then
+      exec_as_redmine sed -i -e '/{{SMTP_SSL}}/d' ${REDMINE_CONFIG}
+    fi
+
     if [[ -z "${SMTP_USER}" ]]; then
       exec_as_redmine sed -i \
         -e '/{{SMTP_USER}}/d' \
