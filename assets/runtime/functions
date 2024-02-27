@@ -749,28 +749,6 @@ initialize_logdir() {
 
 initialize_datadir() {
   echo "Initializing datadir..."
-  chmod -R u+rw,go+r ${REDMINE_DATA_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}
-
-  # create plugins directory
-  mkdir -p ${REDMINE_PLUGINS_DIR}
-  chmod -R u+rw,go+r ${REDMINE_PLUGINS_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_PLUGINS_DIR}
-
-  # create themes directory
-  mkdir -p ${REDMINE_THEMES_DIR}
-  chmod -R u+rw,go+r ${REDMINE_THEMES_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_THEMES_DIR}
-
-  # create attachments directory
-  mkdir -p ${REDMINE_ATTACHMENTS_DIR}
-  chmod -R u+rw,go+r ${REDMINE_ATTACHMENTS_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_ATTACHMENTS_DIR}
-
-  # create backups directory
-  mkdir -p ${REDMINE_BACKUPS_DIR}
-  chmod -R u+rw,go+r ${REDMINE_BACKUPS_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_BACKUPS_DIR}
 
   if [[ -d /redmine/files ]]; then # deprecated
     echo "WARNING: "
@@ -779,23 +757,27 @@ initialize_datadir() {
     exit 1
   fi
 
-  # create dotfiles directory
-  mkdir -p ${REDMINE_DOTFILES_DIR}
-  chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}
-  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}
+  # create relevant folders and/or fix permissions
+  datafolders=(
+    "${REDMINE_DATA_DIR}"
+    "${REDMINE_PLUGINS_DIR}"
+    "${REDMINE_THEMES_DIR}"
+    "${REDMINE_ATTACHMENTS_DIR}"
+    "${REDMINE_BACKUPS_DIR}"
+    "${REDMINE_DOTFILES_DIR}"
+    "${REDMINE_DOTFILES_DIR}/.subversion"
+    "${REDMINE_DATA_DIR}/tmp"
+  )
+  for dir in "${datafolders[@]}"; do
+    mkdir -p "${dir}"
+    chmod -R u+rw,go+r "${dir}"
+    chown -R ${REDMINE_USER}: "${dir}"
+  done
 
+  # special permissions for ~/.ssh
   mkdir -p ${REDMINE_DOTFILES_DIR}/.ssh
   chmod -R u+rw,go-rwx ${REDMINE_DOTFILES_DIR}/.ssh
   chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.ssh
-
-  mkdir -p ${REDMINE_DOTFILES_DIR}/.subversion
-  chmod -R u+rw,go+r ${REDMINE_DOTFILES_DIR}/.subversion
-  chown -R ${REDMINE_USER}: ${REDMINE_DOTFILES_DIR}/.subversion
-
-  # create tmp directory
-  mkdir -p ${REDMINE_DATA_DIR}/tmp
-  chmod -R u+rw,go+r ${REDMINE_DATA_DIR}/tmp
-  chown -R ${REDMINE_USER}: ${REDMINE_DATA_DIR}/tmp
 }
 
 generate_ssh_client_keys() {
