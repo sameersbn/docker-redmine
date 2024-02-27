@@ -770,8 +770,8 @@ initialize_datadir() {
   )
   for dir in "${datafolders[@]}"; do
     mkdir -p "${dir}"
-    chmod -R u+rw,go+r "${dir}"
-    chown -R ${REDMINE_USER}: "${dir}"
+    find "${dir}" \! -perm -u=wr,go=r -print0 | xargs -0 -r chmod u+rw,go+r
+    find "${dir}" \! -user ${REDMINE_USER} -print0 | xargs -0 -r chown ${REDMINE_USER}:
   done
 
   # special permissions for ~/.ssh
