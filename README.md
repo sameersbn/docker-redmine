@@ -619,6 +619,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **REDMINE_BACKUP_SCHEDULE**: Setup cron job to schedule automatic backups. Possible values `disable`, `daily`, `weekly` or `monthly`. Disabled by default
 - **REDMINE_BACKUP_EXPIRY**: Configure how long (in seconds) to keep backups before they are deleted. By default when automated backups are disabled backups are kept forever (0 seconds), else the backups expire in 7 days (604800 seconds).
 - **REDMINE_BACKUP_TIME**: Set a time for the automatic backups in `HH:MM` format. Defaults to `04:00`.
+- **REDMINE_AVATAR_SERVER_URL**: Avatar server for displaying user icons. Defaults to `https://www.gravatar.com`
 - **DATABASE_URL**: The database URL. See [Configuring a Database](https://guides.rubyonrails.org/configuring.html#configuring-a-database). Possible schemes: `postgres`, `postgresql`, `mysql2`, and `sqlite3`. Defaults to no URL.
 - **DB_ADAPTER**: The database type. Possible values: `mysql2`, `postgresql`, and 'sqlite3'. Defaults to `mysql`.
 - **DB_ENCODING**: The database encoding. For `DB_ADAPTER` values `postresql` and `mysql2`, this parameter defaults to `unicode` and `utf8` respectively. For full unicode support (all emojis) with mariadb or mysql set this to `utf8mb4` and make sure to also set all tables to `utf8mb4` and use `collate utf8mb4_unicode_ci`. Existing databases can be converted by following this [HowTo](https://www.redmine.org/projects/redmine/wiki/HowTo_convert_a_database_from_utf8_to_utf8mb4).
