@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.7-3**
+- Only update file-permissions when needed, issue #547
+
 **5.0.7-2**
 - Update to ubuntu:focal-20231211
 - Fix mysql signing key
