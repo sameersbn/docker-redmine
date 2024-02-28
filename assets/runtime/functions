@@ -581,6 +581,12 @@ redmine_configure_minimagick_font() {
     REDMINE_MINIMAGICK_FONT_PATH
 }
 
+redmine_configure_avatar_server() {
+  echo "Configuring redmine::avatar::url..."
+  update_template ${REDMINE_CONFIG} \
+    REDMINE_AVATAR_SERVER_URL
+}
+
 backup_dump_database() {
   eval $(parse_yaml "${REDMINE_CONFIG}" config_)
   eval $(parse_yaml "${REDMINE_DATABASE_CONFIG}" database_)
@@ -895,6 +901,7 @@ configure_redmine() {
   redmine_configure_fetch_commits
   redmine_configure_backups
   redmine_configure_minimagick_font
+  redmine_configure_avatar_server
 
   # configure secure-cookie if using SSL/TLS
   if [[ ${REDMINE_HTTPS} == true ]]; then
