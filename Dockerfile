@@ -23,7 +23,7 @@ RUN apt-get update \
       default-libmysqlclient-dev libmariadb-dev libpq5 libyaml-0-2 libcurl4 libssl3 uuid-dev xz-utils \
       libxslt1.1 libffi8 zlib1g gsfonts vim-tiny ghostscript sqlite3 libsqlite3-dev \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
- && gem install --no-document bundler -v 2.4.22 \
+ && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
 COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
