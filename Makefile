@@ -17,8 +17,8 @@ build:
 test-release:
 	@echo Clean old run
 	sudo rm -rf /srv/docker/redmine/
-	sudo mkdir -p /src/docker/redmine/redmine
-	sudo cp -rf certs /src/docker/redmine/redmine/
+	sudo mkdir -p /srv/docker/redmine/redmine
+	sudo cp -rf certs /srv/docker/redmine/redmine/
 	docker-compose down
 	docker-compose build
 	docker-compose up
