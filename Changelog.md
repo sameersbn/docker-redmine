@@ -1,5 +1,12 @@
 # Changelog
 
+**5.1.2**
+- redmine: upgrade to v5.1.2
+- Remove bundler version pin
+
+**5.1.1-5**
+- Only update file-permissions when needed on server start #547
+
 **5.1.1-4**
 - Switch to Ruby 3.2
 - Replace ubuntu as base image with ruby:3.2-slim-bookworm
