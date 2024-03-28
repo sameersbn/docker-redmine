@@ -261,15 +261,13 @@ redmine_check_mysql_database_tx_isolation() {
           --user "${DB_USER}" --default-character-set "${DB_ENCODING}" \
           --skip-column-names \
           --silent "
-    isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
+    if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
           --execute="SELECT @@GLOBAL.tx_isolation;" )
-    
-    if [[ $? -ne 0 ]]; then
+    then
       # try the new name of the variable, mysql 8+
-      isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
+      if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
             --execute="SELECT @@GLOBAL.transaction_isolation;" )
-
-      if [[ $? -ne 0 ]]; then
+      then
         echo
         echo "ERROR: Failed to check transaction isolation level" >&2
         return 1
