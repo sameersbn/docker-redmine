@@ -262,7 +262,7 @@ redmine_check_mysql_database_tx_isolation() {
           --skip-column-names \
           --silent "
     if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
-          --execute="SELECT @@GLOBAL.tx_isolation;" )
+          --execute="SELECT @@GLOBAL.tx_isolation;" 2> /dev/null )
     then
       # try the new name of the variable, mysql 8+
       if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
