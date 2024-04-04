@@ -9,7 +9,7 @@ REDMINE_CONFIG="${REDMINE_INSTALL_DIR}/config/configuration.yml"
 REDMINE_DATABASE_CONFIG="${REDMINE_INSTALL_DIR}/config/database.yml"
 REDMINE_UNICORN_CONFIG="${REDMINE_INSTALL_DIR}/config/unicorn.rb"
 REDMINE_SECRET_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/secret_token.rb"
-REDMINE_MEMCACHED_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
+REDMINE_ADDITIONAL_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
 
 IMAGE_VERSION=$(cat /VERSION)
@@ -329,11 +329,18 @@ redmine_configure_memcached() {
 
   if [[ ${MEMCACHE_ENABLED} == true ]]; then
     echo "Configuring redmine::memcached..."
-    install_template ${REDMINE_USER}: redmine/additional_environment.rb ${REDMINE_MEMCACHED_CONFIG} 0644
-    update_template ${REDMINE_MEMCACHED_CONFIG} \
-      MEMCACHE_HOST \
-      MEMCACHE_PORT
+    {
+      echo "config.gem 'dalli'"
+      echo "config.action_controller.perform_caching  = true"
+      echo "config.cache_classes = true"
+      echo "config.cache_store = :mem_cache_store, ${MEMCACHE_HOST}:${MEMCACHE_PORT}"
+    } >> "${REDMINE_ADDITIONAL_CONFIG}"
   fi
+}
+
+redmine_configure_logger() {
+  echo "Configuring redmine::logger..."
+  echo "config.log_level = :${LOGGER_LEVEL}" >> "${REDMINE_ADDITIONAL_CONFIG}"
 }
 
 redmine_configure_unicorn() {
@@ -852,6 +859,7 @@ symlink_dotfiles() {
 install_configuration_templates() {
   echo "Installing configuration templates..."
 
+  install_template ${REDMINE_USER}: redmine/additional_environment.rb ${REDMINE_ADDITIONAL_CONFIG} 0644
   install_template ${REDMINE_USER}: redmine/configuration.yml ${REDMINE_CONFIG} 0640
   install_template ${REDMINE_USER}: redmine/database.yml ${REDMINE_DATABASE_CONFIG} 0640
   install_template ${REDMINE_USER}: redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG} 0644
@@ -892,6 +900,7 @@ configure_redmine() {
 
   redmine_configure_database
   redmine_configure_memcached
+  redmine_configure_logger
   redmine_configure_unicorn
   redmine_configure_secret_token
   redmine_configure_concurrent_uploads
