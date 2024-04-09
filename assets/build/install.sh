@@ -22,12 +22,15 @@ adduser --disabled-login --gecos 'Redmine' ${REDMINE_USER}
 passwd -d ${REDMINE_USER}
 
 # set PATH for ${REDMINE_USER} cron jobs
+# Set GEM_HOME and BUNDLE_APP_CONFIG for ${REDMINE_USER}, needed for ruby:3.2-slim-bookworm image
 cat > /tmp/cron.${REDMINE_USER} <<EOF
 REDMINE_USER=${REDMINE_USER}
 REDMINE_INSTALL_DIR=${REDMINE_INSTALL_DIR}
 REDMINE_DATA_DIR=${REDMINE_DATA_DIR}
 REDMINE_RUNTIME_ASSETS_DIR=${REDMINE_RUNTIME_ASSETS_DIR}
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+BUNDLE_APP_CONFIG=/usr/local/bundle
+GEM_HOME=/usr/local/bundle
 EOF
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
 rm -rf /tmp/cron.${REDMINE_USER}
