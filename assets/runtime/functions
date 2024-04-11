@@ -333,7 +333,7 @@ redmine_configure_memcached() {
       echo "config.gem 'dalli'"
       echo "config.action_controller.perform_caching  = true"
       echo "config.cache_classes = true"
-      echo "config.cache_store = :mem_cache_store, ${MEMCACHE_HOST}:${MEMCACHE_PORT}"
+      echo "config.cache_store = :mem_cache_store, \"${MEMCACHE_HOST}:${MEMCACHE_PORT}\""
     } >> "${REDMINE_ADDITIONAL_CONFIG}"
   fi
 }
