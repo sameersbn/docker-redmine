@@ -730,7 +730,7 @@ crontab -u redmine -l 2>/dev/null >/tmp/cron.redmine
 
 # add new job for recurring tasks if it does not exist
 if ! grep -q redmine:recur_tasks /tmp/cron.redmine; then
-  echo '@hourly cd /home/redmine/redmine && bundle exec rake redmine:recur_tasks RAILS_ENV=production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
+  echo '@hourly /sbin/entrypoint.sh app:rake redmine:recur_tasks RAILS_ENV=production >> log/cron_rake.log 2>&1' >>/tmp/cron.redmine
   crontab -u redmine /tmp/cron.redmine 2>/dev/null
 fi
 
@@ -933,7 +933,7 @@ docker run --name=redmine -d [OPTIONS] \
 You can also use `docker exec` to run rake tasks on running redmine instance. For example,
 
 ```bash
-docker exec -it redmine sudo -u redmine -H bundle exec rake redmine:email:test[admin] RAILS_ENV=production
+docker exec redmine /sbin/entrypoint.sh app:rake redmine:email:test[admin] RAILS_ENV=production
 ```
 
 Similarly, to remove uploaded files left unattached
@@ -946,7 +946,7 @@ docker run --name=redmine -d [OPTIONS] \
 Or,
 
 ```bash
-docker exec -it redmine sudo -u redmine -H bundle exec rake redmine:attachments:prune RAILS_ENV=production
+docker exec redmine /sbin/entrypoint.sh app:rake redmine:attachments:prune RAILS_ENV=production
 ```
 
 For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
