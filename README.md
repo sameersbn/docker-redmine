@@ -1000,15 +1000,17 @@ docker exec -it redmine bash
 ```bash
 sed -i 's/5.1.2/5.1.2/g' VERSION README.md docker-compose-memcached.yml docker-compose-mysql.yml docker-compose-ssl.yml docker-compose-sqlite3.yml docker-compose-mariadb.yml Dockerfile docker-compose.yml
 vim Changelog.md # Update change log
-sudo rm -rf /srv/docker/redmine/ # Clean old run
-docker-compose down
-docker-compose build
-docker-compose up # Test new build
-git add -p
-git commit -sS -m "release: $(cat VERSION)"
-git tag -s $(cat VERSION) -m "$(cat VERSION)"
-git push
-git push origin --tags
+make test-release # Runs the following
+#  sudo rm -rf /srv/docker/redmine/ # Clean old run
+#  docker-compose down
+#  docker-compose build
+#  docker-compose up # Test new build
+./make_release.sh # Runs the following
+#  git add -p
+#  git commit -sS -m "release: $(cat VERSION)"
+#  git tag -s $(cat VERSION) -m "$(cat VERSION)"
+#  git push
+#  git push origin --tags
 ```
 
 - Open https://github.com/sameersbn/docker-redmine/releases and Draft new release
