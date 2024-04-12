@@ -1,5 +1,12 @@
 # Changelog
 
+**5.1.2-1**
+- Fix SMTP_SSL configuration #545
+- Fix tx isolation detection for mysql #550
+- Add logger level config support #551
+- Fix imap cronjob [#553](https://github.com/sameersbn/docker-redmine/issues/553)
+- Update rake documentation [#553](https://github.com/sameersbn/docker-redmine/issues/553)
+
 **5.1.2**
 - redmine: upgrade to v5.1.2
 - Remove bundler version pin
