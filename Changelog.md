@@ -1,5 +1,8 @@
 # Changelog
 
+**5.1.3**
+- redmine: upgrade to v5.1.3
+
 **5.1.2-1**
 - Fix SMTP_SSL configuration #545
 - Fix tx isolation detection for mysql #550
