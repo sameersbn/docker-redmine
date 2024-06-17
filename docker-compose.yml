@@ -17,7 +17,7 @@ services:
       start_period: 10s
   redmine:
     build: ./
-    image: sameersbn/redmine:5.0.8
+    image: sameersbn/redmine:5.0.9
     depends_on:
       postgresql:
         condition: service_healthy

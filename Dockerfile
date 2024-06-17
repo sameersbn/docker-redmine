@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20240216 AS add-apt-repositories
+FROM ubuntu:focal-20240530 AS add-apt-repositories
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg2 \
@@ -13,13 +13,13 @@ RUN apt-get update \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv B7B3B788A8D3785C \
  && echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-5.7" >> /etc/apt/sources.list
 
-FROM ubuntu:focal-20240216
+FROM ubuntu:focal-20240530
 
 LABEL maintainer="sameer@damagehead.com"
 
 # bundler 2.4.22 is the last version that supports ruby 2.7
 ENV RUBY_VERSION=2.7 \
-    REDMINE_VERSION=5.0.8 \
+    REDMINE_VERSION=5.0.9 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
