@@ -80,6 +80,9 @@ fi
   echo '# unicorn 5.5.0 has a bug in unicorn_rails. See issue #392';
   echo 'gem "unicorn", "~> 5.4", "!=5.5.0"';
   echo 'gem "dalli", "~> 2.7.0"';
+  echo '# Later versions of builder don't work. https://www.redmine.org/issues/40802
+  echo "gem 'builder', '~> 3.2.4'"
+
 ) >> ${REDMINE_INSTALL_DIR}/Gemfile
 
 ## some gems complain about missing database.yml, shut them up!
