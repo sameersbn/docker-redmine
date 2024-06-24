@@ -1048,8 +1048,27 @@ migrate_database() {
   CACHE_VERSION=
   [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CACHE_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
   if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
+    if [[ "${DB_CREATE:-true}" == "true" ]] ; then
+      echo "Creating database..."
+      # Disable "exit on error" so we can capture the error code
+      set +e
+      exec_as_redmine bundle exec rake db:create >/dev/null
+      res=$?
+      # Restore "exit on error"
+      set -e
+
+      if [[ 0 -ne $res ]] ; then
+        echo <<-EOM
+Failed to create db. If db exists, and user (or role) exists and has access to db but no permission to create databases, set:
+-----------------------
+DB_CREATE=false
+-----------------------
+EOM
+        return $res
+      fi
+    fi
+
     echo "Migrating database. Please be patient, this could take a while..."
-    exec_as_redmine bundle exec rake db:create >/dev/null
     exec_as_redmine bundle exec rake db:migrate >/dev/null
 
     # clear sessions and application cache
