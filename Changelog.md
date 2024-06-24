@@ -1,5 +1,9 @@
 # Changelog
 
+**4.2.11-2**
+- Update to ubuntu:focal-20240530
+- Add SMTP_SSL option
+
 **4.2.11-1**
 - Update to ubuntu:focal-20231211
 - Fix mysql signing key
