@@ -19,9 +19,9 @@ test-release:
 	sudo rm -rf /srv/docker/redmine/
 	sudo mkdir -p /srv/docker/redmine/redmine
 	sudo cp -rf certs /srv/docker/redmine/redmine/
-	docker-compose down
-	docker-compose build
-	docker-compose up
+	docker compose down
+	docker compose build
+	docker compose up
 
 release:
 	./make_release.sh

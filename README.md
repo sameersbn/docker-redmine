@@ -1002,9 +1002,9 @@ sed -i 's/5.1.3/5.1.3/g' VERSION README.md docker-compose-memcached.yml docker-c
 vim Changelog.md # Update change log
 make test-release # Runs the following
 #  sudo rm -rf /srv/docker/redmine/ # Clean old run
-#  docker-compose down
-#  docker-compose build
-#  docker-compose up # Test new build
+#  docker compose down
+#  docker compose build
+#  docker compose up # Test new build
 ./make_release.sh # Runs the following
 #  git add -p
 #  git commit -sS -m "release: $(cat VERSION)"
