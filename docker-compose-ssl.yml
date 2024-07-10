@@ -1,5 +1,3 @@
-version: '2'
-
 services:
   postgresql:
     image: sameersbn/postgresql:14-20230628
