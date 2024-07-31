@@ -119,11 +119,11 @@ docker build -t sameersbn/redmine github.com/sameersbn/docker-redmine
 
 # Quick Start
 
-The quickest way to get started is using [docker-compose](https://docs.docker.com/compose/).
+The quickest way to get started is using [docker compose](https://docs.docker.com/compose/).
 
 ```bash
 wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/docker-compose.yml
-docker-compose up
+docker compose up
 ```
 
 Alternately, you can manually launch the `redmine` container and the supporting `postgresql` container by following this two step guide.
