@@ -1,5 +1,3 @@
-version: '2'
-
 services:
   mysql:
     image: sameersbn/mysql:5.7.22-1
