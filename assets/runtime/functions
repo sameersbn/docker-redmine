@@ -1000,6 +1000,7 @@ migrate_database() {
 
     # Now that database has been migrated, update version file
     echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
+    export REDMINE_WAS_UPDATED=yes
   fi
 }
 
