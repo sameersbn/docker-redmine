@@ -983,7 +983,7 @@ Replace `x.x.x` with the version you are upgrading from. For example, if you are
 docker run --name=redmine -d [OPTIONS] sameersbn/redmine:5.1.3
 ```
 
-When an upgrade is in progress the variable `REDMINE_WAS_UPDATED` will be defined and set to `yes`.  This allows easy integration of individual upgrade-steps via `entrypoint.custom.sh`.
+When an upgrade is in progress the variable `REDMINE_WAS_UPDATED` will be defined and set to `yes`.  This allows easy integration of individual upgrade-steps via `entrypoint.custom.sh`, `pre-install.sh`, and `post-install.sh`.
 
 ## Shell Access
 
