@@ -1,5 +1,8 @@
 # Changelog
 
+**5.1.4**
+- redmine: upgrade to v5.1.4
+
 **5.1.3**
 - redmine: upgrade to v5.1.3
 
