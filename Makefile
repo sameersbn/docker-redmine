@@ -1,4 +1,9 @@
 IMAGE:=sameersbn/redmine
+CERTS_DIR=certs
+CERT_FILES=$(CERTS_DIR)/redmine.crt $(CERTS_DIR)/dhparam.pem
+
+.PHONY: test-release generate-certs clean
+
 all: build
 
 help:
@@ -14,14 +19,35 @@ help:
 build:
 	@docker build --tag=$(IMAGE) .
 
-test-release:
+
+test-release: generate-certs
 	@echo Clean old run
 	sudo rm -rf /srv/docker/redmine/
 	sudo mkdir -p /srv/docker/redmine/redmine
-	sudo cp -rf certs /srv/docker/redmine/redmine/
+	sudo cp -rf $(CERTS_DIR) /srv/docker/redmine/redmine/
 	docker compose down
 	docker compose build
 	docker compose up
+
+generate-certs: $(CERT_FILES)
+
+$(CERTS_DIR):
+	mkdir -p $(CERTS_DIR)
+
+$(CERTS_DIR)/redmine.key: | $(CERTS_DIR)
+	openssl genrsa -out $(CERTS_DIR)/redmine.key 2048
+
+$(CERTS_DIR)/redmine.csr: $(CERTS_DIR)/redmine.key
+	openssl req -new -key $(CERTS_DIR)/redmine.key -out $(CERTS_DIR)/redmine.csr
+
+$(CERTS_DIR)/redmine.crt: $(CERTS_DIR)/redmine.csr $(CERTS_DIR)/redmine.key
+	openssl x509 -req -days 365 -in $(CERTS_DIR)/redmine.csr -signkey $(CERTS_DIR)/redmine.key -out $(CERTS_DIR)/redmine.crt
+
+$(CERTS_DIR)/dhparam.pem: | $(CERTS_DIR)
+	openssl dhparam -out $(CERTS_DIR)/dhparam.pem 2048
+
+clean:
+	rm -rf $(CERTS_DIR)
 
 release:
 	./make_release.sh
