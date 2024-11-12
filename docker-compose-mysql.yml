@@ -10,6 +10,8 @@ services:
       - /srv/docker/redmine/mysql:/var/lib/mysql
     # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
     command: --transaction-isolation=READ-COMMITTED
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
 
   redmine:
     build: ./
