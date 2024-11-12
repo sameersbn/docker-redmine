@@ -1128,7 +1128,7 @@ install_plugins() {
 install_themes() {
   if [[ -d ${REDMINE_THEMES_DIR} ]]; then
     echo "Installing themes..."
-    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_THEMES_DIR}/ ${REDMINE_INSTALL_DIR}/public/themes/
+    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_THEMES_DIR}/ ${REDMINE_INSTALL_DIR}/themes/
   fi
 }
 
