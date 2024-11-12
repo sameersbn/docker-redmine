@@ -1005,6 +1005,8 @@ sed -i 's/5.1.3/5.1.4/g' VERSION README.md docker-compose-memcached.yml docker-c
 vim Changelog.md # Update change log
 make test-release # Runs the following
 #  sudo rm -rf /srv/docker/redmine/ # Clean old run
+#  sudo mkdir -p /srv/docker/redmine/redmine
+#  sudo cp -rf $(CERTS_DIR) /srv/docker/redmine/redmine/ # Copy generated certificates
 #  docker compose down
 #  docker compose build
 #  docker compose up # Test new build
