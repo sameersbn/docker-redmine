@@ -1,5 +1,9 @@
 # Changelog
 
+**6.0.1**
+- redmine: upgrade to v6.0.1
+- `make test-release` now creates certificates for ssl
+
 **5.1.4**
 - redmine: upgrade to v5.1.4
 
