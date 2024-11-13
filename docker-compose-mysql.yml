@@ -1,20 +1,21 @@
 services:
   mysql:
-    image: sameersbn/mysql:5.7.22-1
+    image: mysql:8.0-bookworm
     environment:
-      - DB_USER=redmine
-      - DB_PASS=password
-      - DB_NAME=redmine_production
-      - MYSQL_CHARSET=utf8mb4
-      - MYSQL_COLLATION=utf8mb4_unicode_ci
+      - MYSQL_USER=redmine
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=redmine_production
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
     volumes:
       - /srv/docker/redmine/mysql:/var/lib/mysql
     # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
     command: --transaction-isolation=READ-COMMITTED
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
 
   redmine:
     build: ./
-    image: sameersbn/redmine:5.1.4
+    image: sameersbn/redmine:6.0.1
     depends_on:
       - mysql
     environment:
