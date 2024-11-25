@@ -21,7 +21,7 @@ RUN apt-get update \
       imagemagick subversion git cvs bzr mercurial darcs rsync locales openssh-client \
       gcc g++ make patch pkg-config gettext-base libc6-dev zlib1g-dev libxml2-dev \
       default-libmysqlclient-dev libmariadb-dev libpq5 libyaml-0-2 libcurl4 libssl3 uuid-dev xz-utils \
-      libxslt1.1 libffi8 zlib1g gsfonts vim-tiny ghostscript sqlite3 libsqlite3-dev \
+      libxslt1.1 libffi8 zlib1g gsfonts vim-tiny ghostscript sqlite3 libsqlite3-dev jq\
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
