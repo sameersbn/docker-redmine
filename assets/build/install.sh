@@ -81,12 +81,16 @@ else
   SQLITE3_GEM=${SQLITE3_2LINES_GEM}
 fi
 
+# Delete test: puma
+sed -i \
+  -e '/gem .puma./d' \
+  "${REDMINE_INSTALL_DIR}/Gemfile"
+
 (
   echo "${PG_GEM}";
   echo "${MYSQL2_GEM}";
   echo "${SQLITE3_GEM}";
-  echo '# unicorn 5.5.0 has a bug in unicorn_rails. See issue #392';
-  echo 'gem "unicorn", "~> 6.1"';
+  echo 'gem "puma", "~> 6"';
   echo 'gem "dalli", "~> 3.2.6"';
 ) >> ${REDMINE_INSTALL_DIR}/Gemfile
 
@@ -194,13 +198,13 @@ stdout_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 stderr_logfile=${REDMINE_LOG_DIR}/supervisor/%(program_name)s.log
 EOF
 
-# configure supervisord to start unicorn
-cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
-[program:unicorn]
+# configure supervisord to start puma
+cat > /etc/supervisor/conf.d/puma.conf <<EOF
+[program:puma]
 priority=10
 directory=${REDMINE_INSTALL_DIR}
 environment=HOME=${REDMINE_HOME}
-command=bundle exec unicorn_rails -E ${RAILS_ENV} -c ${REDMINE_INSTALL_DIR}/config/unicorn.rb
+command=bundle exec puma -e ${RAILS_ENV} -C ${REDMINE_INSTALL_DIR}/config/puma.rb
 user=${REDMINE_USER}
 autostart=true
 autorestart=true

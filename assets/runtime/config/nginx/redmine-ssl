@@ -2,7 +2,7 @@
 # Maintainer: @sameersbn
 
 upstream redmine {
-  server 127.0.0.1:8080 fail_timeout=0;
+  server unix:{{REDMINE_INSTALL_DIR}}/tmp/sockets/puma.sock fail_timeout=0;
 }
 
 ## Normal HTTP host

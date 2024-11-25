@@ -2,7 +2,7 @@
 # Maintainer: @sameersbn
 
 upstream redmine {
-  server 127.0.0.1:8080 fail_timeout=0;
+  server unix:{{REDMINE_INSTALL_DIR}}/tmp/sockets/puma.sock fail_timeout=0;
 }
 
 ## Normal HTTP host
@@ -48,7 +48,7 @@ server {
   }
 
   ## If a file, which is not found in the root folder is requested,
-  ## then the proxy passes the request to the upsteam (redmine unicorn).
+  ## then the proxy passes the request to the upsteam (redmine puma).
   location @redmine {
     ## If you use HTTPS make sure you disable gzip compression
     ## to be safe against BREACH attack.

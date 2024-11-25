@@ -643,8 +643,7 @@ Below is the complete list of parameters that can be set using environment varia
 - **NGINX_CORS_ALLOW_METHODS**: Sets `Access-Control-Allow-Methods` response header to specify the methods allowed when accessing the resource in response to a preflight request.
 - **NGINX_CORS_ALLOW_HEADERS**: Sets `Access-Control-Allow-Headers` response header to specify which headers can be used during the actual request.
 - **NGINX_CORS_ALLOW_CREDENTIALS**: Sets `Access-Control-Allow-Credentials` response header to tell browsers whether to expose the response to frontend JavaScript code when the request's credentials mode (Request.credentials) is include.
-- **UNICORN_WORKERS**: The number of unicorn workers to start. Defaults to `2`.
-- **UNICORN_TIMEOUT**: Sets the timeout of unicorn worker processes. Defaults to `60` seconds.
+- **PUMA_WORKERS**: The number of puma workers to start. Defaults to `2`.
 - **MEMCACHE_HOST**: The host name of the memcached server. No defaults.
 - **MEMCACHE_PORT**: The connection port of the memcached server. Defaults to `11211`.
 - **SSL_CERTIFICATE_PATH**: The path to the SSL certificate to use. Defaults to `/home/redmine/data/certs/redmine.crt`.

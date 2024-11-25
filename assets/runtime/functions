@@ -7,7 +7,7 @@ USERCONF_TEMPLATES_DIR="${REDMINE_DATA_DIR}/config"
 
 REDMINE_CONFIG="${REDMINE_INSTALL_DIR}/config/configuration.yml"
 REDMINE_DATABASE_CONFIG="${REDMINE_INSTALL_DIR}/config/database.yml"
-REDMINE_UNICORN_CONFIG="${REDMINE_INSTALL_DIR}/config/unicorn.rb"
+REDMINE_PUMA_CONFIG="${REDMINE_INSTALL_DIR}/config/puma.rb"
 REDMINE_SECRET_CONFIG="${REDMINE_INSTALL_DIR}/config/initializers/secret_token.rb"
 REDMINE_ADDITIONAL_CONFIG="${REDMINE_INSTALL_DIR}/config/additional_environment.rb"
 REDMINE_NGINX_CONFIG="/etc/nginx/sites-enabled/redmine"
@@ -343,23 +343,17 @@ redmine_configure_logger() {
   echo "config.log_level = :${LOGGER_LEVEL}" >> "${REDMINE_ADDITIONAL_CONFIG}"
 }
 
-redmine_configure_unicorn() {
-  echo "Configuring redmine::unicorn..."
+redmine_configure_puma() {
+  echo "Configuring redmine::puma..."
   if [[ ${REDMINE_RELATIVE_URL_ROOT} == / ]]; then
-    exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' ${REDMINE_UNICORN_CONFIG}
+    exec_as_redmine sed -i '/{{REDMINE_RELATIVE_URL_ROOT}}/d' ${REDMINE_PUMA_CONFIG}
   fi
 
-  if [[ ${NGINX_ENABLED} != true ]]; then
-    # nginx has been disabled, configure unicorn to listen on all interfaces
-    exec_as_redmine sed -i "s|127.0.0.1:8080|0.0.0.0:8080|" ${REDMINE_UNICORN_CONFIG}
-  fi
-
-  update_template ${REDMINE_UNICORN_CONFIG} \
+  update_template ${REDMINE_PUMA_CONFIG} \
     REDMINE_INSTALL_DIR \
     REDMINE_USER \
     REDMINE_RELATIVE_URL_ROOT \
-    UNICORN_WORKERS \
-    UNICORN_TIMEOUT
+    PUMA_WORKERS
 }
 
 redmine_configure_secret_token() {
@@ -862,7 +856,7 @@ install_configuration_templates() {
   install_template ${REDMINE_USER}: redmine/additional_environment.rb ${REDMINE_ADDITIONAL_CONFIG} 0644
   install_template ${REDMINE_USER}: redmine/configuration.yml ${REDMINE_CONFIG} 0640
   install_template ${REDMINE_USER}: redmine/database.yml ${REDMINE_DATABASE_CONFIG} 0640
-  install_template ${REDMINE_USER}: redmine/unicorn.rb ${REDMINE_UNICORN_CONFIG} 0644
+  install_template ${REDMINE_USER}: redmine/puma.rb ${REDMINE_PUMA_CONFIG} 0644
   install_template ${REDMINE_USER}: redmine/secret_token.rb ${REDMINE_SECRET_CONFIG} 0644
 
   if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
@@ -901,7 +895,7 @@ configure_redmine() {
   redmine_configure_database
   redmine_configure_memcached
   redmine_configure_logger
-  redmine_configure_unicorn
+  redmine_configure_puma
   redmine_configure_secret_token
   redmine_configure_concurrent_uploads
   redmine_configure_sudo_mode
