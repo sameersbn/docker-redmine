@@ -1,5 +1,8 @@
 # Changelog
 
+**6.0.1-1**
+- Replace unicorn application server with puma #569
+
 **6.0.1**
 - redmine: upgrade to v6.0.1
 - `make test-release` now creates certificates for ssl
