@@ -1,4 +1,4 @@
-FROM ruby:3.2-slim-bookworm
+FROM ruby:3.3-slim-bookworm
 
 LABEL maintainer="sameer@damagehead.com"
 
