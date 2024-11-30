@@ -65,16 +65,6 @@ case ${DB_TYPE} in
   sqlite3) DB_ADAPTER=${DB_ADAPTER:-sqlite3} ;;
 esac
 
-if [[ ! -z "${DB_SSL_MODE}" ]]
-then
-  # Add sslmode or ssl_mode depending on type
-  case ${DB_ADAPTER} in
-    mysql2) DB_SSL_MODE="ssl_mode: ${DB_SSL_MODE}" ;;
-    postgresql) DB_SSL_MODE="sslmode: ${DB_SSL_MODE}" ;;
-    sqlite3) DB_SSL_MODE= ;; # No ssl
-  esac
-fi
-
 ## UNICORN (deprecated)
 UNICORN_WORKERS=${UNICORN_WORKERS:-2}
 UNICORN_TIMEOUT=${UNICORN_TIMEOUT:-60}

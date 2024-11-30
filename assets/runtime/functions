@@ -251,6 +251,16 @@ redmine_finalize_database_parameters() {
       ;;
   esac
 
+  if [[ ! -z "${DB_SSL_MODE}" ]]
+  then
+    # Add sslmode or ssl_mode depending on type
+    case ${DB_ADAPTER} in
+      mysql2) DB_SSL_MODE="ssl_mode: ${DB_SSL_MODE}" ;;
+      postgresql) DB_SSL_MODE="sslmode: ${DB_SSL_MODE}" ;;
+      sqlite3) DB_SSL_MODE= ;; # No ssl
+    esac
+  fi
+
   # set default user and database
   DB_USER=${DB_USER:-root}
   DB_NAME=${DB_NAME:-redmine_production}
