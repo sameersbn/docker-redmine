@@ -11,6 +11,8 @@ app_dir    = File.expand_path("{{REDMINE_INSTALL_DIR}}")
 rails_env = ENV['RAILS_ENV'] || 'production'
 environment rails_env
 
+ENV['RAILS_RELATIVE_URL_ROOT'] = "{{REDMINE_RELATIVE_URL_ROOT}}"
+
 # Set up socket location
 bind "unix://#{app_dir}/tmp/sockets/puma.sock"
 bind "tcp://0.0.0.0:8080"
