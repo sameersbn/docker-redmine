@@ -1,5 +1,8 @@
 # Changelog
 
+**6.0.1-2**
+- Fix `REDMINE_RELATIVE_URL_ROOT` for puma #570
+
 **6.0.1-1**
 - Replace unicorn application server with puma #569
 
