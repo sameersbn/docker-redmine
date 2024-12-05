@@ -20,6 +20,7 @@
     - [PostgreSQL](#postgresql)
       - [External PostgreSQL Server](#external-postgresql-server)
       - [Linking to PostgreSQL Container](#linking-to-postgresql-container)
+    - [AWS RDS Integration](#aws-rds-integration)
   - [Memcached (Optional)](#memcached-optional)
     - [External Memcached Server](#external-memcached-server)
     - [Linking to Memcached Container](#linking-to-memcached-container)
@@ -376,6 +377,10 @@ Here the image will also automatically fetch the `DB_NAME`, `DB_USER` and `DB_PA
 - [sameersbn/postgresql](https://quay.io/repository/sameersbn/postgresql/)
 - [orchardup/postgresql](https://hub.docker.com/r/orchardup/postgresql/)
 - [paintedfox/postgresql](https://hub.docker.com/r/paintedfox/postgresql/)
+
+### AWS RDS Integration
+**docker-redmine** has support for fetching secrets from AWS Secrets Manager at runtime.
+Read [docs/aws.md](docs/aws.md) for detailed instructions.
 
 ## Memcached (Optional)
 

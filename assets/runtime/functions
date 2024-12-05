@@ -104,10 +104,50 @@ update_template() {
 }
 
 redmine_finalize_database_parameters() {
+  if [[ -n ${AWS_DB_CREDENTIALS_SECRET_NAME} ]]; then
+    # Set the region, prioritizing a specific value if available
+    local REGION=${AWS_DB_CREDENTIALS_SECRET_REGION:-${AWS_REGION}}
+
+    echo "Installing aws-secrets-manager Ruby gem..."
+    gem install aws-secrets-manager --no-document --silent
+
+    echo "Fetching credentials from AWS Secrets Manager using get_aws_secret.rb..."
+    local SECRET_STRING=$(ruby ${REDMINE_RUNTIME_ASSETS_DIR}/get_aws_secret.rb $AWS_DB_CREDENTIALS_SECRET_NAME $REGION)
+
+    # Check if the command was successful
+    if [[ $? -ne 0 || -z "${SECRET_STRING}" ]]; then
+      echo "Failed to retrieve credentials from Secrets Manager. Please ensure that permissions and settings are correctly configured."
+      return 1
+    fi
+
+    # Parse the JSON from the SecretString
+    echo "Parsing received credentials..."
+    DB_USER=$(echo "${SECRET_STRING}" | jq -r '.username')
+    DB_PASS=$(echo "${SECRET_STRING}" | jq -r '.password')
+    DB_ADAPTER=$(echo "${SECRET_STRING}" | jq -r '.engine')
+    DB_HOST=$(echo "${SECRET_STRING}" | jq -r '.host')
+    DB_PORT=$(echo "${SECRET_STRING}" | jq -r '.port')
+
+    # Set default encoding and adapter based on the engine
+    case ${DB_ADAPTER} in
+      postgres | postgresql)
+        DB_ADAPTER=postgresql
+        DB_ENCODING=${DB_ENCODING:-unicode}
+        ;;
+      mysql | mysql2)
+        DB_ADAPTER=mysql2
+        DB_ENCODING=${DB_ENCODING:-utf8}
+        ;;
+      *)
+        echo "Error: Unsupported engine '${DB_ADAPTER}'. Only 'postgresql' and 'mysql2' are accepted. Aborting..."
+        return 1
+        ;;
+    esac
+
   # is a mysql or postgresql database linked?
   # requires that the mysql or postgresql containers have exposed
   # port 3306 and 5432 respectively.
-  if [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
+  elif [[ -n ${MYSQL_PORT_3306_TCP_ADDR} ]]; then
     DB_ADAPTER=${DB_ADAPTER:-mysql2}
     DB_HOST=${DB_HOST:-mysql}
     DB_PORT=${DB_PORT:-${MYSQL_PORT_3306_TCP_PORT}}
@@ -211,6 +251,16 @@ redmine_finalize_database_parameters() {
       ;;
   esac
 
+  if [[ ! -z "${DB_SSL_MODE}" ]]
+  then
+    # Add sslmode or ssl_mode depending on type
+    case ${DB_ADAPTER} in
+      mysql2) DB_SSL_MODE="ssl_mode: ${DB_SSL_MODE}" ;;
+      postgresql) DB_SSL_MODE="sslmode: ${DB_SSL_MODE}" ;;
+      sqlite3) DB_SSL_MODE= ;; # No ssl
+    esac
+  fi
+
   # set default user and database
   DB_USER=${DB_USER:-root}
   DB_NAME=${DB_NAME:-redmine_production}
@@ -286,7 +336,7 @@ redmine_check_mysql_database_tx_isolation() {
 }
 
 redmine_configure_database() {
-  echo -n "Configuring redmine::database"
+  echo "Configuring redmine::database"
 
   redmine_finalize_database_parameters
   redmine_check_database_connection
