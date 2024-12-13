@@ -1,5 +1,8 @@
 # Changelog
 
+**6.0.2**
+- redmine: upgrade to v6.0.2
+
 **6.0.1-2**
 - Fix `REDMINE_RELATIVE_URL_ROOT` for puma #570
 
