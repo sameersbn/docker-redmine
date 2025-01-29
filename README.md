@@ -1005,7 +1005,7 @@ docker exec -it redmine bash
 - Commands to run to update image to next redmine release, examples are from 6.0.2 to 6.0.2
 
 ```bash
-sed -i 's/6.0.2/6.0.2/g' VERSION README.md docker-compose-memcached.yml docker-compose-mysql.yml docker-compose-ssl.yml docker-compose-sqlite3.yml docker-compose-mariadb.yml Dockerfile docker-compose.yml
+sed -i 's/6.0.2/6.0.2/g' VERSION README.md docker-compose* Dockerfile
 vim Changelog.md # Update change log
 make test-release # Runs the following
 #  sudo rm -rf /srv/docker/redmine/ # Clean old run
