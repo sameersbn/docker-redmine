@@ -190,20 +190,38 @@ redmine_finalize_database_parameters() {
     DB_PASS=${DB_PASS:-${POSTGRESQL_ENV_PASS}}
     DB_NAME=${DB_NAME:-${POSTGRESQL_ENV_DB}}
   elif [[ -n ${DATABASE_URL} ]]; then
-    # Set environments for redmine_check_database_connection
+    # Examples of DATABASE_URL:
+    #
+    # From https://guides.rubyonrails.org/v8.0/configuring.html
+    # postgresql://localhost/my_database
+    # postgresql://localhost/blog_development?pool=5
+    # sqlite3:NOT_my_database
+    #
+    # From https://github.com/rails/rails/blob/69b6bc51493a18e8a937d6b5577070f44138e5c1/railties/lib/rails/generators/rails/app/templates/config/databases/mysql.yml.tt#L42
+    # mysql2://myuser:mypass@localhost/somedatabase
+    #
+    # From https://github.com/dokku/dokku-postgres
+    # postgres://lollipop:SOME_PASSWORD@dokku-postgres-lollipop:5432/lollipop
+    #
+    # From https://github.com/dokku/dokku-mysql
+    # mysql://mysql:SOME_PASSWORD@dokku-mysql-lollipop:3306/lollipop
+    #
     case $(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).scheme') in
       postgres | postgresql)
         DB_ADAPTER=${DB_ADAPTER:-postgresql}
         DB_HOST=${DB_HOST:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).hostname')}
         DB_PORT=${DB_PORT:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).port || 5432')}
         DB_USER=${DB_USER:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).user')}
+        DB_PASS=${DB_PASS:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).password')}
+        DB_NAME=${DB_NAME:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).path.delete_prefix("/")')}
         ;;
-      mysql2)
+      mysql | mysql2)
         DB_ADAPTER=${DB_ADAPTER:-mysql2}
         DB_HOST=${DB_HOST:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).hostname')}
         DB_PORT=${DB_PORT:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).port || 3306')}
         DB_USER=${DB_USER:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).user')}
         DB_PASS=${DB_PASS:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).password')}
+        DB_NAME=${DB_NAME:-$(ruby -r uri -e 'puts URI(ENV["DATABASE_URL"]).path.delete_prefix("/")')}
         ;;
       sqlite3)
         DB_ADAPTER=${DB_ADAPTER:-sqlite3}
