@@ -28,7 +28,6 @@ jobs:
         with:
           images: |
             sameersbn/redmine
-            quay.io/sameersbn/redmine
             ghcr.io/sameersbn/redmine
           flavor: |
             latest=false
@@ -57,13 +56,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to Quay.io
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3.0.0
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
+      # - name: Login to Quay.io
+      #   if: github.event_name != 'pull_request'
+      #   uses: docker/login-action@v3.0.0
+      #   with:
+      #     registry: quay.io
+      #     username: ${{ secrets.QUAY_USERNAME }}
+      #     password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Build image and push to container registries
         uses: docker/build-push-action@v5.0.0
