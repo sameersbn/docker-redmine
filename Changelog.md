@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.12**
+- redmine upgrade to v5.0.12
+
 **5.0.10**
 - redmine upgrade to v5.0.10
 - Update to ubuntu:focal-20241011
