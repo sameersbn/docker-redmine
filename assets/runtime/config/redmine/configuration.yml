@@ -186,7 +186,7 @@ default:
 
   # Absolute path (e.g. /usr/bin/convert, c:/im/convert.exe) to
   # the ImageMagick's `convert` binary. Used to generate attachment thumbnails.
-  imagemagick_convert_command: /usr/bin/convert
+  #imagemagick_convert_command: /usr/bin/convert
 
   # Absolute path (e.g. /usr/bin/gs, c:/ghostscript/gswin64c.exe) to
   # the `gs` binary. Used to generate attachment thumbnails of PDF files.
