@@ -62,6 +62,12 @@ services:
       - IMAP_SSL=true
       - IMAP_INTERVAL=30
 
+    healthcheck:
+      test: curl -f http://localhost/up || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
     ports:
       - "10083:80"
     volumes:
