@@ -207,20 +207,6 @@ Redmine uses a database backend to store its data.
 
 The internal mysql server has been removed from the image. Please use a linked [mysql](#linking-to-mysql-container) or [postgresql](#linking-to-postgresql-container) container instead or connect with an external [mysql](#external-mysql-server) or [postgresql](#external-postgresql-server) server.
 
-If you have been using the internal mysql server follow these instructions to migrate to a linked mysql container:
-
-Assuming that your mysql data is available at `/srv/docker/redmine/mysql`
-
-```bash
-docker run --name=mysql-redmine -d \
-  --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  sameersbn/mysql:5.7.22-1
-```
-
-This will start a mysql container with your existing mysql data. Now login to the mysql container and create a user for the existing `redmine_production` database.
-
-All you need to do now is link this mysql container to the redmine container using the `--link=mysql-redmine:mysql` option and provide the `DB_NAME`, `DB_USER` and `DB_PASS` parameters.
-
 Refer to [Linking to MySQL Container](#linking-to-mysql-container) for more information.
 
 #### External MySQL Server
@@ -252,54 +238,7 @@ This will initialize the redmine database and after a couple of minutes your red
 
 #### Linking to MySQL Container
 
-You can link this image with a mysql container for the database requirements. The alias of the mysql server container should be set to **mysql** while linking with the redmine image.
-
-If a mysql container is linked, only the `DB_ADAPTER`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
-
-To illustrate linking with a mysql container, we will use the [sameersbn/mysql](https://github.com/sameersbn/docker-mysql) image. When using docker-mysql in production you should mount a volume for the mysql data store. Please refer the [README](https://github.com/sameersbn/docker-mysql/blob/master/README.md) of docker-mysql for details.
-
-First, lets pull the mysql image from the docker index.
-
-```bash
-docker pull sameersbn/mysql:5.7.22-1
-```
-
-For data persistence lets create a store for the mysql and start the container.
-
-SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
-
-```bash
-mkdir -p /srv/docker/redmine/mysql
-sudo chcon -Rt svirt_sandbox_file_t /srv/docker/redmine/mysql
-```
-
-The run command looks like this.
-
-```bash
-docker run --name=mysql-redmine -d \
-  --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/srv/docker/redmine/mysql:/var/lib/mysql \
-  sameersbn/mysql:5.7.22-1
-```
-
-The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with full/remote access to the `redmine_production` database.
-
-We are now ready to start the redmine application.
-
-```bash
-docker run --name=redmine -it --rm --link=mysql-redmine:mysql \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:6.0.4-1
-```
-
-Here the image will also automatically fetch the `DB_NAME`, `DB_USER` and `DB_PASS` variables from the mysql container as they are specified in the `docker run` command for the mysql container. This is made possible using the magic of docker links and works with the following images:
-
-- [mysql](https://hub.docker.com/_/mysql/)
-- [sameersbn/mysql](https://quay.io/repository/sameersbn/mysql/)
-- [centurylink/mysql](https://hub.docker.com/r/centurylink/mysql/)
-- [orchardup/mysql](https://hub.docker.com/r/orchardup/mysql/)
+See [example docker-compose-mysql.yml](docker-compose-mysql.yml).
 
 ### PostgreSQL
 
