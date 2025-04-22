@@ -1,5 +1,8 @@
 # Changelog
 
+**6.0.5**
+- redmine: upgrade to v6.0.5
+
 **6.0.4-1**
 - Fix gantt-chart PNG export #574
 
