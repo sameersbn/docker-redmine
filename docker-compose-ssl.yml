@@ -42,6 +42,8 @@ services:
       - REDMINE_BACKUP_EXPIRY=
       - REDMINE_BACKUP_TIME=
 
+      - NGINX_MAX_UPLOAD_SIZE=20m
+
       - SMTP_ENABLED=false
       - SMTP_METHOD=smtp
       - SMTP_DOMAIN=www.example.com
