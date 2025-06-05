@@ -110,8 +110,9 @@ exec_as_redmine bundle install -j$(nproc)
 exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}/tmp ${REDMINE_INSTALL_DIR}/tmp/pdf ${REDMINE_INSTALL_DIR}/tmp/pids ${REDMINE_INSTALL_DIR}/tmp/sockets
 
 # create link public/plugin_assets directory
-rm -rf ${REDMINE_INSTALL_DIR}/public/plugin_assets
-exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/plugin_assets ${REDMINE_INSTALL_DIR}/public/plugin_assets
+rm -rf ${REDMINE_INSTALL_DIR}/public/assets/plugin_assets
+exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}/public/assets
+exec_as_redmine ln -sf ${REDMINE_DATA_DIR}/tmp/plugin_assets ${REDMINE_INSTALL_DIR}/public/assets/plugin_assets
 
 # create link tmp/thumbnails directory
 rm -rf ${REDMINE_INSTALL_DIR}/tmp/thumbnails
