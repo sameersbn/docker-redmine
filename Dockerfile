@@ -15,7 +15,9 @@ ENV REDMINE_INSTALL_DIR="${REDMINE_HOME}/redmine" \
     REDMINE_RUNTIME_ASSETS_DIR="${REDMINE_ASSETS_DIR}/runtime"
 
 # curl is used for HEALTHCHECK
-RUN apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+ apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       supervisor logrotate nginx mariadb-client postgresql-client ca-certificates sudo tzdata \
       imagemagick subversion git cvs bzr mercurial darcs rsync locales openssh-client \
@@ -23,12 +25,14 @@ RUN apt-get update \
       default-libmysqlclient-dev libmariadb-dev libpq5 libyaml-0-2 libcurl4 libssl3 uuid-dev xz-utils \
       libxslt1.1 libffi8 zlib1g gsfonts vim-tiny ghostscript sqlite3 libsqlite3-dev jq curl \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
- && gem install --no-document bundler \
- && rm -rf /var/lib/apt/lists/*
+ && gem install --no-document bundler
 
 COPY assets/build/ ${REDMINE_BUILD_ASSETS_DIR}/
 
-RUN bash ${REDMINE_BUILD_ASSETS_DIR}/install.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=cache,target=/var/cache/redmine,sharing=locked \
+    bash ${REDMINE_BUILD_ASSETS_DIR}/install.sh
 
 COPY assets/runtime/ ${REDMINE_RUNTIME_ASSETS_DIR}/
 

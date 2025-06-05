@@ -2,6 +2,7 @@
 set -e
 
 GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
+REDMINE_CACHE_DIR="/var/cache/redmine"
 
 BUILD_DEPENDENCIES="libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
                     libpq-dev libxslt1-dev libffi-dev libyaml-dev \
@@ -37,17 +38,13 @@ rm -rf /tmp/cron.${REDMINE_USER}
 
 # install redmine, use local copy if available
 exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}
-if [[ -f ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
-  exec_as_redmine tar -zvxf ${REDMINE_BUILD_ASSETS_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
-else
+ls ${REDMINE_CACHE_DIR}
+if [[ ! -f ${REDMINE_CACHE_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
   echo "Downloading Redmine ${REDMINE_VERSION}..."
-  exec_as_redmine curl -fL "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -o /tmp/redmine-${REDMINE_VERSION}.tar.gz
-
-  echo "Extracting..."
-  exec_as_redmine tar -zxf /tmp/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
-
-  exec_as_redmine rm -rf /tmp/redmine-${REDMINE_VERSION}.tar.gz
+  curl -fL "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -o ${REDMINE_CACHE_DIR}/redmine-${REDMINE_VERSION}.tar.gz
 fi
+echo "Extracting..."
+exec_as_redmine tar -zxf ${REDMINE_CACHE_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
 
 # HACK: we want both the pg and mysql2 gems installed, so we remove the
 #       respective lines and add them at the end of the Gemfile so that they
@@ -239,4 +236,5 @@ sed -i 's/ domain="coder" rights="none" pattern="PDF" / domain="coder" rights="r
 
 # purge build dependencies and cleanup apt
 apt-get purge -y --auto-remove ${BUILD_DEPENDENCIES}
-rm -rf /var/lib/apt/lists/*
+rm -rf ${REDMINE_HOME}/.bundle/cache/*
+rm -rf ${REDMINE_INSTALL_DIR}/vendor/bundle/ruby/*/cache/*
