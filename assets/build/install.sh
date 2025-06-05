@@ -15,7 +15,7 @@ exec_as_redmine() {
 
 # install build dependencies
 apt-get update
-apt-mark manual '.*' # Mark all packages installed manually so they are not removed when build dependencies are removed
+apt-mark manual '.*' > /dev/null # Mark all packages installed manually so they are not removed when build dependencies are removed
 DEBIAN_FRONTEND=noninteractive apt-get install -y ${BUILD_DEPENDENCIES}
 
 # add ${REDMINE_USER} user
