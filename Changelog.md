@@ -2,6 +2,10 @@
 
 **5.0.12**
 - redmine upgrade to v5.0.12
+- Update to ubuntu:focal-20250404
+
+**5.0.12**
+- redmine upgrade to v5.0.12
 
 **5.0.10**
 - redmine upgrade to v5.0.10
