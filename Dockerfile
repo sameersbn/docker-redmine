@@ -4,7 +4,7 @@ LABEL maintainer="sameer@damagehead.com"
 
 # bundler 2.4.22 is the last version that supports ruby 2.7
 ENV RUBY_VERSION=2.7 \
-    REDMINE_VERSION=5.0.13 \
+    REDMINE_VERSION=5.0.14 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \

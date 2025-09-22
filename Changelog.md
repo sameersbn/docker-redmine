@@ -1,5 +1,10 @@
 # Changelog
 
+**5.0.14**
+- redmine upgrade to v5.0.14 (End of Life)
+- Switch to http://apt-archive.postgresql.org/pub/repos/apt/ focal-pgdg main to avoid 404 errors
+- Remove two stage build for apt repos as it was breaking https on apt-archive.postgresql.org
+
 **5.0.13**
 - redmine upgrade to v5.0.13
 - Update to ubuntu:focal-20250404
