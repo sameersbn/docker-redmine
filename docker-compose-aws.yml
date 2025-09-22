@@ -1,7 +1,7 @@
 services:
   redmine:
     build: ./
-    image: sameersbn/redmine:6.0.6
+    image: sameersbn/redmine:6.0.7
     environment:
       - TZ=America/Sao_Paulo
       - AWS_DB_CREDENTIALS_SECRET_REGION=
