@@ -751,23 +751,14 @@ Themes should be installed in the `themes` directory at the [data store](#data-s
 mkdir -p /srv/docker/redmine/redmine/themes
 ```
 
-To install a theme, simply copy the theme assets to the `themes` directory. For example, to install the [gitmike](https://github.com/makotokw/redmine-theme-gitmike) theme:
+To install a theme, simply copy the theme assets to the `themes` directory. For example, to install the [TW-Style](https://github.com/tomy-shen/TW-Style.git) theme:
 
 ```bash
 cd /srv/docker/redmine/redmine/themes
-git clone https://github.com/makotokw/redmine-theme-gitmike.git gitmike
+git clone https://github.com/tomy-shen/TW-Style.git TW-Style
 ```
 
 With the theme installed you can start the docker image normally and the newly installed theme should be available for use.
-
-Previously this image packaged a couple of themes by default. Existing users would notice that those themes are no longer available. If you want them back, follow these instructions:
-
-```bash
-cd /srv/docker/redmine/redmine/themes
-wget http://goo.gl/deKDpp -O - | sh
-```
-
-_Please Note: this [theme install script](https://gist.github.com/sameersbn/aaa1b7bb064703c1e23c) is not maintained and you would need to fix it if required (especially broken links)_
 
 ### Reloading themes for development
 
