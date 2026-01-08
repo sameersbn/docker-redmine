@@ -2,7 +2,7 @@ FROM ruby:3.3-slim-bookworm
 
 LABEL maintainer="sameer@damagehead.com"
 
-ENV REDMINE_VERSION=6.1.0 \
+ENV REDMINE_VERSION=6.1.1 \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \
