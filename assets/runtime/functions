@@ -845,7 +845,7 @@ map_uidgid() {
     echo "Mapping UID and GID for ${REDMINE_USER}:${REDMINE_USER} to $USERMAP_UID:$USERMAP_GID"
     groupmod -g ${USERMAP_GID} ${REDMINE_USER}
     sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
-    find ${REDMINE_HOME} -path ${REDMINE_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${REDMINE_USER}:
+	chown -R ${REDMINE_USER}: ${REDMINE_HOME}/${REDMINE_DATA_DIR}
   fi
 }
 
