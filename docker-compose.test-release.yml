@@ -1,0 +1,7 @@
+services:
+  redmine:
+    environment:
+      REDMINE_PORT: 10445
+      REDMINE_HTTPS: "true"
+    ports:
+      - "10445:443"
