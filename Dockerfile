@@ -2,7 +2,11 @@ FROM ruby:3.3-slim-bookworm
 
 LABEL maintainer="sameer@damagehead.com"
 
-ENV REDMINE_VERSION=6.1.2 \
+ARG REDMINE_VERSION=6.1.2
+ARG REDMINE_FLAVOR=redmine
+
+ENV REDMINE_VERSION=${REDMINE_VERSION} \
+    REDMINE_FLAVOR=${REDMINE_FLAVOR} \
     REDMINE_USER="redmine" \
     REDMINE_HOME="/home/redmine" \
     REDMINE_LOG_DIR="/var/log/redmine" \

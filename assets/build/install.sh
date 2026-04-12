@@ -5,13 +5,32 @@ GEM_CACHE_DIR="${REDMINE_BUILD_ASSETS_DIR}/cache"
 REDMINE_CACHE_DIR="/var/cache/redmine"
 
 BUILD_DEPENDENCIES="libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
-                    libpq-dev libxslt1-dev libffi-dev libyaml-dev \
+                    libpq-dev libxslt1-dev libffi-dev libyaml-dev freetds-dev \
                     "
 
 ## Execute a command as REDMINE_USER
 exec_as_redmine() {
   sudo -HEu ${REDMINE_USER} "$@"
 }
+
+case "${REDMINE_FLAVOR:-redmine}" in
+  redmine)
+    REDMINE_DIST_NAME="Redmine"
+    REDMINE_ARCHIVE_BASENAME="redmine-${REDMINE_VERSION}"
+    REDMINE_DOWNLOAD_URL="https://www.redmine.org/releases/${REDMINE_ARCHIVE_BASENAME}.tar.gz"
+    ;;
+  redmica)
+    REDMINE_DIST_NAME="Redmica"
+    REDMINE_ARCHIVE_BASENAME="redmica-${REDMINE_VERSION}"
+    REDMINE_DOWNLOAD_URL="https://github.com/redmica/redmica/archive/refs/tags/v${REDMINE_VERSION}.tar.gz"
+    ;;
+  *)
+    echo "Unsupported REDMINE_FLAVOR: ${REDMINE_FLAVOR}. Expected one of: redmine, redmica" >&2
+    exit 1
+    ;;
+esac
+
+REDMINE_ARCHIVE_PATH="${REDMINE_CACHE_DIR}/${REDMINE_ARCHIVE_BASENAME}.tar.gz"
 
 # install build dependencies
 apt-get update
@@ -39,60 +58,42 @@ rm -rf /tmp/cron.${REDMINE_USER}
 # install redmine, use local copy if available
 exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}
 ls ${REDMINE_CACHE_DIR}
-if [[ ! -f ${REDMINE_CACHE_DIR}/redmine-${REDMINE_VERSION}.tar.gz ]]; then
-  echo "Downloading Redmine ${REDMINE_VERSION}..."
-  curl -fL "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -o ${REDMINE_CACHE_DIR}/redmine-${REDMINE_VERSION}.tar.gz
+if [[ ! -f ${REDMINE_ARCHIVE_PATH} ]]; then
+  echo "Downloading ${REDMINE_DIST_NAME} ${REDMINE_VERSION}..."
+  curl -fL "${REDMINE_DOWNLOAD_URL}" -o ${REDMINE_ARCHIVE_PATH}
 fi
 echo "Extracting..."
-exec_as_redmine tar -zxf ${REDMINE_CACHE_DIR}/redmine-${REDMINE_VERSION}.tar.gz --strip=1 -C ${REDMINE_INSTALL_DIR}
+exec_as_redmine tar -zxf ${REDMINE_ARCHIVE_PATH} --strip=1 -C ${REDMINE_INSTALL_DIR}
+exec_as_redmine rm -f ${REDMINE_INSTALL_DIR}/files/delete.me ${REDMINE_INSTALL_DIR}/log/delete.me
 
-# HACK: we want both the pg and mysql2 gems installed, so we remove the
-#       respective lines and add them at the end of the Gemfile so that they
-#       are both installed.
-PG_GEM=$(grep 'gem .pg.' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
-MYSQL2_GEM=$(grep 'gem .mysql2.' ${REDMINE_INSTALL_DIR}/Gemfile | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
-# SQLITE line spans 2 lines until after this commit: https://github.com/redmine/redmine/commit/dc05c52e5a25b43c49246a952607551bf0d96f29#diff-8b7db4d5cc4b8f6dc8feb7030baa2478
-# The 2 lines one has RUBY_VERSION in it
-SQLITE3_2LINES_GEM=$(grep -A1 -e 'gem .sqlite3..*RUBY_VERSION' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t ]+|[ \t ]+$/,    ""); print;}')
-SQLITE3_GEM=$(grep 'gem .sqlite3.' "${REDMINE_INSTALL_DIR}/Gemfile" | awk '{gsub(/^[ \t]+|[ \t]+$/,""); print;}')
-
-[ -z "$PG_GEM" ] && (echo "Error couldn't find gem pg, update instal.sh"; exit 1)
-[ -z "$MYSQL2_GEM" ] && (echo "Error couldn't find gem mysql2, update instal.sh"; exit 1)
-[ -z "$SQLITE3_GEM" ] && (echo "Error couldn't find gem sqlite3, update instal.sh"; exit 1)
-
-sed -i \
-  -e '/gem .pg./d' \
-  -e '/gem .mysql2./d' \
-  ${REDMINE_INSTALL_DIR}/Gemfile
-
-if [ -z "$SQLITE3_2LINES_GEM" ]
-then
-  sed -i \
-    -e '/gem .sqlite3./d' \
-    "${REDMINE_INSTALL_DIR}/Gemfile"
-else
-  # Delete 2 lines
-  sed -i \
-    -e '/gem .sqlite3./ { N; d; }' \
-    "${REDMINE_INSTALL_DIR}/Gemfile"
-  SQLITE3_GEM=${SQLITE3_2LINES_GEM}
-fi
-
-# Delete test: puma
+# Normalize runtime gems at build time.
+# Re-add puma and related runtime gems explicitly so they remain available
+# for the production nginx + puma runtime managed by supervisor, even if
+# the upstream Gemfile changes grouping or declaration style.
 sed -i \
   -e '/gem .puma./d' \
   "${REDMINE_INSTALL_DIR}/Gemfile"
 
 (
-  echo "${PG_GEM}";
-  echo "${MYSQL2_GEM}";
-  echo "${SQLITE3_GEM}";
   echo 'gem "puma", "~> 6"';
   echo 'gem "dalli", "~> 3.2.6"';
 ) >> ${REDMINE_INSTALL_DIR}/Gemfile
 
-## some gems complain about missing database.yml, shut them up!
-exec_as_redmine cp ${REDMINE_INSTALL_DIR}/config/database.yml.example ${REDMINE_INSTALL_DIR}/config/database.yml
+## Avoid brittle Gemfile surgery during build.
+## Resolve DB adapter gems via a temporary config/database.yml so bundler
+## can see the intended adapters during bundle install.
+cat > ${REDMINE_INSTALL_DIR}/config/database.yml <<EOF
+mysql2:
+  adapter: mysql2
+
+postgresql:
+  adapter: postgresql
+
+sqlite3:
+  adapter: sqlite3
+  database: tmp/bundler.sqlite3
+EOF
+chown ${REDMINE_USER}: ${REDMINE_INSTALL_DIR}/config/database.yml
 
 # install gems
 cd ${REDMINE_INSTALL_DIR}
@@ -104,7 +105,12 @@ if [[ -d ${GEM_CACHE_DIR} ]]; then
 fi
 exec_as_redmine bundle config set path "${REDMINE_INSTALL_DIR}/vendor/bundle"
 exec_as_redmine bundle config set without development test
+
+# Prefer system libxml2/libxslt for nokogiri to improve native build stability.
+exec_as_redmine bundle config set build.nokogiri --use-system-libraries
+
 exec_as_redmine bundle install -j$(nproc)
+rm -f ${REDMINE_INSTALL_DIR}/config/database.yml
 
 # finalize redmine installation
 exec_as_redmine mkdir -p ${REDMINE_INSTALL_DIR}/tmp ${REDMINE_INSTALL_DIR}/tmp/pdf ${REDMINE_INSTALL_DIR}/tmp/pids ${REDMINE_INSTALL_DIR}/tmp/sockets

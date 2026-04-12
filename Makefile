@@ -1,8 +1,52 @@
-IMAGE:=sameersbn/redmine
-CERTS_DIR=certs
-CERT_FILES=$(CERTS_DIR)/redmine.crt $(CERTS_DIR)/dhparam.pem
+IMAGE_REPO ?= sameersbn/redmine
+FLAVOR ?= redmine
+VERSION ?= 6.1.2
+TZ ?= Asia/Tokyo
 
-.PHONY: test-release generate-certs clean
+ifeq ($(FLAVOR),redmine)
+APP_PORT ?= 10083
+DB_NAME ?= redmine_production
+else ifeq ($(FLAVOR),redmica)
+APP_PORT ?= 10084
+DB_NAME ?= redmica_production
+else
+$(error Unsupported FLAVOR '$(FLAVOR)'. Expected 'redmine' or 'redmica')
+endif
+
+IMAGE := $(IMAGE_REPO):$(FLAVOR)-$(VERSION)
+PROJECT_NAME := redmine-$(FLAVOR)
+
+BASE_DIR := /srv/docker/redmine/$(FLAVOR)
+DATA_DIR := $(BASE_DIR)/data
+LOG_DIR := $(BASE_DIR)/logs
+POSTGRES_DATA_DIR := $(BASE_DIR)/postgresql
+
+DB_HOST ?= postgresql
+DB_PORT ?= 5432
+DB_USER ?= redmine
+DB_PASS ?= password
+
+CERTS_DIR := certs
+CERT_FILES := $(CERTS_DIR)/redmine.crt $(CERTS_DIR)/dhparam.pem
+
+COMPOSE = COMPOSE_PROJECT_NAME=$(PROJECT_NAME) \
+	IMAGE=$(IMAGE) \
+	REDMINE_VERSION=$(VERSION) \
+	REDMINE_FLAVOR=$(FLAVOR) \
+	TZ=$(TZ) \
+	APP_PORT=$(APP_PORT) \
+	DATA_DIR=$(DATA_DIR) \
+	LOG_DIR=$(LOG_DIR) \
+	POSTGRES_DATA_DIR=$(POSTGRES_DATA_DIR) \
+	DB_HOST=$(DB_HOST) \
+	DB_PORT=$(DB_PORT) \
+	DB_USER=$(DB_USER) \
+	DB_PASS=$(DB_PASS) \
+	DB_NAME=$(DB_NAME) \
+	docker compose
+
+.PHONY: all help build up down logs ps restart quickstart stop purge test-release prepare-dirs generate-certs clean release \
+	build-redmine build-redmica up-redmine up-redmica down-redmine down-redmica logs-redmine logs-redmica
 
 all: build
 
@@ -10,24 +54,57 @@ help:
 	@echo ""
 	@echo "-- Help Menu"
 	@echo ""
-	@echo "   1. make build       - build the redmine image"
-	@echo "   2. make quickstart  - start redmine"
-	@echo "   3. make stop        - stop redmine"
-	@echo "   4. make logs        - view logs"
-	@echo "   5. make purge       - stop and remove the container"
+	@echo "   make build FLAVOR=redmine VERSION=6.1.2"
+	@echo "   make build FLAVOR=redmica VERSION=4.0.3"
+	@echo "   make up FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083"
+	@echo "   make up FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084"
+	@echo "   make down FLAVOR=redmine"
+	@echo "   make down FLAVOR=redmica"
+	@echo "   make logs FLAVOR=redmine"
+	@echo "   make logs FLAVOR=redmica"
+	@echo ""
+	@echo "   Preset shortcuts:"
+	@echo "   make build-redmine"
+	@echo "   make build-redmica"
+	@echo "   make up-redmine"
+	@echo "   make up-redmica"
+	@echo ""
 
 build:
-	@docker build --tag=$(IMAGE) .
+	@docker build \
+		--build-arg REDMINE_VERSION=$(VERSION) \
+		--build-arg REDMINE_FLAVOR=$(FLAVOR) \
+		--tag=$(IMAGE) .
 
+prepare-dirs:
+	sudo mkdir -p $(DATA_DIR) $(LOG_DIR) $(POSTGRES_DATA_DIR)
 
-test-release: generate-certs
-	@echo Clean old run
-	sudo rm -rf /srv/docker/redmine/
-	sudo mkdir -p /srv/docker/redmine/redmine
-	sudo cp -rf $(CERTS_DIR) /srv/docker/redmine/redmine/
-	docker compose down
-	docker compose build
-	docker compose up
+up: prepare-dirs
+	@$(COMPOSE) up -d --build
+
+down:
+	@$(COMPOSE) down
+
+restart: down up
+
+logs:
+	@$(COMPOSE) logs -f
+
+ps:
+	@$(COMPOSE) ps
+
+quickstart: up
+
+stop: down
+
+purge:
+	@$(COMPOSE) down -v
+
+test-release: generate-certs prepare-dirs
+	@echo "Starting test release for $(FLAVOR) $(VERSION)"
+	sudo cp -rf $(CERTS_DIR) $(BASE_DIR)/
+	@$(COMPOSE) down
+	@$(COMPOSE) up --build
 
 generate-certs: $(CERT_FILES)
 
@@ -53,23 +130,26 @@ release:
 	./make_release.sh
 	@echo "Open https://github.com/sameersbn/docker-redmine/releases and Draft new release"
 
-quickstart:
-	@echo "Starting redmine..."
-	@docker run --name=redmine-demo -d -p 10080:80 \
-		-v /var/run/docker.sock:/run/docker.sock \
-		-v $(shell which docker):/bin/docker \
-		$(IMAGE) >/dev/null
-	@echo "Please be patient. This could take a while..."
-	@echo "Redmine will be available at http://localhost:10080"
-	@echo "Type 'make logs' for the logs"
+build-redmine:
+	$(MAKE) build FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083
 
-stop:
-	@echo "Stopping redmine..."
-	@docker stop redmine-demo >/dev/null
+build-redmica:
+	$(MAKE) build FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084
 
-purge: stop
-	@echo "Removing stopped container..."
-	@docker rm redmine-demo >/dev/null
+up-redmine:
+	$(MAKE) up FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083
 
-logs:
-	@docker logs -f redmine-demo
+up-redmica:
+	$(MAKE) up FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084
+
+down-redmine:
+	$(MAKE) down FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083
+
+down-redmica:
+	$(MAKE) down FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084
+
+logs-redmine:
+	$(MAKE) logs FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083
+
+logs-redmica:
+	$(MAKE) logs FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084

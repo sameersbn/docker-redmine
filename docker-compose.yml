@@ -2,35 +2,40 @@ services:
   postgresql:
     image: sameersbn/postgresql:14-20230628
     environment:
-      - DB_USER=redmine
-      - DB_PASS=password
-      - DB_NAME=redmine_production
+      - DB_USER=${DB_USER:?DB_USER is required}
+      - DB_PASS=${DB_PASS:?DB_PASS is required}
+      - DB_NAME=${DB_NAME:?DB_NAME is required}
     volumes:
-      - /srv/docker/redmine/postgresql:/var/lib/postgresql
+      - ${POSTGRES_DATA_DIR:?POSTGRES_DATA_DIR is required}:/var/lib/postgresql
     healthcheck:
       test: "psql -U postgres"
       interval: 3s
       timeout: 3s
       retries: 5
       start_period: 10s
+
   redmine:
-    build: ./
-    image: sameersbn/redmine:6.1.2
+    build:
+      context: ./
+      args:
+        REDMINE_VERSION: ${REDMINE_VERSION:?REDMINE_VERSION is required}
+        REDMINE_FLAVOR: ${REDMINE_FLAVOR:?REDMINE_FLAVOR is required}
+    image: ${IMAGE:?IMAGE is required}
     depends_on:
       postgresql:
         condition: service_healthy
     environment:
-      - TZ=Asia/Kolkata
+      - TZ=${TZ:?TZ is required}
 
       - DB_ADAPTER=postgresql
-      - DB_HOST=postgresql
-      - DB_PORT=5432
-      - DB_USER=redmine
-      - DB_PASS=password
-      - DB_NAME=redmine_production
+      - DB_HOST=${DB_HOST:?DB_HOST is required}
+      - DB_PORT=${DB_PORT:?DB_PORT is required}
+      - DB_USER=${DB_USER:?DB_USER is required}
+      - DB_PASS=${DB_PASS:?DB_PASS is required}
+      - DB_NAME=${DB_NAME:?DB_NAME is required}
       - DB_SSL_MODE=prefer
 
-      - REDMINE_PORT=10083
+      - REDMINE_PORT=${APP_PORT:?APP_PORT is required}
       - REDMINE_HTTPS=false
       - REDMINE_RELATIVE_URL_ROOT=
       - REDMINE_SECRET_TOKEN=
@@ -71,7 +76,7 @@ services:
       retries: 3
 
     ports:
-      - "10083:80"
+      - "${APP_PORT:?APP_PORT is required}:80"
     volumes:
-      - /srv/docker/redmine/redmine:/home/redmine/data
-      - /srv/docker/redmine/redmine-logs:/var/log/redmine
+      - ${DATA_DIR:?DATA_DIR is required}:/home/redmine/data
+      - ${LOG_DIR:?LOG_DIR is required}:/var/log/redmine
