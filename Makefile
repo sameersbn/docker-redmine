@@ -16,10 +16,10 @@ endif
 IMAGE := $(IMAGE_REPO):$(FLAVOR)-$(VERSION)
 PROJECT_NAME := redmine-$(FLAVOR)
 
-BASE_DIR := /srv/docker/redmine/$(FLAVOR)
-DATA_DIR := $(BASE_DIR)/data
-LOG_DIR := $(BASE_DIR)/logs
-POSTGRES_DATA_DIR := $(BASE_DIR)/postgresql
+BASE_DIR := /srv/docker/redmine
+DATA_DIR := $(BASE_DIR)/$(FLAVOR)
+LOG_DIR := $(BASE_DIR)/$(FLAVOR)-logs
+POSTGRES_DATA_DIR := $(BASE_DIR)/$(FLAVOR)-postgresql
 
 DB_HOST ?= postgresql
 DB_PORT ?= 5432
@@ -153,3 +153,9 @@ logs-redmine:
 
 logs-redmica:
 	$(MAKE) logs FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084
+
+config-redmine:
+	$(MAKE) config FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083
+
+config-redmica:
+	$(MAKE) config FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084
