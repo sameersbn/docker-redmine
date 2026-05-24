@@ -1,4 +1,4 @@
-IMAGE_REPO ?= sameersbn/redmine
+IMAGE_REPO ?= yassan/redmine
 FLAVOR ?= redmine
 VERSION ?= 6.1.2
 
