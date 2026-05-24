@@ -40,7 +40,7 @@ The image can be built in two flavors:
 Current defaults in this repository:
 
 - `redmine`: `6.1.2`
-- `redmica`: `4.0.3`
+- `redmica`: `4.1.0`
 
 The flavor is selected at build time through `REDMINE_FLAVOR`, and the application archive is downloaded accordingly.
 
@@ -83,7 +83,7 @@ make up-redmica
 This uses the defaults below:
 
 - flavor: `redmica`
-- version: `4.0.3`
+- version: `4.1.0`
 - app port: `10084`
 - database name: `redmica_production`
 
@@ -102,35 +102,35 @@ Please allow the application a short time to bootstrap on the first run.
 
 ```bash
 make build FLAVOR=redmine VERSION=6.1.2
-make build FLAVOR=redmica VERSION=4.0.3
+make build FLAVOR=redmica VERSION=4.1.0
 ```
 
 ### Start
 
 ```bash
 make up FLAVOR=redmine VERSION=6.1.2 APP_PORT=10083
-make up FLAVOR=redmica VERSION=4.0.3 APP_PORT=10084
+make up FLAVOR=redmica VERSION=4.1.0 APP_PORT=10084
 ```
 
 ### Stop
 
 ```bash
 make down FLAVOR=redmine VERSION=6.1.2
-make down FLAVOR=redmica VERSION=4.0.3
+make down FLAVOR=redmica VERSION=4.1.0
 ```
 
 ### Logs
 
 ```bash
 make logs FLAVOR=redmine VERSION=6.1.2
-make logs FLAVOR=redmica VERSION=4.0.3
+make logs FLAVOR=redmica VERSION=4.1.0
 ```
 
 ### Render Effective Compose Config
 
 ```bash
 make config FLAVOR=redmine VERSION=6.1.2
-make config FLAVOR=redmica VERSION=4.0.3
+make config FLAVOR=redmica VERSION=4.1.0
 ```
 
 Run `make help` for the shortcut targets and examples bundled with this repository.
@@ -155,7 +155,7 @@ Important parameters:
 Example:
 
 ```bash
-make up FLAVOR=redmica VERSION=4.0.3 APP_PORT=11084 IMAGE_REPO=yassan/redmine
+make up FLAVOR=redmica VERSION=4.1.0 APP_PORT=11084 IMAGE_REPO=yassan/redmine
 ```
 
 ## Runtime Directories
