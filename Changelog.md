@@ -1,5 +1,8 @@
 # Changelog
 
+**6.1.3-1
+- functions: Fix fetch commits cron job #599
+
 **6.1.3**
 - redmine: upgrade to v6.1.3
 
