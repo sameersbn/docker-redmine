@@ -7,6 +7,12 @@ services:
       - DB_NAME=redmine_production
     volumes:
       - /srv/docker/redmine/postgresql:/var/lib/postgresql
+    healthcheck:
+      test: "psql -U postgres"
+      interval: 3s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   memcached:
     image: memcached:alpine
@@ -18,8 +24,10 @@ services:
     build: ./
     image: sameersbn/redmine:7.0.0
     depends_on:
-      - postgresql
-      - memcached
+      postgresql:
+        condition: service_healthy
+      memcached:
+        condition: service_started
     environment:
       - TZ=Asia/Kolkata
 

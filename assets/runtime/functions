@@ -397,10 +397,11 @@ redmine_configure_memcached() {
 
   if [[ ${MEMCACHE_ENABLED} == true ]]; then
     echo "Configuring redmine::memcached..."
+    # dalli is in the Gemfile (bundler loads it); the old Rails 2-era
+    # `config.gem` and `config.cache_classes` directives were removed and raise
+    # NoMethodError on Rails 8, so only the still-valid caching settings remain.
     {
-      echo "config.gem 'dalli'"
       echo "config.action_controller.perform_caching  = true"
-      echo "config.cache_classes = true"
       echo "config.cache_store = :mem_cache_store, \"${MEMCACHE_HOST}:${MEMCACHE_PORT}\""
     } >> "${REDMINE_ADDITIONAL_CONFIG}"
   fi
