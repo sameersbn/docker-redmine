@@ -1,0 +1,13 @@
+# Test-only override: replace the db bind mounts with
+# throwaway named volumes so `make test-release` needs no sudo and always
+# starts from a clean state (avoids the Redmine downgrade guard).
+# Compose merges service volumes by target, so these replace the bind mounts.
+# Remove them afterwards with: docker compose ... down -v
+
+services:
+  database:
+    volumes:
+      - test-mariadb:/var/lib/mysql
+
+volumes:
+  test-mariadb:

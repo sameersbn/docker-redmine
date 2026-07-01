@@ -1,0 +1,17 @@
+# Test-only override: replace the /srv/docker/redmine bind mounts with
+# throwaway named volumes so `make test-release` needs no sudo and always
+# starts from a clean state (avoids the Redmine downgrade guard).
+# Compose merges service volumes by target, so these replace the bind mounts.
+# Remove them afterwards with: docker compose ... down -v
+services:
+  redmine:
+    volumes:
+      - test-redmine-data:/home/redmine/data
+      - test-redmine-logs:/var/log/redmine
+      # certs mounted where the image looks for them (needed for HTTPS testing).
+      # read-write: the entrypoint chmods the key on startup (ro makes it exit).
+      - ./certs:/home/redmine/data/certs
+
+volumes:
+  test-redmine-data:
+  test-redmine-logs:

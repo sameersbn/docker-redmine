@@ -2,7 +2,11 @@ IMAGE:=sameersbn/redmine
 CERTS_DIR=certs
 CERT_FILES=$(CERTS_DIR)/redmine.crt $(CERTS_DIR)/dhparam.pem
 
-.PHONY: test-release generate-certs clean
+.PHONY: test-release test-compose-matrix generate-certs clean
+
+# Test stack uses throwaway named volumes (see docker-compose.testvols.yml) so
+# the release smoke test doesn't need sudo and always starts clean.
+COMPOSE_TEST := docker compose -f docker-compose.yml -f test/docker-compose.testvols.yml -f test/docker-compose.postgresvols.yml
 
 all: build
 
@@ -21,13 +25,15 @@ build:
 
 
 test-release: generate-certs
-	@echo Clean old run
-	sudo rm -rf /srv/docker/redmine/
-	sudo mkdir -p /srv/docker/redmine/redmine
-	sudo cp -rf $(CERTS_DIR) /srv/docker/redmine/redmine/
-	docker compose down
-	docker compose build
-	docker compose up
+	@echo "Clean old run (throwaway volumes, no sudo)"
+	$(COMPOSE_TEST) down -v --remove-orphans
+	$(COMPOSE_TEST) build
+	$(COMPOSE_TEST) up
+
+# Smoke-test each locally-runnable compose file with throwaway volumes.
+# Recommended for major-version releases. Pass FILES="..." to override the set.
+test-compose-matrix: generate-certs
+	./test/smoke-compose.sh $(FILES)
 
 generate-certs: $(CERT_FILES)
 
