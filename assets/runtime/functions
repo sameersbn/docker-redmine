@@ -1197,6 +1197,15 @@ execute_raketask() {
   exec_as_redmine bundle exec rake $@
 }
 
+execute_runner() {
+  if [[ -z ${1} ]]; then
+    echo "Please specify the ruby code or script file to run with 'rails runner'."
+    return 1
+  fi
+  echo "Running rails runner..."
+  exec_as_redmine bundle exec rails runner "$@"
+}
+
 backup_create() {
   eval $(parse_yaml ${REDMINE_CONFIG} config_)
   backup_dump_database
