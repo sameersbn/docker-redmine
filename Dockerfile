@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
  apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       supervisor logrotate nginx mariadb-client postgresql-client ca-certificates sudo tzdata \
-      imagemagick subversion git cvs bzr mercurial darcs rsync locales openssh-client \
+      imagemagick pandoc subversion git cvs bzr mercurial darcs rsync locales openssh-client \
       gcc g++ make patch pkg-config gettext-base libc6-dev zlib1g-dev libxml2-dev \
       default-libmysqlclient-dev libmariadb-dev libpq5 libyaml-0-2 libcurl4 libssl3 uuid-dev xz-utils \
       libxslt1.1 libffi8 zlib1g gsfonts vim-tiny ghostscript sqlite3 libsqlite3-dev jq curl \

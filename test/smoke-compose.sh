@@ -114,7 +114,7 @@ smoke_one() {
   redmine_version=$(sed -e 's/<[^>]*>/ /g' /tmp/smoke_info.html | grep -i "redmine version" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+[.a-z]*' | head -1)
   rails_version=$(sed -e 's/<[^>]*>/ /g' /tmp/smoke_info.html | grep -i "rails version"   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
   errs=$(grep -oE 'icon-error' /tmp/smoke_info.html | wc -l | tr -d ' ')
-  echo "   login=$login  Redmine=$redmine_version  Rails=$rails_version  icon-error=$errs (2 expected: pandoc optional, async queue adapter)"
+  echo "   login=$login  Redmine=$redmine_version  Rails=$rails_version  icon-error=$errs (1 expected: async queue adapter)"
 
   local verdict="PASS"
   [ "$login" = "302" ] || verdict="FAIL(login=$login)"
