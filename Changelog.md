@@ -1,5 +1,12 @@
 # Changelog
 
+**7.0.0**
+- redmine: upgrade to v7.0.0 <https://www.redmine.org/news/161>
+- redmine: major release migrated to Rails 8; build on ruby 4.0.5 (was ruby 3.3)
+- image: add `app:runner` command to execute ruby via `rails runner` (mirrors `app:rake`)
+- memcached: fix startup on Rails 8 — drop removed `config.gem`/`config.cache_classes` directives from the generated memcached config (raised NoMethodError); add a postgres healthcheck + health-gated `depends_on` to docker-compose-memcached.yml
+- image: install pandoc, enabling Redmine's .docx/.odt attachment import
+
 **6.1.3-1
 - functions: Fix fetch commits cron job #599
 
