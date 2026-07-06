@@ -7,7 +7,7 @@
 - memcached: fix startup on Rails 8 — drop removed `config.gem`/`config.cache_classes` directives from the generated memcached config (raised NoMethodError); add a postgres healthcheck + health-gated `depends_on` to docker-compose-memcached.yml
 - image: install pandoc, enabling Redmine's .docx/.odt attachment import
 
-**6.1.3-1
+**6.1.3-1**
 - functions: Fix fetch commits cron job #599
 
 **6.1.3**
