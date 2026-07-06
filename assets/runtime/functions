@@ -1183,9 +1183,12 @@ install_plugins() {
 }
 
 install_themes() {
-  if [[ -d ${REDMINE_THEMES_DIR} ]]; then
+  if [[ -d ${REDMINE_THEMES_DIR} && -n "$(ls -A ${REDMINE_THEMES_DIR})" ]]; then
     echo "Installing themes..."
-    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_THEMES_DIR}/ ${REDMINE_INSTALL_DIR}/themes/
+    rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} --chmod=644 ${REDMINE_THEMES_DIR}/ ${REDMINE_INSTALL_DIR}/themes/
+    # if themes are installed, we need to precompile assets
+    echo "Precompiling assets. Please be patient, this could take a while..."
+    execute_raketask assets:precompile
   fi
 }
 
