@@ -1107,7 +1107,7 @@ migrate_database() {
   if [[ ${REDMINE_VERSION} != ${CACHE_VERSION} ]]; then
     if [[ "${DB_CREATE}" == "true" ]] ; then
       echo "Creating database..."
-      if ! exec_as_redmine bundle exec rake db:create >/dev/null
+      if ! execute_raketask db:create >/dev/null
       then
         cat <<-EOM
 Failed to create db. If db exists, and user (or role) exists and has access to db but no permission to create databases, set:
@@ -1120,11 +1120,11 @@ EOM
     fi
 
     echo "Migrating database. Please be patient, this could take a while..."
-    exec_as_redmine bundle exec rake db:migrate >/dev/null
+    execute_raketask db:migrate >/dev/null
 
     # clear sessions and application cache
-    exec_as_redmine bundle exec rake tmp:cache:clear >/dev/null
-    exec_as_redmine bundle exec rake tmp:sockets:clear >/dev/null
+    execute_raketask tmp:cache:clear >/dev/null
+    execute_raketask tmp:sockets:clear >/dev/null
 
     # Now that database has been migrated, update version file
     echo ${REDMINE_VERSION} | exec_as_redmine tee --append ${REDMINE_DATA_DIR}/tmp/VERSION >/dev/null
@@ -1165,7 +1165,7 @@ install_plugins() {
       exec_as_redmine bundle install -j"$(nproc)" --quiet
 
       echo "Migrating plugins. Please be patient, this could take a while..."
-      exec_as_redmine bundle exec rake redmine:plugins:migrate
+      execute_raketask redmine:plugins:migrate
 
       # save SHA1
       echo -n ${PLUGINS_SHA1} > ${REDMINE_DATA_DIR}/tmp/plugins.sha1
