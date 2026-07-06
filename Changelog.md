@@ -1,5 +1,10 @@
 # Changelog
 
+**7.0.0-1**
+- redmine: Update REDMINE_SUDO_MODE_ENABLED to true by default, to match redmine 7.0.0 change
+- config: Sync 7.0 commented defaults from configuration.yml.example
+- functions: Refactor to using execute_raketask helper
+
 **7.0.0**
 - redmine: upgrade to v7.0.0 <https://www.redmine.org/news/161>
 - redmine: major release migrated to Rails 8; build on ruby 4.0.5 (was ruby 3.3)
