@@ -1086,7 +1086,6 @@ version_check() {
     rm -rf "${REDMINE_DATA_DIR}/tmp"
     exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp"
     exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp/thumbnails"
-    exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp/plugin_assets"
     exec_as_redmine chmod -R u+rw,go+r "${REDMINE_DATA_DIR}/tmp"
   fi
 
