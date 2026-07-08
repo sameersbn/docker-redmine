@@ -1158,11 +1158,14 @@ install_plugins() {
     # install gems and migrate the plugins when plugins are added/removed
     CURRENT_SHA1=
     [[ -f ${REDMINE_DATA_DIR}/tmp/plugins.sha1 ]] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/plugins.sha1)
-    PLUGINS_SHA1=$(find ${REDMINE_PLUGINS_DIR} -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
-    if [[ ${CURRENT_SHA1} != ${PLUGINS_SHA1} ]]; then
+    PLUGINS_SHA1=$(find ${REDMINE_INSTALL_DIR}/plugins/ -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+    if [[ "${CURRENT_SHA1}" != "${PLUGINS_SHA1}" ]]; then
       # remove the existing plugin assets
       # this ensures there is no cruft when a plugin is removed.
       rm -rf ${REDMINE_DATA_DIR}/tmp/plugin_assets/*
+
+      # Force a full asset recompile at next boot. See redmine#44240
+      rm -f "${REDMINE_INSTALL_DIR}/public/assets/.manifest.json"
 
       echo "Installing gems required by plugins..."
       exec_as_redmine bundle config set path "${REDMINE_INSTALL_DIR}/vendor/bundle"
@@ -1191,6 +1194,22 @@ install_themes() {
   if [[ -d ${REDMINE_THEMES_DIR} ]]; then
     echo "Installing themes..."
     rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r ${REDMINE_THEMES_DIR}/ ${REDMINE_INSTALL_DIR}/themes/
+
+    # recompile assets when themes are added/changed/removed
+    # Workaround for redmine issue http://www.redmine.org/issues/44240
+    CURRENT_SHA1=
+    [[ -f ${REDMINE_DATA_DIR}/tmp/themes.sha1 ]] && CURRENT_SHA1=$(cat ${REDMINE_DATA_DIR}/tmp/themes.sha1)
+    THEMES_SHA1=$(find ${REDMINE_INSTALL_DIR}/themes/ -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{print $1}')
+    if [[ "${CURRENT_SHA1}" != "${THEMES_SHA1}" ]]; then
+      # Force a full asset recompile at next boot. See redmine#44240
+      rm -f "${REDMINE_INSTALL_DIR}/public/assets/.manifest.json"
+
+      # save SHA1
+      echo -n ${THEMES_SHA1} > ${REDMINE_DATA_DIR}/tmp/themes.sha1
+    fi
+  else
+    # make sure the themes.sha1 is not present
+    rm -rf ${REDMINE_DATA_DIR}/tmp/themes.sha1
   fi
 }
 
