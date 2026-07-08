@@ -1101,6 +1101,21 @@ version_check() {
   ln -sf "${REDMINE_DATA_DIR}/tmp/bundle" "${REDMINE_INSTALL_DIR}/vendor/bundle"
   ln -sf "${REDMINE_DATA_DIR}/tmp/Gemfile.lock" "${REDMINE_INSTALL_DIR}/Gemfile.lock"
 
+  # copy the precompiled assets to ${REDMINE_DATA_DIR}/tmp/ so recompilation
+  # is only needed when the image, plugins or themes actually change, not on
+  # every container restart/recreate.
+  if [[ ! -d ${REDMINE_DATA_DIR}/tmp/assets ]]; then
+    if [[ -d ${REDMINE_INSTALL_DIR}/public/assets ]]; then
+      exec_as_redmine cp -a "${REDMINE_INSTALL_DIR}/public/assets" "${REDMINE_DATA_DIR}/tmp/"
+    else
+      exec_as_redmine mkdir -p "${REDMINE_DATA_DIR}/tmp/assets"
+    fi
+  fi
+  rm -rf "${REDMINE_INSTALL_DIR}/public/assets"
+
+  # symlink to ${REDMINE_DATA_DIR}/tmp/assets
+  ln -sf "${REDMINE_DATA_DIR}/tmp/assets" "${REDMINE_INSTALL_DIR}/public/assets"
+
   # Track docker image version in tmp cache
   echo ${IMAGE_VERSION} | exec_as_redmine tee ${REDMINE_DATA_DIR}/tmp/IMAGE_VERSION >/dev/null
 }
