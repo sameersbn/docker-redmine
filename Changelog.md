@@ -1,5 +1,12 @@
 # Changelog
 
+**6.1.3-2**
+- functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
+- functions: persist precompiled assets across container restarts
+- functions,nginx,build: remove obsolete pre-Propshaft plugin_assets handling
+- functions: fix theme file permissions after rsync install
+- functions: Only create new IMAGE_VERSION file after all of version_check has finished
+
 **6.1.3-1
 - functions: Fix fetch commits cron job #599
 
