@@ -1,5 +1,12 @@
 # Changelog
 
+**7.0.0-2**
+- functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
+- functions: persist precompiled assets across container restarts
+- functions,nginx,build: remove obsolete pre-Propshaft plugin_assets handling
+- functions: fix theme file permissions after rsync install
+- functions: Only create new IMAGE_VERSION file after all of version_check has finished
+
 **7.0.0-1**
 - redmine: Update REDMINE_SUDO_MODE_ENABLED to true by default, to match redmine 7.0.0 change
 - config: Sync 7.0 commented defaults from configuration.yml.example
