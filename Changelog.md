@@ -15,6 +15,22 @@
 **6.1.0**
 - redmine: upgrade to v6.1.0 <https://www.redmine.org/news/156>
 
+**6.0.10-1**
+- functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
+- functions: persist precompiled assets across container restarts
+- functions,nginx,build: remove obsolete pre-Propshaft plugin_assets handling
+- functions: fix theme file permissions after rsync install
+- functions: Only create new IMAGE_VERSION file after all of version_check has finished
+
+**6.0.10**
+- redmine: upgrade to v6.0.10
+
+**6.0.9**
+- redmine: upgrade to v6.0.9
+
+**6.0.8**
+- redmine: upgrade to v6.0.8
+
 **6.0.7**
 - redmine: upgrade to v6.0.7
 
