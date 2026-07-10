@@ -760,6 +760,8 @@ git clone https://github.com/tomy-shen/TW-Style.git TW-Style
 
 With the theme installed you can start the docker image normally and the newly installed theme should be available for use.
 
+> Note: this image tracks the checksum of the `themes` directory and forces an asset recompile whenever it changes, so themes installed from a downloaded archive (zip/tarball) work the same as themes installed via `git clone`, with no manual steps required. This exists to work around a Redmine bug ([redmine.org #44240](https://www.redmine.org/issues/44240)) where Redmine's own asset-precompile auto-detection only recompiles when it finds an asset file with a modification time newer than the existing asset manifest — archive extraction tools typically preserve the original file timestamps from the archive, which are often older than the manifest already on disk, so Redmine concludes nothing changed and skips recompiling, leaving the theme installed but its CSS/images 404ing.
+
 ### Reloading themes for development
 
 Changing files in /srv/docker/redmine/redmine/themes won't be automatically loaded. If you want

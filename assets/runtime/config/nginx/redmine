@@ -22,7 +22,7 @@ server {
   # the regex logic: after either /javascripts/ or /stylesheets/ find the suffixes we want, followed by one or more numbers 0-9
   # This works because the files we want to cache always appear after one of those 2 directories:  but not the files we want to ignore
   # /journals/edit/24174.js  and /uploads.js?attachment_id=1&filename=my-file-to-upload.png
-  location ~* {{REDMINE_RELATIVE_URL_ROOT}}(?<file>/(?:(?:plugin_assets|themes).+)?(?:javascripts|stylesheets|images|favicon).+(?:css|js|jpe?g|gif|ico|png|html)(\?[0-9]+)$) {
+  location ~* {{REDMINE_RELATIVE_URL_ROOT}}(?<file>/(?:themes.+)?(?:javascripts|stylesheets|images|favicon).+(?:css|js|jpe?g|gif|ico|png|html)(\?[0-9]+)$) {
 
     expires 24h;
     gzip on;

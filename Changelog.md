@@ -12,7 +12,14 @@
 - memcached: fix startup on Rails 8 — drop removed `config.gem`/`config.cache_classes` directives from the generated memcached config (raised NoMethodError); add a postgres healthcheck + health-gated `depends_on` to docker-compose-memcached.yml
 - image: install pandoc, enabling Redmine's .docx/.odt attachment import
 
-**6.1.3-1**
+**6.1.3-2**
+- functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
+- functions: persist precompiled assets across container restarts
+- functions,nginx,build: remove obsolete pre-Propshaft plugin_assets handling
+- functions: fix theme file permissions after rsync install
+- functions: Only create new IMAGE_VERSION file after all of version_check has finished
+
+**6.1.3-1
 - functions: Fix fetch commits cron job #599
 
 **6.1.3**
@@ -26,6 +33,22 @@
 
 **6.1.0**
 - redmine: upgrade to v6.1.0 <https://www.redmine.org/news/156>
+
+**6.0.10-1**
+- functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
+- functions: persist precompiled assets across container restarts
+- functions,nginx,build: remove obsolete pre-Propshaft plugin_assets handling
+- functions: fix theme file permissions after rsync install
+- functions: Only create new IMAGE_VERSION file after all of version_check has finished
+
+**6.0.10**
+- redmine: upgrade to v6.0.10
+
+**6.0.9**
+- redmine: upgrade to v6.0.9
+
+**6.0.8**
+- redmine: upgrade to v6.0.8
 
 **6.0.7**
 - redmine: upgrade to v6.0.7
