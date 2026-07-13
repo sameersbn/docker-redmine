@@ -1,10 +1,10 @@
 #!/bin/bash
-## Script to generate backup of running Redmine instance from the BASH shell
+## Script to install plugins on a running Redmine instance from the BASH shell
 
 set -e
 source ${REDMINE_RUNTIME_ASSETS_DIR}/functions
 
 install_plugins
 
-# Restart unicorn
-supervisorctl restart unicorn
+# Restart puma
+supervisorctl restart puma
