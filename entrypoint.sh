@@ -15,8 +15,10 @@ case ${1} in
       app:start)
         version_check
         migrate_database
-        install_plugins
+        # themes before plugins: install_plugins recompiles assets, which must
+        # see themes already in place. See test/theme-recompile-ordering.sh
         install_themes
+        install_plugins
 
         if [[ -f ${REDMINE_DATA_DIR}/entrypoint.custom.sh ]]; then
           echo "Executing entrypoint.custom.sh..."
@@ -29,8 +31,9 @@ case ${1} in
       app:init)
         version_check
         migrate_database
-        install_plugins
+        # themes before plugins (see app:start)
         install_themes
+        install_plugins
         ;;
       app:rake)
         shift 1
