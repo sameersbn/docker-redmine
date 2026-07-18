@@ -25,18 +25,23 @@ server {
   ## Individual nginx logs for this Redmine vhost
   access_log  {{REDMINE_LOG_DIR}}/nginx/redmine_access.log;
   error_log   {{REDMINE_LOG_DIR}}/nginx/redmine_error.log;
-  
-  # the regex logic: after either /javascripts/ or /stylesheets/ find the suffixes we want, followed by one or more numbers 0-9
-  # This works because the files we want to cache always appear after one of those 2 directories:  but not the files we want to ignore
-  # /journals/edit/24174.js  and /uploads.js?attachment_id=1&filename=my-file-to-upload.png
-  location ~* {{REDMINE_RELATIVE_URL_ROOT}}(?<file>/(?:themes.+)?(?:javascripts|stylesheets|images|favicon).+(?:css|js|jpe?g|gif|ico|png|html)(\?[0-9]+)$) {
-
-    expires 24h;
+    
+  # Static asset caching (Redmine 6.x / Propshaft).
+  #
+  # Redmine 6.x serves all core, theme and plugin assets through the Propshaft
+  # pipeline at {{REDMINE_RELATIVE_URL_ROOT}}/assets/<name>-<digest>.<ext>.
+  # The content digest in the filename is the cache-buster, so these files are
+  # immutable and safe to cache forever.
+  # Dynamic endpoints (issues/123.js, *.json) live outside /assets/ and keep hitting @redmine uncached.
+  location ~* ^{{REDMINE_RELATIVE_URL_ROOT}}(?<file>/assets/.+\.(?:css|js|jpe?g|gif|ico|png|svg|webp|woff2?|ttf|otf|eot|map))$ {
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
+    add_header X-Content-Type-Options nosniff always;
     gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml application/wasm;
 
     try_files $file @redmine;
   }
+
 
   # Capture file path after relative url. Can't use rewrite since need
   # to pass full path to @redmine proxy.
