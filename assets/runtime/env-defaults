@@ -15,6 +15,12 @@ REDMINE_BACKUPS_DIR=${REDMINE_BACKUPS_DIR:-$REDMINE_DATA_DIR/backups}
 
 REDMINE_HTTPS=${REDMINE_HTTPS:-false}
 REDMINE_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT:-/}
+# Export for the rake-driven asset precompiles (redmine:plugins:migrate, the
+# redmine_detect_update boot hook) that don't load puma.rb; without it Propshaft
+# bakes a bare "/assets" prefix into CSS url()s and they 404 behind a sub-URI.
+if [[ ${REDMINE_RELATIVE_URL_ROOT} != / ]]; then
+  export RAILS_RELATIVE_URL_ROOT=${REDMINE_RELATIVE_URL_ROOT}
+fi
 REDMINE_PORT=${REDMINE_PORT:-}
 if [[ $REDMINE_HTTPS == true ]]; then
   REDMINE_PORT=${REDMINE_PORT:-443}
