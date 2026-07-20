@@ -26,13 +26,21 @@ server {
   # The content digest in the filename is the cache-buster, so these files are
   # immutable and safe to cache forever.
   # Dynamic endpoints (issues/123.js, *.json) live outside /assets/ and keep hitting @redmine uncached.
-  location ~* ^{{REDMINE_RELATIVE_URL_ROOT}}(?<file>/assets/.+\.(?:css|js|jpe?g|gif|ico|png|svg|webp|woff2?|ttf|otf|eot|map))$ {
+  #
+  # The optional "/?" absorbs the extra slash for the default
+  # REDMINE_RELATIVE_URL_ROOT="/": without it "^/" + "/assets/" becomes
+  # "^//assets/" and never matches a real request. $file therefore captures a
+  # root-relative "assets/..." (no leading slash), so try_files re-adds the "/"
+  # (try_files "/$file") to resolve it against the "root" above and serve the
+  # file straight from nginx — otherwise it falls through to @redmine (puma)
+  # and the cache headers below are lost.
+  location ~* ^{{REDMINE_RELATIVE_URL_ROOT}}/?(?<file>assets/.+\.(?:css|js|jpe?g|gif|ico|png|svg|webp|woff2?|ttf|otf|eot|map))$ {
     add_header Cache-Control "public, max-age=31536000, immutable" always;
     add_header X-Content-Type-Options nosniff always;
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml application/wasm;
 
-    try_files $file @redmine;
+    try_files /$file @redmine;
   }
 
 
