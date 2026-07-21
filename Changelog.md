@@ -1,5 +1,11 @@
 # Changelog
 
+**6.1.3-3**
+- entrypoint: install themes before plugins so custom theme assets survive the plugin asset recompile (redmine#44240)
+- nginx: serve Propshaft /assets/ with a long-lived immutable Cache-Control for all relative-url-roots
+- assets: export RAILS_RELATIVE_URL_ROOT so rake-driven asset precompiles honour the sub-URI in compiled CSS url() refs
+- tools: restart puma (not unicorn) after installing themes/plugins
+
 **6.1.3-2**
 - functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
 - functions: persist precompiled assets across container restarts
