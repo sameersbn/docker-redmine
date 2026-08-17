@@ -33,7 +33,7 @@
 - functions: fix theme file permissions after rsync install
 - functions: Only create new IMAGE_VERSION file after all of version_check has finished
 
-**6.1.3-1
+**6.1.3-1**
 - functions: Fix fetch commits cron job #599
 
 **6.1.3**
