@@ -1,5 +1,8 @@
 # Changelog
 
+**6.0.11**
+- redmine: upgrade to v6.0.11 (security release) <https://www.redmine.org/news/162>
+
 **6.0.10-1**
 - functions: force asset recompile when plugins/themes change, fixing archive-installed themes (redmine#44240) Issue #591
 - functions: persist precompiled assets across container restarts
