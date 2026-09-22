@@ -291,21 +291,34 @@ redmine_check_database_connection() {
     return 0
   fi
 
+  local -a prog
   case ${DB_ADAPTER} in
     mysql2)
-      prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"
+      prog=(
+        mysqladmin
+        -h "${DB_HOST}"
+        -P "${DB_PORT}"
+        -u "${DB_USER}"
+        status
+      )
       ;;
     postgresql)
-      prog=$(find /usr/lib/postgresql/ -name pg_isready)
-      prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
+      prog=(
+        pg_isready
+        -h "${DB_HOST}"
+        -p "${DB_PORT}"
+        -U "${DB_USER}"
+        -d "${DB_NAME}"
+        -t 1
+      )
       ;;
     sqlite3)
       # No need to wait for sqlite db to start up
-      prog="true"
+      prog=(true)
       ;;
   esac
   timeout=60
-  while ! exec_as_redmine ${prog} >/dev/null 2>&1
+  while ! MYSQL_PWD="${DB_PASS}" exec_as_redmine "${prog[@]}" >/dev/null 2>&1
   do
     timeout=$((timeout - 1))
     if [[ $timeout -eq 0 ]]; then
@@ -324,16 +337,21 @@ redmine_check_mysql_database_tx_isolation() {
   # https://www.redmine.org/projects/redmine/wiki/MySQL_configuration
   if [[ ${DB_ADAPTER} == mysql2 ]]; then
     echo -n "Checking transaction isolation level... "
-    mysql_cmd="mysql \
-          --host "${DB_HOST}" --port "${DB_PORT}" \
-          --user "${DB_USER}" --default-character-set "${DB_ENCODING}" \
-          --skip-column-names \
-          --silent "
-    if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
+    local -a mysql_cmd
+    mysql_cmd=(
+      mysql
+      --host "${DB_HOST}"
+      --port "${DB_PORT}"
+      --user "${DB_USER}"
+      --default-character-set "${DB_ENCODING}"
+      --skip-column-names
+      --silent
+    )
+    if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" "${mysql_cmd[@]}" \
           --execute="SELECT @@GLOBAL.tx_isolation;" 2> /dev/null )
     then
       # try the new name of the variable, mysql 8+
-      if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" $mysql_cmd \
+      if ! isolation_lvl=$( MYSQL_PWD="${DB_PASS}" "${mysql_cmd[@]}" \
             --execute="SELECT @@GLOBAL.transaction_isolation;" )
       then
         echo
