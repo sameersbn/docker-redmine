@@ -232,6 +232,9 @@ redmine_finalize_database_parameters() {
   if [[ "${DB_ADAPTER}" == sqlite3 ]]; then
     # Catch so we don't error for sqlite database, there is no DB_HOST for sqlite
     DB_HOST=
+  elif [[ "${DB_ADAPTER}" == mysql2 && -n "${DB_SOCKET}" ]]; then
+    # When mysql socket is configured, host/port are optional.
+    :
   elif [[ -z ${DB_HOST}  ]]; then
     echo
     echo "ERROR: "
@@ -282,6 +285,19 @@ redmine_finalize_database_parameters() {
   # set default user and database
   DB_USER=${DB_USER:-root}
   DB_NAME=${DB_NAME:-redmine_production}
+
+  DB_MYSQL_CONN_ARGS=()
+  DB_MYSQL_AUTH_ARGS=()
+  if [[ ${DB_ADAPTER} == mysql2 ]]; then
+    if [[ -n "${DB_SOCKET}" ]]; then
+      DB_MYSQL_CONN_ARGS=(--socket "${DB_SOCKET}")
+    else
+      DB_MYSQL_CONN_ARGS=(--host "${DB_HOST}" --port "${DB_PORT}")
+    fi
+
+    # Password is passed via MYSQL_PWD environment variable
+    DB_MYSQL_AUTH_ARGS=(--user "${DB_USER}")
+  fi
 }
 
 redmine_check_database_connection() {
@@ -296,9 +312,8 @@ redmine_check_database_connection() {
     mysql2)
       prog=(
         mysqladmin
-        -h "${DB_HOST}"
-        -P "${DB_PORT}"
-        -u "${DB_USER}"
+        "${DB_MYSQL_CONN_ARGS[@]}"
+        "${DB_MYSQL_AUTH_ARGS[@]}"
         status
       )
       ;;
@@ -340,9 +355,8 @@ redmine_check_mysql_database_tx_isolation() {
     local -a mysql_cmd
     mysql_cmd=(
       mysql
-      --host "${DB_HOST}"
-      --port "${DB_PORT}"
-      --user "${DB_USER}"
+      "${DB_MYSQL_CONN_ARGS[@]}"
+      "${DB_MYSQL_AUTH_ARGS[@]}"
       --default-character-set "${DB_ENCODING}"
       --skip-column-names
       --silent
@@ -382,6 +396,7 @@ redmine_configure_database() {
     DB_ENCODING \
     DB_HOST \
     DB_PORT \
+    DB_SOCKET \
     DB_NAME \
     DB_USER \
     DB_PASS \
@@ -389,7 +404,13 @@ redmine_configure_database() {
     DB_SSL_MODE
 
   if [[ ${DB_ADAPTER} != mysql2 ]]; then
-    exec_as_redmine sed -i "/reconnect: /d" ${REDMINE_DATABASE_CONFIG}
+    exec_as_redmine sed -i "/^[[:space:]]*reconnect:/d" ${REDMINE_DATABASE_CONFIG}
+  fi
+
+  if [[ ${DB_ADAPTER} == mysql2 && -n "${DB_SOCKET}" ]]; then
+    exec_as_redmine sed -i "/^[[:space:]]*host:/d;/^[[:space:]]*port:/d" ${REDMINE_DATABASE_CONFIG}
+  else
+    exec_as_redmine sed -i "/^[[:space:]]*socket:/d" ${REDMINE_DATABASE_CONFIG}
   fi
 
   redmine_check_mysql_database_tx_isolation

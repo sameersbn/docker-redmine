@@ -6,6 +6,7 @@ production:
   database: {{DB_NAME}}
   host: {{DB_HOST}}
   port: {{DB_PORT}}
+  socket: {{DB_SOCKET}}
   username: {{DB_USER}}
   password: '{{DB_PASS}}'
   pool: {{DB_POOL}}
