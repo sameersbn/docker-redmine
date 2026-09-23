@@ -236,6 +236,20 @@ docker run --name=redmine -it --rm \
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
 
+You can also connect to MySQL/MariaDB over a Unix socket by setting `DB_SOCKET`. When `DB_SOCKET` is provided, socket configuration takes precedence over `DB_HOST`/`DB_PORT`.
+
+```bash
+docker run --name=redmine -it --rm \
+  --env='DB_ADAPTER=mysql2' \
+  --env='DB_SOCKET=/var/run/mysqld/mysqld.sock' \
+  --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/var/run/mysqld:/var/run/mysqld \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
+  sameersbn/redmine:7.0.1
+```
+
 #### Linking to MySQL Container
 
 See [example docker-compose-mysql.yml](docker-compose-mysql.yml).
@@ -265,6 +279,19 @@ docker run --name=redmine -it --rm \
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
+
+You can also connect over a Unix socket by pointing `DB_HOST` at the socket's directory instead of a hostname; PostgreSQL clients treat a `DB_HOST` value starting with `/` as a socket directory rather than a network host. There is no separate `DB_SOCKET` variable for PostgreSQL. `DB_PORT` is still used in this case (default `5432`) since the socket file itself is named `.s.PGSQL.<port>` inside that directory, so it must match the port PostgreSQL is actually listening on.
+
+```bash
+docker run --name=redmine -it --rm \
+  --env='DB_ADAPTER=postgresql' \
+  --env='DB_HOST=/var/run/postgresql' --env='DB_NAME=redmine_production' \
+  --env='DB_USER=redmine' --env='DB_PASS=password' \
+  --volume=/var/run/postgresql:/var/run/postgresql \
+  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
+  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
+  sameersbn/redmine:7.0.1
+```
 
 #### Linking to PostgreSQL Container
 
@@ -567,9 +594,10 @@ Below is the complete list of parameters that can be set using environment varia
 - **DATABASE_URL**: The database URL. See [Configuring a Database](https://guides.rubyonrails.org/configuring.html#configuring-a-database). Possible schemes: `postgres`, `postgresql`, `mysql2`, and `sqlite3`. Defaults to no URL.
 - **DB_ADAPTER**: The database type. Possible values: `mysql2`, `postgresql`, and `sqlite3`. Defaults to `mysql`.
 - **DB_CREATE**: Whether the db should be automatically created (`bundle exec rake db:create`). Defaults to `true`.
-- **DB_ENCODING**: The database encoding. For `DB_ADAPTER` values `postresql` and `mysql2`, this parameter defaults to `unicode` and `utf8` respectively. For full unicode support (all emojis) with mariadb or mysql set this to `utf8mb4` and make sure to also set all tables to `utf8mb4` and use `collate utf8mb4_unicode_ci`. Existing databases can be converted by following this [HowTo](https://www.redmine.org/projects/redmine/wiki/HowTo_convert_a_database_from_utf8_to_utf8mb4).
+- **DB_ENCODING**: The database encoding. For `DB_ADAPTER` values `postgresql` and `mysql2`, this parameter defaults to `unicode` and `utf8` respectively. For full unicode support (all emojis) with mariadb or mysql set this to `utf8mb4` and make sure to also set all tables to `utf8mb4` and use `collate utf8mb4_unicode_ci`. Existing databases can be converted by following this [HowTo](https://www.redmine.org/projects/redmine/wiki/HowTo_convert_a_database_from_utf8_to_utf8mb4).
 - **DB_HOST**: The database server hostname. Defaults to `localhost`.
 - **DB_PORT**: The database server port. Defaults to `3306`.
+- **DB_SOCKET**: MySQL/MariaDB Unix socket path. When set with `DB_ADAPTER=mysql2`, this takes precedence over `DB_HOST`/`DB_PORT`.
 - **DB_NAME**: The database name. Defaults to `redmine_production`
 - **DB_USER**: The database user. Defaults to `root`
 - **DB_PASS**: The database password. Defaults to no password
