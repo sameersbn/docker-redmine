@@ -1,5 +1,8 @@
 # Changelog
 
+**6.1.5**
+- redmine: upgrade to v6.1.5 (security release) <https://www.redmine.org/news/163>
+
 **6.1.4**
 - redmine: upgrade to v6.1.4 (security release) <https://www.redmine.org/news/162>
 

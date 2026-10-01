@@ -61,7 +61,7 @@ Dockerfile to build a [Redmine](http://www.redmine.org/) container image.
 
 ## Version
 
-Current Version: **sameersbn/redmine:6.1.4**
+Current Version: **sameersbn/redmine:6.1.5**
 
 _P.S.: If your installation depends on various third party plugins, please stick with 2.6.xx series to avoid breakage._
 
@@ -109,7 +109,7 @@ docker pull sameersbn/redmine:latest
 Since version `2.4.2`, the image builds are being tagged. You can now pull a particular version of redmine by specifying the version number. For example,
 
 ```bash
-docker pull sameersbn/redmine:6.1.4
+docker pull sameersbn/redmine:6.1.5
 ```
 
 Alternately you can build the image yourself.
@@ -947,10 +947,10 @@ docker compose exec redmine bash
 
 ## Upgrading to next redmine release
 
-- Commands to run to update image to next redmine release, examples are from 6.1.4 to 6.1.4
+- Commands to run to update image to next redmine release, examples are from 6.1.5 to 6.1.5
 
 ```bash
-sed -i 's/6.1.4/6.1.4/g' VERSION README.md docker-compose* Dockerfile
+sed -i 's/6.1.5/6.1.5/g' VERSION README.md docker-compose* Dockerfile
 vim Changelog.md # Update change log
 make test-release # Runs the following
 #  sudo rm -rf /srv/docker/redmine/ # Clean old run
@@ -968,7 +968,7 @@ make test-release # Runs the following
 ```
 
 - Open https://github.com/sameersbn/docker-redmine/releases and Draft new release
-- Select tag 6.1.4 and set release title to 6.1.4
+- Select tag 6.1.5 and set release title to 6.1.5
 - Publish release
 - Check https://quay.io/repository/sameersbn/redmine?tab=info and https://hub.docker.com/r/sameersbn/redmine/builds for build progress
 
