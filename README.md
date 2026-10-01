@@ -94,7 +94,7 @@ In your issue report please make sure you provide the following information:
 - The host distribution and release version.
 - Output of the `docker version` command.
 - Output of the `docker info` command.
-- The `docker run` command you used to run the image (mask out the sensitive bits).
+- The `docker run` or `docker compose` command/config you used to run the image (mask out the sensitive bits).
 
 # Installation
 
@@ -127,28 +127,21 @@ wget https://raw.githubusercontent.com/sameersbn/docker-redmine/master/docker-co
 docker compose up
 ```
 
-Alternately, you can manually launch the `redmine` container and the supporting `postgresql` container by following this two step guide.
+Alternately, you can start the same two services (`postgresql` and `redmine`) individually using the [docker-compose.yml](docker-compose.yml) shipped in this repository.
 
-Step 1. Launch a postgresql container
-
-```bash
-docker run --name=postgresql-redmine -d \
-  --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
-  sameersbn/postgresql:14-20230628
-```
-
-Step 2. Launch the redmine container
+Step 1. Start the postgresql service
 
 ```bash
-docker run --name=redmine -d \
-  --link=postgresql-redmine:postgresql --publish=10083:80 \
-  --env='REDMINE_PORT=10083' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d postgresql
 ```
+
+Step 2. Start the redmine service once postgresql reports healthy
+
+```bash
+docker compose up -d redmine
+```
+
+`docker-compose.yml` already configures the `DB_NAME`, `DB_USER` and `DB_PASS` environment variables and the `/srv/docker/redmine/*` volume paths shown above; edit that file first if you need different values.
 
 **NOTE**: Please allow a minute or two for the Redmine application to start.
 
@@ -161,7 +154,7 @@ Make sure you visit the `Administration` link and `Load the default configuratio
 
 You now have the Redmine application up and ready for testing. If you want to use this image in production the please read on.
 
-_The rest of the document will use the docker command line. You can quite simply adapt your configuration into a `docker-compose.yml` file if you wish to do so._
+_The rest of this document configures Redmine by editing the `environment:`/`volumes:` entries of the `redmine` service in `docker-compose.yml` (or one of the `docker-compose-*.yml` variants shipped in this repository), then applying the change with `docker compose up -d`._
 
 # Configuration
 
@@ -188,13 +181,20 @@ mkdir -p /srv/docker/redmine/redmine
 sudo chcon -Rt svirt_sandbox_file_t /srv/docker/redmine/redmine
 ```
 
-Volumes can be mounted in docker by specifying the **'-v'** option in the docker run command.
+Volumes are mounted by setting the `volumes:` list on the `redmine` service in `docker-compose.yml`, which already ships with these two mounts configured:
+
+```yaml
+services:
+  redmine:
+    volumes:
+      - /srv/docker/redmine/redmine:/home/redmine/data
+      - /srv/docker/redmine/redmine-logs:/var/log/redmine
+```
+
+Edit the host-side paths to suit your environment, then apply with:
 
 ```bash
-docker run --name=redmine -it --rm \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 ## Database
@@ -222,32 +222,42 @@ CREATE DATABASE IF NOT EXISTS `redmine_production` DEFAULT CHARACTER SET `utf8` 
 GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `redmine_production`.* TO 'redmine'@'%.%.%.%';
 ```
 
-We are now ready to start the redmine application.
+We are now ready to start the redmine application. Set the following in the `redmine` service's `environment:` list in `docker-compose.yml`:
+
+```yaml
+    environment:
+      - DB_ADAPTER=mysql2
+      - DB_HOST=192.168.1.100
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+```
+
+then start it:
 
 ```bash
-docker run --name=redmine -it --rm \
-  --env='DB_ADAPTER=mysql2' \
-  --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
 
-You can also connect to MySQL/MariaDB over a Unix socket by setting `DB_SOCKET`. When `DB_SOCKET` is provided, socket configuration takes precedence over `DB_HOST`/`DB_PORT`.
+You can also connect to MySQL/MariaDB over a Unix socket by setting `DB_SOCKET`. When `DB_SOCKET` is provided, socket configuration takes precedence over `DB_HOST`/`DB_PORT`. Add the socket directory as a volume alongside the environment change:
+
+```yaml
+    environment:
+      - DB_ADAPTER=mysql2
+      - DB_SOCKET=/var/run/mysqld/mysqld.sock
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+    volumes:
+      - /var/run/mysqld:/var/run/mysqld
+      - /srv/docker/redmine/redmine:/home/redmine/data
+      - /srv/docker/redmine/redmine-logs:/var/log/redmine
+```
 
 ```bash
-docker run --name=redmine -it --rm \
-  --env='DB_ADAPTER=mysql2' \
-  --env='DB_SOCKET=/var/run/mysqld/mysqld.sock' \
-  --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/var/run/mysqld:/var/run/mysqld \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 #### Linking to MySQL Container
@@ -266,48 +276,71 @@ CREATE DATABASE redmine_production;
 GRANT ALL PRIVILEGES ON DATABASE redmine_production to redmine;
 ```
 
-We are now ready to start the redmine application.
+We are now ready to start the redmine application. Set the following in the `redmine` service's `environment:` list in `docker-compose.yml`:
+
+```yaml
+    environment:
+      - DB_ADAPTER=postgresql
+      - DB_HOST=192.168.1.100
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+```
+
+then start it:
 
 ```bash
-docker run --name=redmine -it --rm \
-  --env='DB_ADAPTER=postgresql' \
-  --env='DB_HOST=192.168.1.100' --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 This will initialize the redmine database and after a couple of minutes your redmine instance should be ready to use.
 
-You can also connect over a Unix socket by pointing `DB_HOST` at the socket's directory instead of a hostname; PostgreSQL clients treat a `DB_HOST` value starting with `/` as a socket directory rather than a network host. There is no separate `DB_SOCKET` variable for PostgreSQL. `DB_PORT` is still used in this case (default `5432`) since the socket file itself is named `.s.PGSQL.<port>` inside that directory, so it must match the port PostgreSQL is actually listening on.
+You can also connect over a Unix socket by pointing `DB_HOST` at the socket's directory instead of a hostname; PostgreSQL clients treat a `DB_HOST` value starting with `/` as a socket directory rather than a network host. There is no separate `DB_SOCKET` variable for PostgreSQL. `DB_PORT` is still used in this case (default `5432`) since the socket file itself is named `.s.PGSQL.<port>` inside that directory, so it must match the port PostgreSQL is actually listening on. Add the socket directory as a volume alongside the environment change:
+
+```yaml
+    environment:
+      - DB_ADAPTER=postgresql
+      - DB_HOST=/var/run/postgresql
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+    volumes:
+      - /var/run/postgresql:/var/run/postgresql
+      - /srv/docker/redmine/redmine:/home/redmine/data
+      - /srv/docker/redmine/redmine-logs:/var/log/redmine
+```
 
 ```bash
-docker run --name=redmine -it --rm \
-  --env='DB_ADAPTER=postgresql' \
-  --env='DB_HOST=/var/run/postgresql' --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/var/run/postgresql:/var/run/postgresql \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 #### Linking to PostgreSQL Container
 
-You can link this image with a postgresql container for the database requirements. The alias of the postgresql server container should be set to **postgresql** while linking with the redmine image.
+This is exactly the setup shipped in [docker-compose.yml](docker-compose.yml): a `postgresql` service (using the [sameersbn/postgresql](https://github.com/sameersbn/docker-postgresql) image) and a `redmine` service connected to it by compose service name, via `depends_on`. Unlike the old `docker run --link` flag, compose does not forward one service's environment variables into another, so `DB_NAME`, `DB_USER` and `DB_PASS` need to be set identically on both services:
 
-If a postgresql container is linked, only the `DB_ADAPTER`, `DB_HOST` and `DB_PORT` settings are automatically retrieved using the linkage. You may still need to set other database connection parameters such as the `DB_NAME`, `DB_USER`, `DB_PASS` and so on.
+```yaml
+services:
+  postgresql:
+    image: sameersbn/postgresql:14-20230628
+    environment:
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+    volumes:
+      - /srv/docker/redmine/postgresql:/var/lib/postgresql
 
-To illustrate linking with a postgresql container, we will use the [sameersbn/postgresql](https://github.com/sameersbn/docker-postgresql) image. When using postgresql image in production you should mount a volume for the postgresql data store. Please refer the [README](https://github.com/sameersbn/docker-postgresql/blob/master/README.md) of docker-postgresql for details.
-
-First, lets pull the postgresql image from the docker index.
-
-```bash
-docker pull sameersbn/postgresql:14-20230628
+  redmine:
+    depends_on:
+      - postgresql
+    environment:
+      - DB_HOST=postgresql
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+    volumes:
+      - /srv/docker/redmine/redmine:/home/redmine/data
+      - /srv/docker/redmine/redmine-logs:/var/log/redmine
 ```
-
-For data persistence lets create a store for the postgresql and start the container.
 
 SELinux users are also required to change the security context of the mount point so that it plays nicely with selinux.
 
@@ -316,33 +349,13 @@ mkdir -p /srv/docker/redmine/postgresql
 sudo chcon -Rt svirt_sandbox_file_t /srv/docker/redmine/postgresql
 ```
 
-The run command looks like this.
+Bring both services up together:
 
 ```bash
-docker run --name=postgresql-redmine -d \
-  --env='DB_NAME=redmine_production' \
-  --env='DB_USER=redmine' --env='DB_PASS=password' \
-  --volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
-  sameersbn/postgresql:14-20230628
+docker compose up -d
 ```
 
-The above command will create a database named `redmine_production` and also create a user named `redmine` with the password `password` with access to the `redmine_production` database.
-
-We are now ready to start the redmine application.
-
-```bash
-docker run --name=redmine -it --rm --link=postgresql-redmine:postgresql \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
-```
-
-Here the image will also automatically fetch the `DB_NAME`, `DB_USER` and `DB_PASS` variables from the postgresql container as they are specified in the `docker run` command for the postgresql container. This is made possible using the magic of docker links and works with the following images:
-
-- [postgres](https://hub.docker.com/_/postgres/)
-- [sameersbn/postgresql](https://hub.docker.com/r/sameersbn/postgresql/)
-- [orchardup/postgresql](https://hub.docker.com/r/orchardup/postgresql/)
-- [paintedfox/postgresql](https://hub.docker.com/r/paintedfox/postgresql/)
+This creates a database named `redmine_production` and a user named `redmine` with password `password` with access to it, then starts Redmine connected to that database over the `postgresql` service name. When using the postgresql image in production you should still mount a dedicated volume for the data store as shown above; refer to the [docker-postgresql README](https://github.com/sameersbn/docker-postgresql/blob/master/README.md) for further configuration options.
 
 ### AWS RDS Integration
 **docker-redmine** has support for fetching secrets from AWS Secrets Manager at runtime.
@@ -358,29 +371,36 @@ The image can be configured to use an external memcached server. The memcached s
 
 _Assuming that the memcached server host is 192.168.1.100_
 
+```yaml
+    environment:
+      - MEMCACHE_HOST=192.168.1.100
+      - MEMCACHE_PORT=11211
+```
+
 ```bash
-docker run --name=redmine -it --rm \
-  --env='MEMCACHE_HOST=192.168.1.100' --env='MEMCACHE_PORT=11211' \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 ### Linking to Memcached Container
 
-Alternately you can link this image with a memcached container. The alias of the memcached server container should be set to **memcached** while linking with the redmine image.
+Alternately you can link this image with a memcached container, as shown in [docker-compose-memcached.yml](docker-compose-memcached.yml). The memcached service must be named **memcached**, since that is the host name the `redmine` service is configured to connect to (`MEMCACHE_HOST=memcached`):
 
-To illustrate linking with a memcached container, we will use the [sameersbn/memcached](https://github.com/sameersbn/docker-memcached) image. Please refer the [README](https://github.com/sameersbn/docker-memcached/blob/master/README.md) of docker-memcached for details.
+```yaml
+services:
+  memcached:
+    image: memcached:alpine
 
-First, lets pull and launch the memcached image from the docker index.
-
-```bash
-docker run --name=memcached-redmine -d sameersbn/memcached:1.5.6
+  redmine:
+    depends_on:
+      - memcached
+    environment:
+      - MEMCACHE_HOST=memcached
 ```
 
-Now you can link memcached to the redmine image:
+Start the whole stack with:
 
 ```bash
-docker run --name=redmine -it --rm --link=memcached-redmine:memcached \
-  sameersbn/redmine:7.0.1
+docker compose -f docker-compose-memcached.yml up -d
 ```
 
 ### Mail
@@ -389,12 +409,14 @@ The mail configuration should be specified using environment variables while sta
 
 Please refer the [Available Configuration Parameters](#available-configuration-parameters) section for the list of SMTP parameters that can be specified.
 
+```yaml
+    environment:
+      - SMTP_USER=USER@gmail.com
+      - SMTP_PASS=PASSWORD
+```
+
 ```bash
-docker run --name=redmine -it --rm \
-  --env='SMTP_USER=USER@gmail.com' --env='SMTP_PASS=PASSWORD' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 If you are not using google mail, then please configure the SMTP host and port using the `SMTP_HOST` and `SMTP_PORT` configuration parameters.
@@ -472,15 +494,19 @@ Great! we are now just one step away from having our application secured.
 
 #### Enabling HTTPS support
 
-HTTPS support can be enabled by setting the `REDMINE_HTTPS` option to `true`.
+HTTPS support can be enabled by setting the `REDMINE_HTTPS` option to `true`, as already configured in [docker-compose-ssl.yml](docker-compose-ssl.yml):
+
+```yaml
+    environment:
+      - REDMINE_PORT=10445
+      - REDMINE_HTTPS=true
+    ports:
+      - "10083:80"
+      - "10445:443"
+```
 
 ```bash
-docker run --name=redmine -d \
-  --publish=10083:80 --publish 10445:443 \
-  --env='REDMINE_PORT=10445' --env='REDMINE_HTTPS=true' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose -f docker-compose-ssl.yml up -d
 ```
 
 In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
@@ -493,13 +519,14 @@ HSTS if supported by the browsers makes sure that your users will only reach you
 
 With `NGINX_HSTS_MAXAGE` you can configure that value. The default value is `31536000` seconds. If you want to disable a already sent HSTS MAXAGE value, set it to `0`.
 
+```yaml
+    environment:
+      - REDMINE_HTTPS=true
+      - NGINX_HSTS_MAXAGE=2592000
+```
+
 ```bash
-docker run --name=redmine -d \
-  --env='REDMINE_HTTPS=true' \
-  --env='NGINX_HSTS_MAXAGE=2592000'
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 If you want to completely disable HSTS set `NGINX_HSTS_ENABLED` to `false`.
@@ -512,14 +539,17 @@ With this in place, you should configure the load balancer to support handling o
 
 When using a load balancer, you probably want to make sure the load balancer performs the automatic http to https redirection. Information on this can also be found in the link above.
 
-In summation, when using a load balancer, the docker command would look for the most part something like this:
+In summation, when using a load balancer, the `redmine` service configuration would look for the most part something like this:
+
+```yaml
+    environment:
+      - REDMINE_HTTPS=true
+    ports:
+      - "10083:80"
+```
 
 ```bash
-docker run --name=redmine -d --publish=10083:80 \
-  --env='REDMINE_HTTPS=true' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 ### Deploy to a subdirectory (relative url root)
@@ -528,12 +558,13 @@ By default redmine expects that your application is running at the root (eg. /).
 
 Let's assume we want to deploy our application to '/redmine'. Redmine needs to know this directory to generate the appropriate routes. This can be specified using the `REDMINE_RELATIVE_URL_ROOT` configuration option like so:
 
+```yaml
+    environment:
+      - REDMINE_RELATIVE_URL_ROOT=/redmine
+```
+
 ```bash
-docker run --name=redmine -d --publish=10083:80 \
-  --env='REDMINE_RELATIVE_URL_ROOT=/redmine' \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 Redmine will now be accessible at the `/redmine` path, e.g. `http://www.example.com/redmine`.
@@ -553,23 +584,27 @@ ProxyPass /redmine http://127.0.0.1:10083/redmine/
 ProxyPassReverse /redmine http://127.0.0.1:10083/redmine/
 ```
 
-Note the following should be set: `REDMINE_RELATIVE_URL_ROOT=/redmine` and port mapped `--publish=10083:80`
+Note the following should be set: `REDMINE_RELATIVE_URL_ROOT=/redmine` and port `10083:80` mapped under `ports:` in `docker-compose.yml`
 
 ### Mapping host user and group
 
 Per default the container is configured to run redmine as user and group `redmine` with `uid` and `gid` `1000`. The host possibly uses this ids for different purposes leading to unfavorable effects. From the host it appears as if the mounted data volumes are owned by the host's user/group `1000`.
 
-Also the container processes seem to be executed as the host's user/group `1000`. The container can be configured to map the `uid` and `gid` of `redmine` user to different ids on host by passing the environment variables `USERMAP_UID` and `USERMAP_GID`. The following command maps the ids to user and group `redmine` on the host.
+Also the container processes seem to be executed as the host's user/group `1000`. The container can be configured to map the `uid` and `gid` of `redmine` user to different ids on host by passing the environment variables `USERMAP_UID` and `USERMAP_GID`. The following maps the ids to user and group `redmine` on the host.
+
+```yaml
+    environment:
+      - USERMAP_UID=500
+      - USERMAP_GID=500
+```
 
 ```bash
-docker run --name=redmine -it --rm [options] \
-  --env="USERMAP_UID=500" --env="USERMAP_GID=500" \
-  sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 ### Available Configuration Parameters
 
-_Please refer the docker run command options for the `--env-file` flag where you can specify all required environment variables in a single file. This will save you from writing a potentially long docker run command._
+_With `docker compose`, set these in the `redmine` service's `environment:` list in `docker-compose.yml`, or reference a file of `KEY=VALUE` pairs via `env_file:` instead of listing them individually._
 
 Below is the complete list of parameters that can be set using environment variables.
 
@@ -731,7 +766,7 @@ Changing files in /srv/docker/redmine/redmine/plugins won't be automatically loa
 to reload the plugins without restarting the docker, you can run the following.
 
 ```bash
-docker exec -it redmine redmine-install-plugins
+docker compose exec redmine redmine-install-plugins
 ```
 
 ## Uninstalling Plugins
@@ -739,11 +774,7 @@ docker exec -it redmine redmine-install-plugins
 To uninstall plugins you need to first tell redmine about the plugin you need to uninstall. This is done via a rake task:
 
 ```bash
-docker run --name=redmine -it --rm \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1 \
-  app:rake redmine:plugins:migrate NAME=plugin_name VERSION=0
+docker compose run --rm redmine app:rake redmine:plugins:migrate NAME=plugin_name VERSION=0
 ```
 
 Once the rake task has been executed, the plugin should be removed from the `/srv/docker/redmine/redmine/plugins/` directory.
@@ -757,11 +788,7 @@ Any configuration that you may have added in the `/srv/docker/redmine/redmine/pl
 For example, to remove the recurring tasks plugin:
 
 ```bash
-docker run --name=redmine -it --rm \
-  --volume=/srv/docker/redmine/redmine:/home/redmine/data \
-  --volume=/srv/docker/redmine/redmine-logs:/var/log/redmine/ \
-  sameersbn/redmine:7.0.1 \
-  app:rake redmine:plugins:migrate NAME=recurring_tasks VERSION=0
+docker compose run --rm redmine app:rake redmine:plugins:migrate NAME=recurring_tasks VERSION=0
 rm -rf /srv/docker/redmine/redmine/plugins/recurring_tasks
 ```
 
@@ -796,7 +823,7 @@ Changing files in /srv/docker/redmine/redmine/themes won't be automatically load
 to reload the themes without restarting the docker, you can run the following.
 
 ```bash
-docker exec -it redmine redmine-install-themes
+docker compose exec redmine redmine-install-themes
 ```
 
 ## Uninstalling Themes
@@ -823,27 +850,32 @@ Now when the image is started the theme will be not be available anymore.
 
 The image allows users to create backups of the Redmine installation using the `app:backup:create` command or the `redmine-backup-create` helper script. The generated backup consists of configuration files, uploaded files and the sql database.
 
-Before generating a backup — stop and remove the running instance.
+Before generating a backup — stop the running instance.
 
 ```bash
-docker stop redmine && docker rm redmine
+docker compose stop redmine
 ```
 
 Relaunch the container with the `app:backup:create` argument.
 
 ```bash
-docker run --name redmine -it --rm [OPTIONS] \
-  sameersbn/redmine:7.0.1 app:backup:create
+docker compose run --rm redmine app:backup:create
 ```
 
 The backup will be created in the `backups/` folder of the [Data Store](#data-store). You can change the location using the `REDMINE_BACKUPS_DIR` configuration parameter.
+
+Start redmine again once the backup completes:
+
+```bash
+docker compose up -d redmine
+```
 
 > **NOTE**
 >
 > Backups can also be generated on a running instance using:
 >
 > ```bash
-> docker exec -it redmine redmine-backup-create
+> docker compose exec redmine redmine-backup-create
 > ```
 >
 > To avoid undesired side-effects, you are advised against creating a backup on a running instance.
@@ -854,17 +886,16 @@ The backup will be created in the `backups/` folder of the [Data Store](#data-st
 
 Backups created using instructions from the [Creating backups](#creating-backups) section can be restored using the `app:backup:restore` argument.
 
-Before restoring a backup — stop and remove the running instance.
+Before restoring a backup — stop the running instance.
 
 ```bash
-docker stop redmine && docker rm redmine
+docker compose stop redmine
 ```
 
-Relaunch the container with the `app:backup:restore` argument. Ensure you launch the container in the interactive mode `-it`.
+Relaunch the container with the `app:backup:restore` argument.
 
 ```bash
-docker run --name redmine -it --rm [OPTIONS] \
-  sameersbn/redmine:7.0.1 app:backup:restore
+docker compose run --rm redmine app:backup:restore
 ```
 
 A list of existing backups will be displayed. Select a backup you wish to restore.
@@ -872,8 +903,13 @@ A list of existing backups will be displayed. Select a backup you wish to restor
 To avoid this interaction you can specify the backup filename using the `BACKUP` argument to `app:backup:restore`, eg.
 
 ```bash
-docker run --name redmine -it --rm [OPTIONS] \
-  sameersbn/redmine:7.0.1 app:backup:restore BACKUP=1417624827_redmine_backup.tar
+docker compose run --rm redmine app:backup:restore BACKUP=1417624827_redmine_backup.tar
+```
+
+Once the restore completes, start redmine normally again:
+
+```bash
+docker compose up -d redmine
 ```
 
 ## Automated backups
@@ -891,71 +927,59 @@ By default when automated backups are enabled, backups are held for a period of 
 The `app:rake` command allows you to run redmine rake tasks. To run a rake task simply specify the task to be executed to the `app:rake` command. For example, if you want to send a test email to the admin user.
 
 ```bash
-docker run --name=redmine -d [OPTIONS] \
-  sameersbn/redmine:7.0.1 app:rake redmine:email:test[admin]
+docker compose run --rm redmine app:rake redmine:email:test[admin]
 ```
 
-You can also use `docker exec` to run rake tasks on running redmine instance. For example,
+You can also use `docker compose exec` to run rake tasks on a running redmine instance. For example,
 
 ```bash
-docker exec redmine /sbin/entrypoint.sh app:rake redmine:email:test[admin] RAILS_ENV=production
+docker compose exec redmine /sbin/entrypoint.sh app:rake redmine:email:test[admin] RAILS_ENV=production
 ```
 
 Similarly, to remove uploaded files left unattached
 
 ```bash
-docker run --name=redmine -d [OPTIONS] \
-  sameersbn/redmine:7.0.1 app:rake redmine:attachments:prune
+docker compose run --rm redmine app:rake redmine:attachments:prune
 ```
 
 Or,
 
 ```bash
-docker exec redmine /sbin/entrypoint.sh app:rake redmine:attachments:prune RAILS_ENV=production
+docker compose exec redmine /sbin/entrypoint.sh app:rake redmine:attachments:prune RAILS_ENV=production
 ```
 
 For a complete list of available rake tasks please refer www.redmine.org/projects/redmine/wiki/RedmineRake.
 
 ## Upgrading
 
-To upgrade to newer redmine releases, simply follow this 4 step upgrade procedure.
+To upgrade to a newer redmine release, follow this 3 step upgrade procedure.
 
-- **Step 1**: Update the docker image.
+- **Step 1**: Back up your current installation while it is still running the current version.
 
 ```bash
-docker pull sameersbn/redmine:7.0.1
+docker compose exec redmine redmine-backup-create
 ```
 
-- **Step 2**: Stop and remove the currently running image
+- **Step 2**: Update the `image:` tag (and any other changed settings) in `docker-compose.yml` to the new version, then pull it.
 
 ```bash
-docker stop redmine
-docker rm redmine
+docker compose pull redmine
 ```
 
-- **Step 3**: Create a backup
+- **Step 3**: Recreate the container with the new image.
 
 ```bash
-docker run --name redmine -it --rm [OPTIONS] \
-    sameersbn/redmine:x.x.x app:backup:create
-```
-
-Replace `x.x.x` with the version you are upgrading from. For example, if you are upgrading from version `2.6.4`, set `x.x.x` to `2.6.4`
-
-- **Step 4**: Start the image
-
-```bash
-docker run --name=redmine -d [OPTIONS] sameersbn/redmine:7.0.1
+docker compose up -d redmine
 ```
 
 When an upgrade is in progress the variable `REDMINE_WAS_UPDATED` will be defined and set to `yes`.  This allows easy integration of individual upgrade-steps via `entrypoint.custom.sh`, `pre-install.sh`, and `post-install.sh`.
 
 ## Shell Access
 
-For debugging and maintenance purposes you may want access the containers shell. If you are using docker version `1.3.0` or higher you can access a running containers shell using `docker exec` command.
+For debugging and maintenance purposes you may want access the containers shell. You can access a running container's shell using the `docker compose exec` command.
 
 ```bash
-docker exec -it redmine bash
+docker compose exec redmine bash
 ```
 
 # Development
