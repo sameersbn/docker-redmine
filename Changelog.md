@@ -1,5 +1,8 @@
 # Changelog
 
+**7.0.2**
+- redmine: upgrade to v7.0.2 (security release) <https://www.redmine.org/news/163>
+
 **7.0.1**
 - redmine: upgrade to v7.0.1 (security release) <https://www.redmine.org/news/162>
 
