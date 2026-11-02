@@ -68,7 +68,10 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          # Only push when docker meta generated tags. Stable-branch pushes get
+          # none (tags come from semver git tags, latest only from master), so
+          # they build as a check without publishing anything.
+          push: ${{ github.event_name != 'pull_request' && steps.meta.outputs.tags != '' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
