@@ -1,5 +1,9 @@
 # Changelog
 
+**6.0.12**
+- redmine: upgrade to v6.0.12 (security release) <https://www.redmine.org/news/164>
+- entrypoint: install themes before plugins so custom theme assets survive the plugin asset recompile
+
 **6.0.11**
 - redmine: upgrade to v6.0.11 (security release) <https://www.redmine.org/news/162>
 
