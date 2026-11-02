@@ -1,5 +1,9 @@
 # Changelog
 
+**7.0.3**
+- redmine: upgrade to v7.0.3 (security release) <https://www.redmine.org/news/164>
+- functions: drop the redmine#44240 asset-recompile workaround (manifest delete and `themes.sha1` tracking); Redmine now detects asset changes by content, fixed upstream in this release
+
 **7.0.2**
 - redmine: upgrade to v7.0.2 (security release) <https://www.redmine.org/news/163>
 
