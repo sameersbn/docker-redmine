@@ -61,7 +61,7 @@ Dockerfile to build a [Redmine](http://www.redmine.org/) container image.
 
 ## Version
 
-Current Version: **sameersbn/redmine:7.0.3**
+Current Version: **sameersbn/redmine:7.0.3-1**
 
 _P.S.: If your installation depends on various third party plugins, please stick with 2.6.xx series to avoid breakage._
 
@@ -109,7 +109,7 @@ docker pull sameersbn/redmine:latest
 Since version `2.4.2`, the image builds are being tagged. You can now pull a particular version of redmine by specifying the version number. For example,
 
 ```bash
-docker pull sameersbn/redmine:7.0.3
+docker pull sameersbn/redmine:7.0.3-1
 ```
 
 Alternately you can build the image yourself.
