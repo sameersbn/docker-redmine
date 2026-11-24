@@ -1,5 +1,9 @@
 # Changelog
 
+**6.1.6-1**
+- image: rebuild on the patched Ruby 3.3.14 base image for Ruby's regexp and string case-conversion RCE vulnerabilities (security release) <https://www.ruby-lang.org/en/news/2026/11/18/multiple-vulnerabilities-in-regexp-and-string/> Issue #604
+- build: move the `6.1` tag on `-<n>` packaging releases too
+
 **6.1.6**
 - redmine: upgrade to v6.1.6 (security release) <https://www.redmine.org/news/164>
 - functions: drop the redmine#44240 asset-recompile workaround (manifest delete and `themes.sha1` tracking); Redmine now detects asset changes by content, fixed upstream in this release
