@@ -1,5 +1,9 @@
 # Changelog
 
+**6.0.12-1**
+- image: rebuild on the patched Ruby 3.3.14 base image for Ruby's regexp and string case-conversion RCE vulnerabilities (security release) <https://www.ruby-lang.org/en/news/2026/11/18/multiple-vulnerabilities-in-regexp-and-string/> Issue #604
+- build: move the `6.0` tag on `-<n>` packaging releases too
+
 **6.0.12**
 - redmine: upgrade to v6.0.12 (security release) <https://www.redmine.org/news/164>
 - entrypoint: install themes before plugins so custom theme assets survive the plugin asset recompile
