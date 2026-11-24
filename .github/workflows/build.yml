@@ -33,7 +33,9 @@ jobs:
             latest=false
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            # <major>.<minor> via match, not semver: semver treats -<n> packaging
+            # releases (e.g. 7.0.3-1) as prereleases and never moves the line tag.
+            type=match,pattern=^(\d+\.\d+)\.\d+(-\d+)?$,group=1
             # set latest tag for default branch
             type=raw,value=latest,enable={{is_default_branch}}
 
